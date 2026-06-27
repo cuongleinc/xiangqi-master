@@ -12,6 +12,9 @@ interface PieceProps {
   isDragging?: boolean;
 }
 
+const MOVE_EASING = 'transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1)';
+const HOVER_EASING = 'transform 0.15s ease-out';
+
 export const Piece: React.FC<PieceProps> = ({ pieceCode, row, col, cellSize, padding, isSelected, isDragging }) => {
   const [isHovered, setIsHovered] = useState(false);
   const info = getPieceInfo(pieceCode);
@@ -51,63 +54,69 @@ export const Piece: React.FC<PieceProps> = ({ pieceCode, row, col, cellSize, pad
 
   return (
     <g
-      transform={`translate(${cx},${cy}) scale(${hoverScale}) translate(${-cx},${-cy})`}
-      style={{ transition: 'transform 0.15s ease-out', cursor: 'pointer' }}
+      style={{
+        transition: MOVE_EASING,
+        cursor: 'pointer',
+      }}
+      transform={`translate(${cx}, ${cy})`}
       opacity={isDragging ? 0.4 : 1}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <defs>
-        <radialGradient id={gradId} cx="35%" cy="35%" r="65%">
-          <stop offset="0%" stopColor={gradStart} />
-          <stop offset="100%" stopColor={gradEnd} />
-        </radialGradient>
-      </defs>
-
-      {/* Drop shadow */}
-      <circle cx={cx + strokeWidth * 1.5} cy={cy + strokeWidth * 2} r={radius + strokeWidth * 2} fill="rgba(0,0,0,0.55)" />
-
-      {/* Outer border — thick */}
-      <circle cx={cx} cy={cy} r={radius + strokeWidth * 2.2} fill="none" stroke={outerStroke} strokeWidth={strokeWidth * 2.8} />
-
-      {/* Body with radial gradient */}
-      <circle cx={cx} cy={cy} r={radius + strokeWidth * 0.8} fill={`url(#${gradId})`} />
-
-      {/* Inner ring */}
-      <circle cx={cx} cy={cy} r={radius - strokeWidth * 1.5} fill="none" stroke={innerStroke} strokeWidth={strokeWidth * 1.2} />
-
-      {/* Chinese character */}
-      <text
-        x={cx}
-        y={cy}
-        fontSize={fontSize}
-        fill={textColor}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontWeight="bold"
-        fontFamily="Noto Serif SC, serif"
-        style={{
-          userSelect: 'none',
-          textShadow: '0 1px 3px rgba(0,0,0,0.7)',
-        }}
+      {/* Hover scale wrapper */}
+      <g
+        style={{ transition: HOVER_EASING, transformOrigin: '0px 0px' }}
+        transform={`scale(${hoverScale})`}
       >
-        {char}
-      </text>
+        <defs>
+          <radialGradient id={gradId} cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor={gradStart} />
+            <stop offset="100%" stopColor={gradEnd} />
+          </radialGradient>
+        </defs>
 
-      {/* Hover glow */}
-      {isHovered && !isSelected && (
-        <circle cx={cx} cy={cy} r={radius + strokeWidth * 3} fill="none" stroke={isRed ? 'rgba(255,100,50,0.4)' : 'rgba(180,160,120,0.3)'} strokeWidth={strokeWidth * 3} opacity={0.7} />
-      )}
+        {/* Drop shadow */}
+        <circle cx={strokeWidth * 1.5} cy={strokeWidth * 2} r={radius + strokeWidth * 2} fill="rgba(0,0,0,0.55)" />
 
-      {/* Selection glow + pulse */}
-      {isSelected && (
-        <>
-          <circle cx={cx} cy={cy} r={radius + strokeWidth * 4} fill="none" stroke="#f0d080" strokeWidth={strokeWidth * 2.5} opacity={0.8}>
-            <animate attributeName="opacity" values="0.8;0.15;0.8" dur="1s" repeatCount="indefinite" />
-          </circle>
-          <circle cx={cx} cy={cy} r={radius + strokeWidth * 2} fill="none" stroke="#d4a843" strokeWidth={strokeWidth * 3} opacity={0.9} />
-        </>
-      )}
+        {/* Outer border — thick */}
+        <circle cx={0} cy={0} r={radius + strokeWidth * 2.2} fill="none" stroke={outerStroke} strokeWidth={strokeWidth * 2.8} />
+
+        {/* Body with radial gradient */}
+        <circle cx={0} cy={0} r={radius + strokeWidth * 0.8} fill={`url(#${gradId})`} />
+
+        {/* Inner ring */}
+        <circle cx={0} cy={0} r={radius - strokeWidth * 1.5} fill="none" stroke={innerStroke} strokeWidth={strokeWidth * 1.2} />
+
+        {/* Chinese character */}
+        <text
+          x={0}
+          y={0}
+          fontSize={fontSize}
+          fill={textColor}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontWeight="bold"
+          fontFamily="Noto Serif SC, serif"
+          style={{ userSelect: 'none', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}
+        >
+          {char}
+        </text>
+
+        {/* Hover glow */}
+        {isHovered && !isSelected && (
+          <circle cx={0} cy={0} r={radius + strokeWidth * 3} fill="none" stroke={isRed ? 'rgba(255,100,50,0.4)' : 'rgba(180,160,120,0.3)'} strokeWidth={strokeWidth * 3} opacity={0.7} />
+        )}
+
+        {/* Selection glow + pulse */}
+        {isSelected && (
+          <>
+            <circle cx={0} cy={0} r={radius + strokeWidth * 4} fill="none" stroke="#f0d080" strokeWidth={strokeWidth * 2.5} opacity={0.8}>
+              <animate attributeName="opacity" values="0.8;0.15;0.8" dur="1s" repeatCount="indefinite" />
+            </circle>
+            <circle cx={0} cy={0} r={radius + strokeWidth * 2} fill="none" stroke="#d4a843" strokeWidth={strokeWidth * 3} opacity={0.9} />
+          </>
+        )}
+      </g>
     </g>
   );
 };

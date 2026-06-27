@@ -55,13 +55,16 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
 
   const pieces = useMemo(() => {
     if (!board) return [];
-    const result: Array<{ pieceCode: number; row: number; col: number }> = [];
+    const counters = new Map<number, number>();
+    const result: Array<{ pieceCode: number; row: number; col: number; id: string }> = [];
     for (let r = 0; r < 10; r++) {
       for (let c = 0; c < 9; c++) {
         const idx = indexFromRowCol(r, c);
         const piece = getPiece(board, idx);
         if (piece !== 0) {
-          result.push({ pieceCode: piece, row: r, col: c });
+          const count = counters.get(piece) ?? 0;
+          counters.set(piece, count + 1);
+          result.push({ pieceCode: piece, row: r, col: c, id: `${piece}_${count}` });
         }
       }
     }
@@ -152,7 +155,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
 
           {pieces.map((p) => (
           <Piece
-            key={`${p.row}-${p.col}`}
+            key={p.id}
             pieceCode={p.pieceCode}
             row={p.row}
             col={p.col}
