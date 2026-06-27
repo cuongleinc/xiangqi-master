@@ -84,46 +84,31 @@ NestJS API ────── Game Service ──── xiangqi-core (rules engi
 - **Docker** (for PostgreSQL & Redis)
 - **Pikafish** binary (see below)
 
-### Development
+### ⚡ Quick Start (2 commands)
 
 ```bash
-# 1. Install dependencies
-pnpm install
+# First time only — installs everything + builds Pikafish
+pnpm setup
 
-# 2. Start database & cache
-pnpm docker:dev
-
-# 3. Start API (http://localhost:3000)
-pnpm dev --filter=@repo/api
-
-# 4. Start Web (http://localhost:5173)
-pnpm dev --filter=@repo/web
+# Every time — starts Docker + API + Web
+pnpm dev
 ```
 
-### Installing Pikafish
+Then open **http://localhost:5173** and play!
+
+> `pnpm dev` starts PostgreSQL, Redis, API (:3000), and Web (:5173) concurrently.
+> Press `Ctrl+C` to stop all services.
+
+### Manual Development
 
 ```bash
-# macOS (Apple Silicon)
-git clone https://github.com/official-pikafish/Pikafish.git
-cd Pikafish/src
-make -j build ARCH=apple-silicon
-mkdir -p ~/.local/bin
-cp pikafish ~/.local/bin/
-cp pikafish.nnue ~/.local/bin/
-
-# Linux (x86-64)
-git clone https://github.com/official-pikafish/Pikafish.git
-cd Pikafish/src
-make -j build ARCH=x86-64-modern
-sudo cp pikafish /usr/local/bin/
-sudo cp pikafish.nnue /usr/local/bin/
+pnpm install                          # Install dependencies
+pnpm docker:dev                       # PostgreSQL + Redis only
+pnpm dev --filter=@repo/api          # API at :3000 (terminal 1)
+pnpm dev --filter=@repo/web          # Web at :5173 (terminal 2)
 ```
 
-Set `ENGINE_PATH` in `.env`:
-```bash
-ENGINE_PATH=/Users/your-user/.local/bin/pikafish   # macOS
-ENGINE_PATH=/usr/local/bin/pikafish                  # Linux
-```
+> ℹ️ **Pikafish is auto-installed** by `pnpm setup`. No manual steps needed.
 
 ### Production (Docker)
 
