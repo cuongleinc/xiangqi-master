@@ -54,12 +54,12 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
   const riverY = padding + 4.5 * cellSize;
   const fontSize = cellSize * 0.5;
   lines.push(
-    <text key="river-left" x={padding + 1.2 * cellSize} y={riverY} fontSize={fontSize} fill={riverColor} textAnchor="middle" dominantBaseline="middle" fontFamily="Noto Serif SC, serif" fontWeight="bold" letterSpacing={cellSize * 0.15}>
+    <text key="river-left" x={padding + 1.2 * cellSize} y={riverY} fontSize={fontSize} fill={riverColor} textAnchor="middle" dominantBaseline="middle" fontFamily="Ma Shan Zheng, serif" fontWeight="bold" letterSpacing={cellSize * 0.15}>
       楚河
     </text>,
   );
   lines.push(
-    <text key="river-right" x={padding + 6.8 * cellSize} y={riverY} fontSize={fontSize} fill={riverColor} textAnchor="middle" dominantBaseline="middle" fontFamily="Noto Serif SC, serif" fontWeight="bold" letterSpacing={cellSize * 0.15}>
+    <text key="river-right" x={padding + 6.8 * cellSize} y={riverY} fontSize={fontSize} fill={riverColor} textAnchor="middle" dominantBaseline="middle" fontFamily="Ma Shan Zheng, serif" fontWeight="bold" letterSpacing={cellSize * 0.15}>
       漢界
     </text>,
   );

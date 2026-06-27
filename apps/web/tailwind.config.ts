@@ -18,6 +18,7 @@ export default {
       },
       fontFamily: {
         serif: ['Noto Serif SC', 'serif'],
+        brush: ['Ma Shan Zheng', 'serif'],
       },
     },
   },

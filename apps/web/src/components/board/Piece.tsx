@@ -96,7 +96,7 @@ export const Piece: React.FC<PieceProps> = ({ pieceCode, row, col, cellSize, pad
           textAnchor="middle"
           dominantBaseline="central"
           fontWeight="bold"
-          fontFamily="Noto Serif SC, serif"
+          fontFamily="Ma Shan Zheng, serif"
           style={{ userSelect: 'none', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}
         >
           {char}
