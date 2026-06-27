@@ -10,32 +10,32 @@ import { StatusBar } from './StatusBar';
 
 export const GameLayout: React.FC = () => {
   const fen = useGameStore((s) => s.fen);
-  const turn = useGameStore((s) => s.turn);
-  const status = useGameStore((s) => s.status);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
-
-  // Parse turn from FEN
   const currentTurn: Color = fen?.includes(' w ') ? Color.RED : Color.BLACK;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 p-4 max-w-[1200px] mx-auto">
-      {/* Left sidebar: Toolbar */}
-      <div className="lg:w-48 flex-shrink-0">
-        <GameToolbar />
+    <div className="flex h-[calc(100vh-56px-36px)] max-w-[1400px] mx-auto">
+      {/* Left sidebar — Controls */}
+      <div className="w-[220px] flex-shrink-0 bg-[#1e1005] border-r border-[#3d2010] overflow-y-auto">
+        <div className="p-3">
+          <GameToolbar />
+        </div>
       </div>
 
-      {/* Center: Board + Evaluation Bar */}
-      <div className="flex gap-2 items-stretch flex-1 justify-center">
+      {/* Center — Board + Eval */}
+      <div className="flex-1 flex items-start justify-center p-3 gap-2 min-w-0">
         <EvaluationBar fen={fen} isThinking={isAiThinking} />
         <div className="flex-1">
           <Board fen={fen} turn={currentTurn} />
         </div>
       </div>
 
-      {/* Right panel: Analysis + Move List */}
-      <div className="lg:w-72 flex-shrink-0 space-y-4">
-        <AnalysisPanel fen={fen} />
-        <MoveList />
+      {/* Right sidebar — Analysis */}
+      <div className="w-[220px] flex-shrink-0 bg-[#1e1005] border-l border-[#3d2010] overflow-y-auto">
+        <div className="p-3 space-y-3">
+          <AnalysisPanel fen={fen} />
+          <MoveList />
+        </div>
       </div>
 
       <StatusBar />

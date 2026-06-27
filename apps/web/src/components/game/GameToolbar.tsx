@@ -3,6 +3,8 @@ import { useGameStore } from '../../stores/game.store';
 import { gameApi } from '../../api/game.api';
 import { useUiStore } from '../../stores/ui.store';
 
+const btnBase = 'w-full py-3 px-5 font-medium text-sm tracking-[0.03em] rounded-md transition-all duration-200 font-serif';
+
 export const GameToolbar: React.FC = () => {
   const gameId = useGameStore((s) => s.gameId);
   const hintsRemaining = useGameStore((s) => s.hintsRemaining);
@@ -25,20 +27,58 @@ export const GameToolbar: React.FC = () => {
   };
 
   return (
-    <div className="bg-lacquer border border-gold/20 rounded-lg p-3 space-y-2">
-      <button onClick={handleNewGame} className="w-full bg-gold hover:bg-gold-light text-ebony text-sm font-bold py-2 px-3 rounded transition-all duration-200 font-serif tracking-wide">
-        New Game
-      </button>
-      <button onClick={handleHint} disabled={isAiThinking || hintsRemaining <= 0} className="w-full bg-lacquer border border-gold/30 hover:border-gold/60 disabled:border-gold/10 disabled:text-gold-dim/50 text-cream text-sm font-medium py-2 px-3 rounded transition-all duration-200">
-        Hint ({hintsRemaining})
-      </button>
-      <button disabled={isAiThinking} className="w-full bg-lacquer border border-red-chinese/30 hover:border-red-chinese/60 disabled:border-gold/10 disabled:text-gold-dim/50 text-red-chinese text-sm font-medium py-2 px-3 rounded transition-all duration-200">
-        Resign
+    <div className="space-y-3">
+      {/* New Game */}
+      <button
+        onClick={handleNewGame}
+        className={`${btnBase} text-gold-light border border-gold shadow-sm`}
+        style={{
+          background: 'linear-gradient(135deg, #8B1A1A 0%, #c0392b 100%)',
+          boxShadow: '0 2px 8px rgba(139,26,26,0.3)',
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(1.12)')}
+        onMouseLeave={(e) => (e.currentTarget.style.filter = 'brightness(1)')}
+      >
+        新局 · New Game
       </button>
 
-      <div className="pt-2 border-t border-gold/20 text-xs text-cream-dim space-y-1">
-        <div className="truncate">ID: {gameId ? gameId.slice(0, 8) : '—'}</div>
-        <div>{isAiThinking ? 'Thinking...' : 'Ready'}</div>
+      {/* Hint */}
+      <button
+        onClick={handleHint}
+        disabled={isAiThinking || hintsRemaining <= 0}
+        className={`${btnBase} text-cream border border-gold/40 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed`}
+        style={{
+          background: 'linear-gradient(135deg, #6b4c1a 0%, #a07020 100%)',
+          boxShadow: '0 2px 8px rgba(107,76,26,0.3)',
+        }}
+        onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
+        onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
+      >
+        提示 · Hint ({hintsRemaining})
+      </button>
+
+      {/* Resign */}
+      <button
+        disabled={isAiThinking}
+        className={`${btnBase} text-[#a07840] bg-transparent border border-[#8B4513] hover:bg-[#8B4513]/10 disabled:opacity-30 disabled:cursor-not-allowed`}
+      >
+        認負 · Resign
+      </button>
+
+      {/* Sep */}
+      <div className="border-t border-[#3d2010] pt-3 mt-3">
+        <div className="text-[#a07840] text-xs space-y-1 font-mono">
+          <div className="flex justify-between">
+            <span className="text-cream-dim">Game</span>
+            <span>{gameId ? gameId.slice(0, 8) : '—'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-cream-dim">Status</span>
+            <span className={isAiThinking ? 'text-gold animate-pulse' : 'text-jade'}>
+              {isAiThinking ? 'Thinking' : 'Ready'}
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
