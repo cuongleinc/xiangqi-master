@@ -4,6 +4,7 @@ import { Color, PIECE_CHARS } from '@repo/shared';
 
 interface PieceProps {
   pieceCode: number;
+  pieceId: string;
   row: number;
   col: number;
   cellSize: number;
@@ -28,7 +29,7 @@ export const Piece: React.FC<PieceProps> = ({ pieceCode, row, col, cellSize, pad
   const cy = padding + row * cellSize;
   const fontSize = cellSize * 0.55;
   const strokeWidth = cellSize * 0.04;
-  const gradId = `piece-${pieceCode}-${row}-${col}`;
+  const gradId = `grad-${pieceId}`;
 
   // Red piece colors
   const redGradStart = '#ff6b35';

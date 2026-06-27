@@ -53,18 +53,22 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
     }
   }, [fen]);
 
+  // Stable piece identity: each piece gets a unique ID tied to its position,
+  // NOT its type occurrence count. This prevents pieces of the same type
+  // from swapping identities when one moves.
   const pieces = useMemo(() => {
     if (!board) return [];
-    const counters = new Map<number, number>();
     const result: Array<{ pieceCode: number; row: number; col: number; id: string }> = [];
     for (let r = 0; r < 10; r++) {
       for (let c = 0; c < 9; c++) {
         const idx = indexFromRowCol(r, c);
         const piece = getPiece(board, idx);
         if (piece !== 0) {
-          const count = counters.get(piece) ?? 0;
-          counters.set(piece, count + 1);
-          result.push({ pieceCode: piece, row: r, col: c, id: `${piece}_${count}` });
+          // Key by position — each square has at most one piece
+          // When a piece moves from (r1,c1) to (r2,c2):
+          //   old key (r1-c1) disappears, new key (r2-c2) appears
+          // This avoids cross-contamination between same-type pieces
+          result.push({ pieceCode: piece, row: r, col: c, id: `p${r}-${c}` });
         }
       }
     }
@@ -171,6 +175,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
           {pieces.map((p) => (
           <Piece
             key={p.id}
+            pieceId={p.id}
             pieceCode={p.pieceCode}
             row={p.row}
             col={p.col}
