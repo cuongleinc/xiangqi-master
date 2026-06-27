@@ -98,13 +98,46 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
         >
           {/* Board background — bamboo/classic pine */}
           <defs>
+            {/* Dong Son bronze drum ornament pattern */}
+            <pattern id="bronzeDrum" x={0} y={0} width={cellSize * 2.5} height={cellSize * 2.5} patternUnits="userSpaceOnUse">
+              {/* Concentric circle — sun motif */}
+              <circle cx={cellSize * 1.25} cy={cellSize * 1.25} r={cellSize * 0.8} fill="none" stroke="#5c3d1a" strokeWidth={0.4} opacity={0.5} />
+              <circle cx={cellSize * 1.25} cy={cellSize * 1.25} r={cellSize * 0.55} fill="none" stroke="#5c3d1a" strokeWidth={0.3} opacity={0.4} />
+              <circle cx={cellSize * 1.25} cy={cellSize * 1.25} r={cellSize * 0.15} fill="#5c3d1a" opacity={0.3} />
+              {/* Sun rays — 8 directions */}
+              <line x1={cellSize * 1.25 + 0.22 * cellSize} y1={cellSize * 1.25} x2={cellSize * 1.25 + 0.5 * cellSize} y2={cellSize * 1.25} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              <line x1={cellSize * 1.25 - 0.22 * cellSize} y1={cellSize * 1.25} x2={cellSize * 1.25 - 0.5 * cellSize} y2={cellSize * 1.25} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              <line x1={cellSize * 1.25} y1={cellSize * 1.25 + 0.22 * cellSize} x2={cellSize * 1.25} y2={cellSize * 1.25 + 0.5 * cellSize} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              <line x1={cellSize * 1.25} y1={cellSize * 1.25 - 0.22 * cellSize} x2={cellSize * 1.25} y2={cellSize * 1.25 - 0.5 * cellSize} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              <line x1={cellSize * 1.25 + 0.15 * cellSize} y1={cellSize * 1.25 + 0.15 * cellSize} x2={cellSize * 1.25 + 0.35 * cellSize} y2={cellSize * 1.25 + 0.35 * cellSize} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              <line x1={cellSize * 1.25 - 0.15 * cellSize} y1={cellSize * 1.25 - 0.15 * cellSize} x2={cellSize * 1.25 - 0.35 * cellSize} y2={cellSize * 1.25 - 0.35 * cellSize} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              <line x1={cellSize * 1.25 + 0.15 * cellSize} y1={cellSize * 1.25 - 0.15 * cellSize} x2={cellSize * 1.25 + 0.35 * cellSize} y2={cellSize * 1.25 - 0.35 * cellSize} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              <line x1={cellSize * 1.25 - 0.15 * cellSize} y1={cellSize * 1.25 + 0.15 * cellSize} x2={cellSize * 1.25 - 0.35 * cellSize} y2={cellSize * 1.25 + 0.35 * cellSize} stroke="#5c3d1a" strokeWidth={0.35} opacity={0.4} />
+              {/* Spiral / key fret decorations at corners */}
+              <path d={`M${cellSize * 0.2},${cellSize * 0.2} h${cellSize * 0.3} v${cellSize * 0.1} h${-cellSize * 0.3} v${-cellSize * 0.1}`} fill="none" stroke="#5c3d1a" strokeWidth={0.35} opacity={0.3} />
+              <path d={`M${cellSize * 0.2},${cellSize * 0.2} v${cellSize * 0.3} h${-cellSize * 0.1} v${-cellSize * 0.3} h${cellSize * 0.1}`} fill="none" stroke="#5c3d1a" strokeWidth={0.35} opacity={0.3} />
+              <path d={`M${cellSize * 2.3},${cellSize * 0.2} h${-cellSize * 0.3} v${cellSize * 0.1} h${cellSize * 0.3} v${-cellSize * 0.1}`} fill="none" stroke="#5c3d1a" strokeWidth={0.35} opacity={0.3} />
+              <path d={`M${cellSize * 2.3},${cellSize * 0.2} v${cellSize * 0.3} h${cellSize * 0.1} v${-cellSize * 0.3} h${-cellSize * 0.1}`} fill="none" stroke="#5c3d1a" strokeWidth={0.35} opacity={0.3} />
+              <path d={`M${cellSize * 0.2},${cellSize * 2.3} h${cellSize * 0.3} v${-cellSize * 0.1} h${-cellSize * 0.3} v${cellSize * 0.1}`} fill="none" stroke="#5c3d1a" strokeWidth={0.35} opacity={0.3} />
+              <path d={`M${cellSize * 2.3},${cellSize * 2.3} h${-cellSize * 0.3} v${-cellSize * 0.1} h${cellSize * 0.3} v${cellSize * 0.1}`} fill="none" stroke="#5c3d1a" strokeWidth={0.35} opacity={0.3} />
+              {/* Dot border — like bronze drum rim dots */}
+              <circle cx={cellSize * 0.3} cy={cellSize * 0.3} r={0.5} fill="#5c3d1a" opacity={0.3} />
+              <circle cx={cellSize * 1.25} cy={cellSize * 0.3} r={0.5} fill="#5c3d1a" opacity={0.3} />
+              <circle cx={cellSize * 2.2} cy={cellSize * 0.3} r={0.5} fill="#5c3d1a" opacity={0.3} />
+            </pattern>
+
             <filter id="woodGrain">
               <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
               <feColorMatrix type="saturate" values="0" in="noise" result="gray" />
               <feBlend in="SourceGraphic" in2="gray" mode="multiply" result="blended" />
             </filter>
           </defs>
+
+          {/* Board base color */}
           <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="#c8a96e" />
+
+          {/* Dong Son bronze drum watermark — very subtle depth */}
+          <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="url(#bronzeDrum)" opacity={0.04} />
 
           {/* Board inner border at the board edge */}
           <rect
