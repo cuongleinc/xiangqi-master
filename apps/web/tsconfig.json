@@ -1,0 +1,12 @@
+{
+  "extends": "@repo/typescript-config/react.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../../packages/xiangqi-core" },
+    { "path": "../../packages/shared" }
+  ]
+}
