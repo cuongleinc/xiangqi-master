@@ -80,21 +80,44 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
 
   return (
     <div ref={containerRef} className="w-full max-w-[540px] mx-auto">
-      <svg
-        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-        width="100%"
-        height="100%"
-        style={{ maxHeight: `${svgHeight}px` }}
+      <div
+        style={{
+          borderRadius: 8,
+          border: '3px solid #8B4513',
+          outline: '1px solid #d4a843',
+          outlineOffset: 1,
+          boxShadow: 'inset 0 0 30px rgba(0,0,0,0.4), 0 4px 20px rgba(0,0,0,0.5)',
+          overflow: 'hidden',
+        }}
       >
-        {/* Board background — dark wood */}
-        <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="#2a1810" rx={4} />
+        <svg
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          width="100%"
+          height="100%"
+          style={{ display: 'block', maxHeight: `${svgHeight}px` }}
+        >
+          {/* Board background — bamboo/classic pine */}
+          <defs>
+            <filter id="woodGrain">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+              <feColorMatrix type="saturate" values="0" in="noise" result="gray" />
+              <feBlend in="SourceGraphic" in2="gray" mode="multiply" result="blended" />
+            </filter>
+          </defs>
+          <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="#c8a96e" />
 
-        {/* Gold border frame */}
-        <rect x={padding * 0.3} y={padding * 0.3} width={svgWidth - padding * 0.6} height={svgHeight - padding * 0.6} fill="none" stroke="rgba(212,168,67,0.5)" strokeWidth={cellSize * 0.04} rx={3} />
+          {/* Board inner border at the board edge */}
+          <rect
+            x={padding * 0.4}
+            y={padding * 0.4}
+            width={svgWidth - padding * 0.8}
+            height={svgHeight - padding * 0.8}
+            fill="none"
+            stroke="#8B4513"
+            strokeWidth={cellSize * 0.08}
+          />
 
-        <BoardGrid cellSize={cellSize} padding={padding} showCoordinates={showCoordinates} />
-
-        {pieces.map((p) => (
+          {pieces.map((p) => (
           <Piece
             key={`${p.row}-${p.col}`}
             pieceCode={p.pieceCode}
@@ -126,6 +149,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
           )),
         )}
       </svg>
+      </div>
     </div>
   );
 };
