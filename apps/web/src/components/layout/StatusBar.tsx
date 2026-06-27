@@ -15,26 +15,26 @@ export const StatusBar: React.FC = () => {
       status === 'black_wins' ? 'Black Wins!' :
       'Draw!';
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-[#16213e] border-t border-gray-700 py-2 px-4 text-center">
-        <span className="text-lg font-bold text-yellow-400">{resultText}</span>
+      <div className="fixed bottom-0 left-0 right-0 bg-lacquer border-t border-gold/30 py-2 px-4 text-center">
+        <span className="text-lg font-bold text-gold-light font-serif">{resultText}</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-red-900 border-t border-red-700 py-2 px-4 text-center">
-        <span className="text-sm text-red-200">{error}</span>
+      <div className="fixed bottom-0 left-0 right-0 bg-red-chinese/20 border-t border-red-chinese/50 py-2 px-4 text-center">
+        <span className="text-sm text-red-chinese">{error}</span>
       </div>
     );
   }
 
   let statusText = '';
-  let statusColor = 'text-gray-300';
+  let statusColor = 'text-cream-dim';
 
   if (isAiThinking) {
     statusText = 'Engine thinking...';
-    statusColor = 'text-yellow-400 animate-pulse';
+    statusColor = 'text-gold animate-pulse';
   } else if (fen) {
     try {
       const parsed = parseFen(fen);
@@ -42,7 +42,7 @@ export const StatusBar: React.FC = () => {
       const turnText = parsed.turn === Color.RED ? 'Red' : 'Black';
       if (inCheck) {
         statusText = `${turnText} to move — Check!`;
-        statusColor = 'text-red-400';
+        statusColor = 'text-red-chinese';
       } else {
         statusText = `${turnText} to move`;
       }
@@ -52,8 +52,8 @@ export const StatusBar: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#16213e] border-t border-gray-700 py-2 px-4 text-center">
-      <span className={`text-sm ${statusColor}`}>{statusText}</span>
+    <div className="fixed bottom-0 left-0 right-0 bg-lacquer border-t border-gold/30 py-2 px-4 text-center">
+      <span className={`text-sm font-serif ${statusColor}`}>{statusText}</span>
     </div>
   );
 };

@@ -18,27 +18,27 @@ export const LegalMoves: React.FC<LegalMovesProps> = ({ legalMoves, board, cellS
     const piece = getPiece(board, idx);
 
     if (piece !== 0) {
-      // Capture indicator: ring around the piece
       dots.push(
         <circle
           key={`m${row}${col}`}
           cx={cx}
           cy={cy}
-          r={cellSize * 0.45}
+          r={cellSize * 0.46}
           fill="none"
-          stroke="rgba(255,0,0,0.6)"
-          strokeWidth={cellSize * 0.06}
-        />,
+          stroke="rgba(196,75,75,0.7)"
+          strokeWidth={cellSize * 0.07}
+        >
+          <animate attributeName="opacity" values="0.7;0.3;0.7" dur="0.8s" repeatCount="indefinite" />
+        </circle>,
       );
     } else {
-      // Move indicator: small dot
       dots.push(
         <circle
           key={`m${row}${col}`}
           cx={cx}
           cy={cy}
-          r={cellSize * 0.15}
-          fill="rgba(0,128,0,0.5)"
+          r={cellSize * 0.14}
+          fill="rgba(212,168,67,0.55)"
         />,
       );
     }

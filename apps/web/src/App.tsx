@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const status = useGameStore((s) => s.status);
 
   return (
-    <div className="min-h-screen bg-[#1a1a2e] text-white">
+    <div className="min-h-screen bg-ebony text-cream">
       <Header />
       {gameId ? (
         <GameLayout />

@@ -1,7 +1,5 @@
 import React from 'react';
-import { parseFen, findKing, indexFromRowCol, rowColFromIndex } from '@repo/xiangqi-core';
-import { isInCheck } from '@repo/xiangqi-core';
-import { Color } from '@repo/shared';
+import { parseFen, findKing, isInCheck } from '@repo/xiangqi-core';
 
 interface CheckHighlightProps {
   fen: string | null;
@@ -20,10 +18,11 @@ export const CheckHighlight: React.FC<CheckHighlightProps> = ({ fen, cellSize, p
   const kingPos = findKing(parsed.board, turn);
   if (kingPos === null) return null;
 
-  const [row, col] = rowColFromIndex(kingPos);
+  const row = Math.floor(kingPos / 9);
+  const col = kingPos % 9;
   const cx = padding + col * cellSize;
   const cy = padding + row * cellSize;
-  const r = cellSize * 0.5;
+  const r = cellSize * 0.52;
 
   return (
     <circle
@@ -31,11 +30,11 @@ export const CheckHighlight: React.FC<CheckHighlightProps> = ({ fen, cellSize, p
       cy={cy}
       r={r}
       fill="none"
-      stroke="red"
-      strokeWidth={cellSize * 0.06}
-      opacity={0.7}
+      stroke="#c44b4b"
+      strokeWidth={cellSize * 0.07}
+      opacity={0.8}
     >
-      <animate attributeName="opacity" values="0.7;0.3;0.7" dur="1s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.8;0.2;0.8" dur="0.7s" repeatCount="indefinite" />
     </circle>
   );
 };

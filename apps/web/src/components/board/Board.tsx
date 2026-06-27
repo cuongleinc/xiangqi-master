@@ -24,7 +24,6 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   const showCoordinates = useSettingsStore((s) => s.showCoordinates);
   const makeMove = useGameStore((s) => s.makeMove);
 
-  // Responsive sizing
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -38,8 +37,8 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   }, []);
 
   const cellSize = Math.min(
-    (containerWidth - 40) / 8,  // 8 gaps between columns
-    64, // max cell size
+    Math.max((containerWidth - 40) / 8, 28),
+    68,
   );
   const padding = cellSize * 0.6;
   const svgWidth = padding * 2 + 8 * cellSize;
@@ -72,7 +71,6 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   const handleClick = (row: number, col: number) => {
     if (!fen) return;
     selectSquare(row, col, fen, turn);
-    // Check if a move was queued by the ui store
     const pending = (window as unknown as Record<string, unknown>).__pendingMove as string | undefined;
     if (pending) {
       delete (window as unknown as Record<string, unknown>).__pendingMove;
@@ -81,20 +79,21 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   };
 
   return (
-    <div ref={containerRef} className="w-full max-w-[520px] mx-auto">
+    <div ref={containerRef} className="w-full max-w-[540px] mx-auto">
       <svg
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         width="100%"
         height="100%"
         style={{ maxHeight: `${svgHeight}px` }}
       >
-        {/* Board background */}
-        <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="#f0d9b5" rx={4} />
+        {/* Board background — dark wood */}
+        <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="#2a1810" rx={4} />
 
-        {/* Grid lines, river, palace, coordinates */}
+        {/* Gold border frame */}
+        <rect x={padding * 0.3} y={padding * 0.3} width={svgWidth - padding * 0.6} height={svgHeight - padding * 0.6} fill="none" stroke="rgba(212,168,67,0.5)" strokeWidth={cellSize * 0.04} rx={3} />
+
         <BoardGrid cellSize={cellSize} padding={padding} showCoordinates={showCoordinates} />
 
-        {/* Pieces */}
         {pieces.map((p) => (
           <Piece
             key={`${p.row}-${p.col}`}
@@ -109,13 +108,9 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
           />
         ))}
 
-        {/* Legal move indicators */}
         <LegalMoves legalMoves={legalMoves} board={board || new Uint8Array(90)} cellSize={cellSize} padding={padding} />
-
-        {/* Check highlight */}
         <CheckHighlight fen={fen} cellSize={cellSize} padding={padding} />
 
-        {/* Click targets (invisible rectangles over each intersection) */}
         {Array.from({ length: 10 }, (_, r) =>
           Array.from({ length: 9 }, (_, c) => (
             <rect

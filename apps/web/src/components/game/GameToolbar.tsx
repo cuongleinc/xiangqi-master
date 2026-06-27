@@ -10,57 +10,35 @@ export const GameToolbar: React.FC = () => {
   const openDialog = useUiStore((s) => s.openDialog);
   const showHint = useUiStore((s) => s.showHint);
 
-  const handleNewGame = () => {
-    openDialog('newGame');
-  };
+  const handleNewGame = () => openDialog('newGame');
 
   const handleHint = async () => {
     if (!gameId || hintsRemaining <= 0) return;
     try {
       const data = await gameApi.getHint(gameId);
-      // Parse UCCI to get from/to
       const fromFile = data.bestMove.charCodeAt(0) - 97;
       const fromRank = parseInt(data.bestMove[1]!);
       const toFile = data.bestMove.charCodeAt(2) - 97;
       const toRank = parseInt(data.bestMove[3]!);
       showHint([fromRank, fromFile], [toRank, toFile]);
-    } catch (err) {
-      console.error('Hint failed:', err);
-    }
-  };
-
-  const handleResign = () => {
-    // Future: resign functionality
+    } catch { /* ignore */ }
   };
 
   return (
-    <div className="bg-[#16213e] rounded-lg p-3 space-y-2">
-      <button
-        onClick={handleNewGame}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded transition-colors"
-      >
+    <div className="bg-lacquer border border-gold/20 rounded-lg p-3 space-y-2">
+      <button onClick={handleNewGame} className="w-full bg-gold hover:bg-gold-light text-ebony text-sm font-bold py-2 px-3 rounded transition-all duration-200 font-serif tracking-wide">
         New Game
       </button>
-
-      <button
-        onClick={handleHint}
-        disabled={isAiThinking || hintsRemaining <= 0}
-        className="w-full bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-medium py-2 px-3 rounded transition-colors"
-      >
+      <button onClick={handleHint} disabled={isAiThinking || hintsRemaining <= 0} className="w-full bg-lacquer border border-gold/30 hover:border-gold/60 disabled:border-gold/10 disabled:text-gold-dim/50 text-cream text-sm font-medium py-2 px-3 rounded transition-all duration-200">
         Hint ({hintsRemaining})
       </button>
-
-      <button
-        onClick={handleResign}
-        disabled={isAiThinking}
-        className="w-full bg-red-700 hover:bg-red-800 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-medium py-2 px-3 rounded transition-colors"
-      >
+      <button disabled={isAiThinking} className="w-full bg-lacquer border border-red-chinese/30 hover:border-red-chinese/60 disabled:border-gold/10 disabled:text-gold-dim/50 text-red-chinese text-sm font-medium py-2 px-3 rounded transition-all duration-200">
         Resign
       </button>
 
-      <div className="pt-2 border-t border-gray-700 text-xs text-gray-500 space-y-1">
-        <div>Game ID: {gameId ? gameId.slice(0, 8) : '—'}</div>
-        <div>Status: {isAiThinking ? 'Thinking...' : 'Ready'}</div>
+      <div className="pt-2 border-t border-gold/20 text-xs text-cream-dim space-y-1">
+        <div className="truncate">ID: {gameId ? gameId.slice(0, 8) : '—'}</div>
+        <div>{isAiThinking ? 'Thinking...' : 'Ready'}</div>
       </div>
     </div>
   );
