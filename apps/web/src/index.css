@@ -14,16 +14,25 @@ body {
 }
 
 /* Gold scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1a0f00; }
+::-webkit-scrollbar-thumb { background: #8b6914; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #d4a843; }
+
+/* Floating ink particles */
+@keyframes floatUp {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.08; }
+  90% { opacity: 0.05; }
+  100% { transform: translateY(-110vh) translateX(15px); opacity: 0; }
 }
-::-webkit-scrollbar-track {
-  background: #1a0f00;
+
+/* Gold title shimmer */
+@keyframes shimmer {
+  0%, 100% { color: #d4a843; }
+  50% { color: #f0c050; }
 }
-::-webkit-scrollbar-thumb {
-  background: #8b6914;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #d4a843;
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
 }

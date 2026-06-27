@@ -9,17 +9,15 @@ const App: React.FC = () => {
   const gameId = useGameStore((s) => s.gameId);
   const status = useGameStore((s) => s.status);
 
+  if (!gameId) {
+    return <NewGameDialog isInitial />;
+  }
+
   return (
     <div className="min-h-screen bg-[#0d0800] text-cream">
       <Header />
-      {gameId ? (
-        <GameLayout />
-      ) : (
-        <div className="flex items-center justify-center h-[80vh]">
-          <NewGameDialog isInitial />
-        </div>
-      )}
-      {status !== 'playing' && gameId && <GameOverDialog />}
+      <GameLayout />
+      {status !== 'playing' && <GameOverDialog />}
     </div>
   );
 };
