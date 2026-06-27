@@ -81,32 +81,22 @@ NestJS API ────── Game Service ──── xiangqi-core (rules engi
 
 - **Node.js** ≥ 22
 - **pnpm** ≥ 9
-- **Docker** (for PostgreSQL & Redis)
-- **Pikafish** binary (see below)
+- **Docker** (PostgreSQL + Redis run as containers)
 
-### ⚡ Quick Start (2 commands)
+### ⚡ Quick Start — Just 2 Commands
 
 ```bash
-# First time only — installs everything + builds Pikafish
+# Step 1: One-time setup (installs deps, builds Pikafish, creates .env)
 pnpm setup
 
-# Every time — starts Docker + API + Web
+# Step 2: Launch everything (Docker + API + Web)
 pnpm dev
 ```
 
 Then open **http://localhost:5173** and play!
 
-> `pnpm dev` starts PostgreSQL, Redis, API (:3000), and Web (:5173) concurrently.
-> Press `Ctrl+C` to stop all services.
-
-### Manual Development
-
-```bash
-pnpm install                          # Install dependencies
-pnpm docker:dev                       # PostgreSQL + Redis only
-pnpm dev --filter=@repo/api          # API at :3000 (terminal 1)
-pnpm dev --filter=@repo/web          # Web at :5173 (terminal 2)
-```
+> `pnpm dev` starts PostgreSQL, Redis, API (:3000), and Web (:5173) in one terminal.
+> Press `Ctrl+C` to stop everything cleanly.
 
 > ℹ️ **Pikafish is auto-installed** by `pnpm setup`. No manual steps needed.
 
