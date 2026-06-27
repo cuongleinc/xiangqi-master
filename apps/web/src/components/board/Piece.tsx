@@ -16,7 +16,7 @@ interface PieceProps {
 const MOVE_EASING = 'transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1)';
 const HOVER_EASING = 'transform 0.15s ease-out';
 
-export const Piece: React.FC<PieceProps> = ({ pieceCode, row, col, cellSize, padding, isSelected, isDragging }) => {
+export const Piece: React.FC<PieceProps> = ({ pieceCode, pieceId, row, col, cellSize, padding, isSelected, isDragging }) => {
   const [isHovered, setIsHovered] = useState(false);
   const info = getPieceInfo(pieceCode);
   if (!info) return null;
