@@ -2,7 +2,8 @@
   "name": "xiangqi-master",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev",
+    "setup": "bash scripts/setup.sh",
+    "dev": "bash scripts/dev.sh",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
