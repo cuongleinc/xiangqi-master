@@ -164,6 +164,10 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
             strokeWidth={cellSize * 0.08}
           />
 
+          {/* Grid lines drawn ON the board background */}
+          <BoardGrid cellSize={cellSize} padding={padding} showCoordinates={showCoordinates} />
+
+          {/* Pieces rendered on top of grid */}
           {pieces.map((p) => (
           <Piece
             key={p.id}
