@@ -44,6 +44,10 @@ docker-compose.override.yml
 # TypeScript
 *.tsbuildinfo
 
+# Compiled JS/map in source (build artifacts should stay in dist/)
+packages/*/src/**/*.js
+packages/*/src/**/*.js.map
+
 # Vite
 apps/web/dist/
 apps/web/node_modules/.vite/
