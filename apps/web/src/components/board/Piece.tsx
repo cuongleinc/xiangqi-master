@@ -24,10 +24,11 @@ export const Piece: React.FC<PieceProps> = ({ pieceCode, pieceId, row, col, cell
   const isRed = info.color === Color.RED;
   const char = PIECE_CHARS[info.color]?.[info.type] || '?';
 
-  const radius = cellSize * 0.43;
+  const radius = cellSize * 0.41;  // diameter = 82% of cell, leaving visible gap between pieces
   const cx = padding + col * cellSize;
   const cy = padding + row * cellSize;
-  const fontSize = cellSize * 0.55;
+  const pieceDiameter = cellSize * 0.82;
+  const fontSize = pieceDiameter * 0.45;  // Chinese char height = 45% of piece diameter
   const strokeWidth = cellSize * 0.04;
   const gradId = `grad-${pieceId}`;
 

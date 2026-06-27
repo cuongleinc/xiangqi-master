@@ -36,11 +36,10 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
     return () => observer.disconnect();
   }, []);
 
-  const cellSize = Math.min(
-    Math.max((containerWidth - 40) / 8, 28),
-    68,
-  );
-  const padding = cellSize * 0.6;
+  // Target 70px cells. At 70px: board grid = 8×70 = 560px wide, 9×70 = 630px tall
+  const TARGET_CELL = 70;
+  const padding = 40; // space for row/col labels outside the grid
+  const cellSize = Math.max(TARGET_CELL, Math.min((containerWidth - padding * 2) / 8, TARGET_CELL * 1.3));
   const svgWidth = padding * 2 + 8 * cellSize;
   const svgHeight = padding * 2 + 9 * cellSize;
 
@@ -97,7 +96,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   };
 
   return (
-    <div ref={containerRef} className="w-full max-w-[540px] mx-auto">
+    <div ref={containerRef} className="w-fit mx-auto" style={{ minWidth: svgWidth }}>
       <div
         style={{
           borderRadius: 8,
@@ -112,7 +111,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           width="100%"
           height="100%"
-          style={{ display: 'block', maxHeight: `${svgHeight}px` }}
+          style={{ display: 'block' }}
         >
           {/* Board background — bamboo/classic pine */}
           <defs>
@@ -159,13 +158,13 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
 
           {/* Board inner border at the board edge */}
           <rect
-            x={padding * 0.4}
-            y={padding * 0.4}
-            width={svgWidth - padding * 0.8}
-            height={svgHeight - padding * 0.8}
+            x={padding * 0.5}
+            y={padding * 0.5}
+            width={svgWidth - padding}
+            height={svgHeight - padding}
             fill="none"
             stroke="#8B4513"
-            strokeWidth={cellSize * 0.08}
+            strokeWidth={cellSize * 0.06}
           />
 
           {/* Grid lines drawn ON the board background */}

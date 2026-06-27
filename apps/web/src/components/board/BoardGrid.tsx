@@ -64,20 +64,25 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
     </text>,
   );
 
-  // Coordinates
+  // Coordinates — placed outside the grid, in the padding zone
   if (showCoordinates) {
-    const coordFontSize = cellSize * 0.28;
-    const coordColor = '#8B4513';
+    const labelSize = 12;
+    const labelColor = '#8B6914';
+    const labelOpacity = 0.7;
     const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+
+    // Column labels: above and below the board
     for (let col = 0; col < 9; col++) {
       const x = padding + col * cellSize;
-      lines.push(<text key={`ct${col}`} x={x} y={padding * 0.45} fontSize={coordFontSize} fill={coordColor} textAnchor="middle">{files[col]}</text>);
-      lines.push(<text key={`cb${col}`} x={x} y={padding + 9 * cellSize + padding * 0.55} fontSize={coordFontSize} fill={coordColor} textAnchor="middle">{files[col]}</text>);
+      lines.push(<text key={`ct${col}`} x={x} y={padding * 0.35} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" fontFamily="system-ui, sans-serif">{files[col]}</text>);
+      lines.push(<text key={`cb${col}`} x={x} y={padding + 9 * cellSize + padding * 0.65} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" fontFamily="system-ui, sans-serif">{files[col]}</text>);
     }
+
+    // Row labels: left and right of the board
     for (let row = 0; row < 10; row++) {
       const y = padding + row * cellSize;
-      lines.push(<text key={`rl${row}`} x={padding * 0.35} y={y} fontSize={coordFontSize} fill={coordColor} textAnchor="middle" dominantBaseline="middle">{row}</text>);
-      lines.push(<text key={`rr${row}`} x={padding + 8 * cellSize + padding * 0.65} y={y} fontSize={coordFontSize} fill={coordColor} textAnchor="middle" dominantBaseline="middle">{row}</text>);
+      lines.push(<text key={`rl${row}`} x={padding * 0.3} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
+      lines.push(<text key={`rr${row}`} x={padding + 8 * cellSize + padding * 0.7} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
     }
   }
 
