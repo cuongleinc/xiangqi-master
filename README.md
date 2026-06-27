@@ -79,9 +79,29 @@ NestJS API ────── Game Service ──── xiangqi-core (rules engi
 
 ### Prerequisites
 
-- **Node.js** ≥ 22
-- **pnpm** ≥ 9
-- **Docker** (PostgreSQL + Redis run as containers)
+| Tool | Version | Why |
+|------|---------|-----|
+| **Node.js** | ≥ 22 | Runtime for API & scripts |
+| **pnpm** | ≥ 9 | Monorepo package manager (see below) |
+| **Docker** | recent | PostgreSQL + Redis containers |
+
+### Installing pnpm
+
+This project is a **monorepo** — multiple packages (web, api, xiangqi-core, engine-client) living in one repo. **pnpm** is the fastest and most disk-efficient package manager for monorepos, with strict dependency isolation that prevents "works on my machine" bugs.
+
+```bash
+# Install pnpm globally
+npm install -g pnpm
+
+# Ensure it's in your PATH (add to ~/.zshrc)
+export PATH="$(npm config get prefix)/bin:$PATH"
+source ~/.zshrc
+
+# Verify
+pnpm --version
+```
+
+> **Why not npm or yarn?** npm workspaces lack strict dependency boundaries (packages can accidentally import undeclared deps). Yarn is slower and uses more disk space. pnpm's symlink-based `node_modules` ensures each package only sees what it declares in `package.json` — critical for a multi-package architecture like this one.
 
 ### ⚡ Quick Start — Just 2 Commands
 
