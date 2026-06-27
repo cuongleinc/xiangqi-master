@@ -2,7 +2,7 @@
 
 ## Status — Phase 1: ✅ COMPLETE (Core)
 
-All 13 implementation steps completed. Human vs AI fully functional.
+All 13 implementation steps completed. Human vs AI fully functional. UI fully redesigned with "Cổ Phong Hiện Đại" (ancient-meets-modern) aesthetic.
 
 ### ✅ Completed
 
@@ -22,22 +22,41 @@ All 13 implementation steps completed. Human vs AI fully functional.
 | 12 | Docker (Dockerfiles, docker-compose.yml, nginx config) | ✅ |
 | 13 | Deployment guide (Hostinger VPS, SSL, backup) | ✅ |
 
+### 🎨 UI Design (Beyond original scope)
+
+| Area | Details |
+|------|---------|
+| Welcome Screen | Epic intro: 象棋 5rem gold title with shimmer, floating ink particles, giant 象 watermark, 2-column layout, difficulty cards with Chinese names (初級/中級/高級/專家) |
+| Board | Bamboo wood (#c8a96e), 8px rounded border with #8B4513 + gold outline, Dong Son bronze drum watermark at 0.04 opacity, inset shadow |
+| Grid Lines | #5c3d1a 1px, river text "楚河 漢界" in Ma Shan Zheng font |
+| Palace | Diagonal X lines #8B4513 in both palaces |
+| Pieces | Carved wooden discs with radial-gradients simulating convex surface light, SVG feDropShadow, gold outer rings, Ma Shan Zheng calligraphy at 700 weight |
+| Piece Animation | cubic-bezier(0.34, 1.56, 0.64, 1) spring easing, 0.38s move transitions |
+| Typography | Ma Shan Zheng (brush calligraphy) for pieces + river text, Noto Serif SC for UI headings |
+| Color Theme | #0d0800 ebony background, #d4a843 gold accents, #f5e6c8 cream text, #4a7c59 jade green |
+| Layout | 3-column: [Controls 220px] [Board flex] [Analysis 220px], bg #1e1005 sidebars |
+| Buttons | 新局 · New Game (red gradient), 提示 · Hint (bronze gradient), 認負 · Resign (outline) |
+| Sound Design | Spec documented: piece-place wooden click ~40ms, piece-lift ~30ms, check ~80ms, capture ~60ms, game-over double-tap |
+
 ### ⚠️ Known Issues
 
 - **Move count race condition**: Fixed with atomic DB increment, but edge cases remain
-- **Web production build**: Rollup CJS→ESM conversion fails with enum re-exports. Dev server works fine (uses esbuild)
+- **Web production build**: Rollup CJS→ESM conversion fails with `@tanstack/react-query`. Dev server works fine (uses esbuild)
 - **No tests yet**: 80% coverage target not started
-- **DraggablePiece component**: Defined but drag-drop mostly relies on click-to-select
+- **Perpetual chase detection**: Only perpetual check is implemented
+- **Game review UI**: API done, frontend placeholder
+- **Evaluation bar**: Wired but needs real-time polling for live updates
 
 ### 🔧 Remaining (Short-term)
 
 - [ ] Add comprehensive tests (xiangqi-core 40+ tests, API 20+, Web 15+)
-- [ ] Fix web production build (switch packages to ESM output permanently)
-- [ ] Perpetual chase detection (only perpetual check is implemented)
-- [ ] Game review UI integration (API done, frontend placeholder)
-- [ ] Evaluation bar real-time updates (wired but needs polling)
+- [ ] Fix web production build (esbuild-only build, bypass Rollup)
+- [ ] Perpetual chase detection
+- [ ] Game review UI integration
+- [ ] Evaluation bar real-time updates
 - [ ] Mobile-responsive polish
-- [ ] Performance profiling
+- [ ] Sound implementation (design spec ready)
+- [ ] Drag-and-drop polish (currently click-to-select works well)
 
 ### 📋 Future Phases
 
@@ -81,6 +100,9 @@ root/
 │   ├── xiangqi-core/     @repo/xiangqi-core — Game logic engine
 │   ├── engine-client/    @repo/engine-client — Pikafish UCI wrapper
 │   └── typescript-config/ Shared TS configs
+├── scripts/
+│   ├── setup.sh          One-time setup (deps + Pikafish build)
+│   └── dev.sh            Start all services (Docker + API + Web)
 ├── infrastructure/
 │   ├── docker/           Dockerfiles for api + web
 │   └── nginx/            Reverse proxy config
@@ -123,6 +145,30 @@ Pikafish uses chess-like piece notation (`N`=Horse, `B`=Elephant) while the WXF 
 - Vite dev server uses `optimizeDeps.include` for CJS→ESM conversion
 - API: `tsconfig.build.json` with `module: commonjs` + `emitDecoratorMetadata`
 
+### UI Color System
+
+| Token | Hex | Usage |
+|-------|-----|-------|
+| `ebony` | `#0d0800` | Page background |
+| `lacquer` | `#1e1005` / `#241505` | Card/panel surfaces |
+| `gold` | `#d4a843` | Borders, accents, CTAs |
+| `gold-light` | `#f0d080` | Title text |
+| `cream` | `#f5e6c8` | Body text |
+| `cream-dim` | `#a89880` | Secondary text |
+| `jade` | `#4a7c59` | Positive eval |
+| `red-chinese` | `#c44b4b` | Red pieces, negative eval |
+| `wood` | `#c8a96e` | Board surface |
+| `saddle` | `#8B4513` | Board border |
+| `grid-line` | `#5c3d1a` | Board grid |
+
+### Fonts
+
+| Font | Usage |
+|------|-------|
+| **Ma Shan Zheng** | Piece characters (calligraphy brush style), river text |
+| **Noto Serif SC** | UI headings, Chinese labels |
+| System UI | Body text, monospace (moves, scores) |
+
 ## API Endpoints
 
 | Method | Path | Description |
@@ -140,18 +186,28 @@ Pikafish uses chess-like piece notation (`N`=Horse, `B`=Elephant) while the WXF 
 ## Running Locally
 
 ```bash
-# Dev services (PostgreSQL + Redis)
-pnpm docker:dev
+# First time — one command sets up everything
+pnpm setup
 
-# API
-pnpm dev --filter=@repo/api    # http://localhost:3000
+# Every time — starts Docker + API + Web in one terminal
+pnpm dev
+```
 
-# Web
-pnpm dev --filter=@repo/web    # http://localhost:5173
+Open http://localhost:5173 — select difficulty, click Start Game, click pieces to play.
 
-# Pikafish (must be compiled separately)
+```bash
+# Manual dev (separate terminals)
+pnpm docker:dev                              # PostgreSQL + Redis
+pnpm dev --filter=@repo/api                 # API → http://localhost:3000
+pnpm dev --filter=@repo/web                 # Web → http://localhost:5173
+```
+
+### Pikafish Manual Build
+
+```bash
 git clone https://github.com/official-pikafish/Pikafish.git
-cd Pikafish/src && make -j build ARCH=apple-silicon
+cd Pikafish/src
+make -j build ARCH=apple-silicon             # macOS ARM
 cp pikafish ~/.local/bin/
 cp pikafish.nnue ~/.local/bin/
 ```
