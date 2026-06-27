@@ -189,6 +189,16 @@ export class PikafishEngine {
     await readyPromise;
   }
 
+  private async waitForReady(timeoutMs: number): Promise<void> {
+    const start = Date.now();
+    while (this.status !== 'ready') {
+      if (Date.now() - start > timeoutMs) {
+        throw new EngineNotReadyError();
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+  }
+
   private waitFor(pattern: string, timeoutMs: number): Promise<void> {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -274,15 +284,15 @@ export class PikafishEngine {
   // ---- Public API ----
 
   async analyze(fen: string, options?: AnalysisOptions): Promise<AnalysisResult> {
-    if (this.status !== 'ready') {
-      if (this.status === 'idle' || this.status === 'stopped') {
-        await this.start();
-      } else if (this.status === 'crashed') {
-        await this.restart();
-      } else {
-        throw new EngineNotReadyError();
-      }
+    if (this.status === 'idle' || this.status === 'stopped') {
+      await this.start();
+    } else if (this.status === 'crashed') {
+      await this.restart();
+    } else if (this.status === 'starting') {
+      // Engine is still handshaking — wait for it
+      await this.waitForReady(10000);
     }
+    // 'ready' or 'thinking' — proceed. If thinking, request is queued.
 
     // Validate FEN before sending to engine (prevents crash)
     const validation = validateFen(fen);
