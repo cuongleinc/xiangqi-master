@@ -71,12 +71,23 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
     return result;
   }, [board]);
 
+  /*
+   * ─── Sound Design ───
+   * piece-place:  short wooden "click" (~40ms) — wood striking wood, dry and resonant
+   *               like a Go stone on a kaya board. NOT plastic or metallic.
+   * piece-lift:   subtle friction "slide" (~30ms) — finger lifting off lacquer
+   * check:        deeper "thock" (~80ms) — solid knock, alert but not jarring
+   * capture:      sharper "clack" (~60ms) — two wood pieces colliding, brief ring
+   * game-over:    ceremonial double-tap (~200ms apart) — like closing a wooden box
+   * ──────────────────
+   */
   const handleClick = (row: number, col: number) => {
     if (!fen) return;
     selectSquare(row, col, fen, turn);
     const pending = (window as unknown as Record<string, unknown>).__pendingMove as string | undefined;
     if (pending) {
       delete (window as unknown as Record<string, unknown>).__pendingMove;
+      // TODO: playSound('piece-place')
       makeMove(pending);
     }
   };
