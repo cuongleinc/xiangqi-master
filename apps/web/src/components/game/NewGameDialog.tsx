@@ -8,10 +8,10 @@ interface NewGameDialogProps {
 }
 
 const difficulties = [
-  { value: 'easy', zh: '初學', en: 'Easy', time: '0.1s', timeLabel: '100ms' },
-  { value: 'medium', zh: '中級', en: 'Medium', time: '0.5s', timeLabel: '500ms' },
-  { value: 'hard', zh: '高級', en: 'Hard', time: '1.5s', timeLabel: '1.5s' },
-  { value: 'expert', zh: '專家', en: 'Expert', time: '5s', timeLabel: '5.0s' },
+  { value: 'easy', en: 'Easy', zh: '初學', time: '0.1s', timeLabel: '100ms' },
+  { value: 'medium', en: 'Medium', zh: '中級', time: '0.5s', timeLabel: '500ms' },
+  { value: 'hard', en: 'Hard', zh: '高級', time: '1.5s', timeLabel: '1.5s' },
+  { value: 'expert', en: 'Expert', zh: '專家', time: '5s', timeLabel: '5.0s' },
 ];
 
 const PIECE_CHARS_LIST = ['將', '帥', '車', '馬', '炮', '象', '士', '兵'];
@@ -67,7 +67,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           <div className="grid grid-cols-2 gap-2 mb-5">
             {difficulties.map((d) => (
               <button key={d.value} onClick={() => setDifficulty(d.value)} className={`p-3 rounded-lg text-left transition-all border ${difficulty === d.value ? 'bg-gold text-ebony border-gold' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
-                <div className="font-medium text-sm">{d.zh}</div><div className="text-[10px] opacity-70">{d.en}</div>
+                <div className="font-medium text-sm">{d.en}</div><div className="text-[10px] opacity-70">{d.zh}</div>
               </button>
             ))}
           </div>
@@ -78,7 +78,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   }
 
   // ═══════════════════════════════════════════════
-  // WELCOME SCREEN — 楚河漢界 (Chu-Han Contention)
+  // WELCOME SCREEN — Chu-Han Contention
   // ═══════════════════════════════════════════════
   return (
     <div className="welcome-screen" style={{ position: 'fixed', inset: 0, overflow: 'hidden', zIndex: 100 }}>
@@ -93,8 +93,6 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(5,2,0,0.55)', zIndex: -1 }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #050100 0%, transparent 40%)', zIndex: -1 }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #050100 0%, transparent 25%)', zIndex: -1 }} />
-      {/* Center gold river echo */}
-      <div style={{ position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)', width: 2, height: '100%', zIndex: 0, pointerEvents: 'none', background: 'transparent', boxShadow: '0 0 40px 12px rgba(212,168,67,0.08)' }} />
 
       {/* ─── LAYER 1: Base atmosphere ─── */}
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 80% at 50% 110%, #3d1a00 0%, #1a0800 40%, #0a0400 70%, #050200 100%)', opacity: 0.5 }} />
@@ -105,13 +103,6 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       {/* ─── LAYER 3: Han blue (right) ─── */}
       <div style={{ position: 'absolute', right: 0, top: 0, width: '45%', height: '100%', background: 'radial-gradient(ellipse at 80% 60%, rgba(26,50,120,0.2) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
-      {/* ─── LAYER 4: The River — 楚河漢界 ─── */}
-      <div className="river-line" style={{
-        position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)',
-        width: 2, height: '100%', zIndex: 2, pointerEvents: 'none',
-        background: 'linear-gradient(to bottom, transparent 0%, rgba(212,168,67,0.0) 10%, rgba(212,168,67,0.4) 40%, rgba(212,168,67,0.6) 50%, rgba(212,168,67,0.4) 60%, rgba(212,168,67,0.0) 90%, transparent 100%)',
-        boxShadow: '0 0 30px 8px rgba(212,168,67,0.1)',
-      }} />
 
       {/* ─── LAYER 5: Fog particles ─── */}
       {fogPresets.map((f, i) => (
@@ -181,51 +172,26 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           width: 'min(680px, 90vw)', textAlign: 'center' as const,
           opacity: mounted ? 1 : 0, transition: 'opacity 0.3s',
         }}>
-          {/* ─── ORNAMENT ─── */}
+          {/* ─── TITLE ─── */}
           <div className="title-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(-30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
-              <div style={{ flex: 1, maxWidth: 80, height: 1, background: 'linear-gradient(90deg, transparent, #d4a84388)' }} />
-              <span style={{ color: '#d4a84388', fontSize: 10 }}>◆</span>
-              <div style={{ flex: 1, maxWidth: 80, height: 1, background: 'linear-gradient(90deg, #d4a84388, transparent)' }} />
-            </div>
-
-            {/* ─── TITLE: 象棋 ─── */}
-            <h1 className="welcome-title" style={{
-              fontFamily: 'Noto Serif SC, serif',
-              fontSize: 'clamp(4rem, 8vw, 7rem)',
-              background: 'linear-gradient(135deg, #f0d080 0%, #d4a843 40%, #a07820 70%, #d4a843 100%)',
-              backgroundSize: '200% 200%',
-              WebkitBackgroundClip: 'text', backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              letterSpacing: '0.15em', lineHeight: 1.1, margin: 0,
-            }}>象棋</h1>
 
             {/* ─── SUBTITLE ─── */}
             <div className="subtitle-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.4s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 14 }}>
               <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
-              <span style={{ fontSize: '0.85rem', letterSpacing: '0.35em', color: '#a07840', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap' }}>XIANGQI MASTER · 象棋大師</span>
+              <span style={{ fontSize: '2.4rem', letterSpacing: '0.35em', color: '#d4b870', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap', fontWeight: 600 }}>XIANGQI MASTER</span>
               <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
             </div>
 
             {/* ─── LORE TAGLINE ─── */}
             <div className="lore-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.6s', marginBottom: 10 }}>
-              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '0.78rem', color: '#7a5c30', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>楚河漢界，兩軍對峙</p>
-              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '0.78rem', color: '#7a5c30', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>千古征戰，一局定乾坤</p>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>The legendary Chu-Han Contention</p>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>One game decides the fate of an empire</p>
             </div>
           </div>
 
-          {/* ─── DIVIDER ─── */}
-          <div className="divider-section" style={{
-            opacity: mounted ? 1 : 0, transform: mounted ? 'scaleX(1)' : 'scaleX(0)',
-            transition: 'opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s',
-            transformOrigin: 'center', margin: '1.5rem auto', width: '80%',
-            height: 1, border: 'none',
-            background: 'linear-gradient(to right, transparent, #3d2010, #d4a843 50%, #3d2010, transparent)',
-          }} />
-
           {/* ─── DIFFICULTY ─── */}
           <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.8s, transform 0.5s ease 0.8s' }}>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '0.2em', color: '#7a5c30', fontFamily: 'Noto Serif SC, serif', marginBottom: 12 }}>選擇難度 · CHỌN ĐỘ KHÓ</p>
+            <p style={{ fontSize: '1rem', letterSpacing: '0.2em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 12, fontWeight: 600 }}>SELECT DIFFICULTY</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
               {difficulties.map((d) => {
                 const active = difficulty === d.value;
@@ -240,8 +206,8 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   }}>
                     <div>
-                      <div style={{ fontSize: '1rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{d.zh}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#7a5c30', letterSpacing: '0.1em' }}>{d.en}</div>
+                      <div style={{ fontSize: '1rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{d.en}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#b89560', letterSpacing: '0.1em' }}>{d.zh}</div>
                     </div>
                     <span style={{ fontSize: '0.65rem', color: '#6b4c1a', background: '#1a0f00', padding: '2px 8px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace' }}>{d.timeLabel}</span>
                   </button>
@@ -260,7 +226,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
               color: '#f0d080', fontSize: '1.05rem', letterSpacing: '0.12em',
               fontFamily: 'Noto Serif SC, serif', fontWeight: 600,
               cursor: 'pointer', transition: 'all 0.3s ease',
-            }}>開始對局 · BẮT ĐẦU</button>
+            }}>START GAME</button>
           </div>
 
         </div>
