@@ -6,20 +6,26 @@ echo "================================"
 echo ""
 
 # 1. Start Docker services (PostgreSQL + Redis)
-echo "🐳 [1/3] Starting PostgreSQL + Redis..."
+echo "🐳 [1/4] Starting PostgreSQL + Redis..."
 docker compose -f docker-compose.dev.yml up -d 2>/dev/null || true
 echo "   ✅ Database & cache ready"
 echo ""
 
-# 2. Start API
-echo "🔧 [2/3] Starting API (http://localhost:3000)..."
+# 2. Build packages
+echo "🔨 [2/4] Building packages..."
+pnpm run build 2>/dev/null || true
+echo "   ✅ Packages built"
+echo ""
+
+# 3. Start API
+echo "🔧 [3/4] Starting API (http://localhost:3000)..."
 pnpm --filter @repo/api dev &
 API_PID=$!
 sleep 3
 echo ""
 
-# 3. Start Web
-echo "🎨 [3/3] Starting Web (http://localhost:5173)..."
+# 4. Start Web
+echo "🎨 [4/4] Starting Web (http://localhost:5173)..."
 pnpm --filter @repo/web dev &
 WEB_PID=$!
 sleep 2
