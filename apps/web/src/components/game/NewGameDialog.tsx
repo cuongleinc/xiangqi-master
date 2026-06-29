@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useGameStore } from '../../stores/game.store';
 import { useUiStore } from '../../stores/ui.store';
 import { useSettingsStore } from '../../stores/settings.store';
@@ -8,10 +8,40 @@ interface NewGameDialogProps {
 }
 
 const difficulties = [
-  { value: 'easy', zh: '初級', en: 'Beginner', time: '0.1s', timeLabel: '100ms' },
-  { value: 'medium', zh: '中級', en: 'Intermediate', time: '0.5s', timeLabel: '500ms' },
-  { value: 'hard', zh: '高級', en: 'Advanced', time: '1.5s', timeLabel: '1.5s' },
+  { value: 'easy', zh: '初學', en: 'Easy', time: '0.1s', timeLabel: '100ms' },
+  { value: 'medium', zh: '中級', en: 'Medium', time: '0.5s', timeLabel: '500ms' },
+  { value: 'hard', zh: '高級', en: 'Hard', time: '1.5s', timeLabel: '1.5s' },
   { value: 'expert', zh: '專家', en: 'Expert', time: '5s', timeLabel: '5.0s' },
+];
+
+const PIECE_CHARS_LIST = ['將', '帥', '車', '馬', '炮', '象', '士', '兵'];
+
+// ─── Fog particle presets ───
+const fogPresets = [
+  { left: '5%', top: '20%', w: 300, h: 300, color: 'rgba(139,26,26,0.06)', dur: 16, delay: '0s', blur: 60 },
+  { left: '15%', top: '60%', w: 220, h: 220, color: 'rgba(80,10,10,0.04)', dur: 14, delay: '-3s', blur: 50 },
+  { left: '30%', top: '40%', w: 350, h: 350, color: 'rgba(100,20,20,0.05)', dur: 18, delay: '-7s', blur: 70 },
+  { left: '8%', top: '80%', w: 250, h: 250, color: 'rgba(90,10,10,0.04)', dur: 12, delay: '-10s', blur: 55 },
+  { right: '5%', top: '15%', w: 280, h: 280, color: 'rgba(26,50,139,0.05)', dur: 15, delay: '-2s', blur: 60 },
+  { right: '20%', top: '55%', w: 320, h: 320, color: 'rgba(10,20,80,0.04)', dur: 17, delay: '-8s', blur: 65 },
+  { right: '10%', top: '75%', w: 200, h: 200, color: 'rgba(20,40,100,0.05)', dur: 13, delay: '-5s', blur: 50 },
+  { right: '25%', top: '35%', w: 380, h: 380, color: 'rgba(15,30,90,0.03)', dur: 19, delay: '-12s', blur: 75 },
+  { left: '48%', top: '50%', w: 150, h: 150, color: 'rgba(212,168,67,0.03)', dur: 20, delay: '-4s', blur: 45 },
+  { left: '52%', top: '20%', w: 120, h: 120, color: 'rgba(212,168,67,0.03)', dur: 14, delay: '-9s', blur: 40 },
+  { left: '49%', top: '70%', w: 180, h: 180, color: 'rgba(212,168,67,0.03)', dur: 16, delay: '-6s', blur: 50 },
+  { left: '51%', top: '40%', w: 100, h: 100, color: 'rgba(212,168,67,0.04)', dur: 12, delay: '-11s', blur: 35 },
+];
+
+// ─── Floating background pieces ───
+const floatingPieces = [
+  { char: '將', left: '4%', top: '15%', delay: '0s', dur: 24, color: '#3a5fa0' },
+  { char: '帥', right: '4%', top: '20%', delay: '-3s', dur: 28, color: '#c0392b' },
+  { char: '車', left: '12%', top: '70%', delay: '-7s', dur: 32, color: '#3a5fa0' },
+  { char: '馬', right: '12%', top: '65%', delay: '-12s', dur: 22, color: '#c0392b' },
+  { char: '炮', left: '22%', top: '35%', delay: '-5s', dur: 26, color: '#3a5fa0' },
+  { char: '象', right: '20%', top: '40%', delay: '-9s', dur: 30, color: '#c0392b' },
+  { char: '士', left: '35%', top: '85%', delay: '-15s', dur: 20, color: '#3a5fa0' },
+  { char: '兵', right: '30%', top: '80%', delay: '-18s', dur: 35, color: '#c0392b' },
 ];
 
 export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
@@ -19,17 +49,17 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   const closeDialog = useUiStore((s) => s.closeDialog);
   const difficulty = useSettingsStore((s) => s.difficulty);
   const setDifficulty = useSettingsStore((s) => s.setDifficulty);
-  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setVisible(true); }, []);
+  useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
   const handleStart = async () => {
     await createNewGame(difficulty);
     closeDialog();
   };
 
+  // ─── In-game compact dialog (unchanged) ───
   if (!isInitial) {
-    // In-game dialog — keep compact
     return (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
         <div className="bg-lacquer border border-gold/40 rounded-xl p-6 max-w-sm mx-auto">
@@ -37,8 +67,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           <div className="grid grid-cols-2 gap-2 mb-5">
             {difficulties.map((d) => (
               <button key={d.value} onClick={() => setDifficulty(d.value)} className={`p-3 rounded-lg text-left transition-all border ${difficulty === d.value ? 'bg-gold text-ebony border-gold' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
-                <div className="font-medium text-sm">{d.zh}</div>
-                <div className="text-[10px] opacity-70">{d.en}</div>
+                <div className="font-medium text-sm">{d.zh}</div><div className="text-[10px] opacity-70">{d.en}</div>
               </button>
             ))}
           </div>
@@ -48,169 +77,178 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
     );
   }
 
-  // Welcome screen — epic intro
+  // ═══════════════════════════════════════════════
+  // WELCOME SCREEN — 楚河漢界 (Chu-Han Contention)
+  // ═══════════════════════════════════════════════
   return (
-    <div
-      className="min-h-screen relative overflow-hidden flex items-center justify-center"
-      style={{
-        background: `
-          radial-gradient(ellipse at 50% 0%, rgba(120,60,10,0.4) 0%, transparent 60%),
-          radial-gradient(ellipse at 20% 100%, rgba(80,30,5,0.3) 0%, transparent 50%),
-          #0d0800
-        `,
-      }}
-    >
-      {/* Decorative watermark */}
-      <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-        style={{ zIndex: 0 }}
-      >
-        <span className="font-serif text-gold" style={{ fontSize: '40vw', opacity: 0.03 }}>象</span>
-      </div>
+    <div className="welcome-screen" style={{ position: 'fixed', inset: 0, overflow: 'hidden', zIndex: 100 }}>
+      {/* ─── LAYER 1: Base atmosphere ─── */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 80% at 50% 110%, #3d1a00 0%, #1a0800 40%, #0a0400 70%, #050200 100%)' }} />
 
-      {/* Floating particles */}
-      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: `${2 + Math.random() * 3}px`,
-              height: `${2 + Math.random() * 3}px`,
-              background: i % 2 === 0 ? '#d4a843' : '#a07840',
-              opacity: 0.04 + Math.random() * 0.06,
-              left: `${10 + Math.random() * 80}%`,
-              bottom: `-${5 + Math.random() * 10}%`,
-              animation: `floatUp ${8 + Math.random() * 8}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          />
-        ))}
-      </div>
+      {/* ─── LAYER 2: Chu crimson (left) ─── */}
+      <div style={{ position: 'absolute', left: 0, top: 0, width: '45%', height: '100%', background: 'radial-gradient(ellipse at 20% 60%, rgba(139,26,26,0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
-      {/* Main content */}
-      <div
-        className="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-20 w-full max-w-[1100px] mx-auto px-6 py-12"
-        style={{ zIndex: 1, opacity: visible ? 1 : 0, transition: 'opacity 0.4s ease' }}
-      >
-        {/* LEFT — Title + art */}
+      {/* ─── LAYER 3: Han blue (right) ─── */}
+      <div style={{ position: 'absolute', right: 0, top: 0, width: '45%', height: '100%', background: 'radial-gradient(ellipse at 80% 60%, rgba(26,50,120,0.2) 0%, transparent 65%)', pointerEvents: 'none' }} />
+
+      {/* ─── LAYER 4: The River — 楚河漢界 ─── */}
+      <div className="river-line" style={{
+        position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)',
+        width: 2, height: '100%', zIndex: 2, pointerEvents: 'none',
+        background: 'linear-gradient(to bottom, transparent 0%, rgba(212,168,67,0.0) 10%, rgba(212,168,67,0.4) 40%, rgba(212,168,67,0.6) 50%, rgba(212,168,67,0.4) 60%, rgba(212,168,67,0.0) 90%, transparent 100%)',
+        boxShadow: '0 0 30px 8px rgba(212,168,67,0.1)',
+      }} />
+
+      {/* ─── LAYER 5: Fog particles ─── */}
+      {fogPresets.map((f, i) => (
         <div
-          className="lg:w-[40%] text-center lg:text-left flex-shrink-0"
+          key={`fog-${i}`}
+          className="fog-particle"
           style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateX(0)' : 'translateX(-20px)',
-            transition: 'opacity 0.6s ease, transform 0.6s ease',
+            position: 'absolute',
+            width: f.w, height: f.h, borderRadius: '50%',
+            background: f.color,
+            filter: `blur(${f.blur}px)`,
+            left: f.left, right: f.right, top: f.top,
+            animation: `fogFloat ${f.dur}s ease-in-out infinite alternate`,
+            animationDelay: f.delay,
+            pointerEvents: 'none',
+            zIndex: 0,
           }}
-        >
-          <h1
-            className="font-serif leading-none mb-3 animate-shimmer"
-            style={{ fontSize: '5rem', color: '#d4a843' }}
-          >
-            象棋
-          </h1>
-          <p
-            className="font-serif mb-6"
-            style={{ fontSize: '1.2rem', color: '#a07840', letterSpacing: '0.2em' }}
-          >
-            XIANGQI MASTER
-          </p>
+        />
+      ))}
 
-          {/* Decorative line */}
-          <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-            <div className="h-px flex-1 max-w-[60px]" style={{ background: 'linear-gradient(90deg, transparent, #8B6914)' }} />
-            <span className="text-gold-dim text-xs">◆</span>
-            <div className="h-px flex-1 max-w-[60px]" style={{ background: 'linear-gradient(90deg, #8B6914, transparent)' }} />
-          </div>
+      {/* ─── LAYER 6: Ghost warriors ─── */}
+      <svg
+        style={{ position: 'absolute', bottom: '-5%', left: '5%', height: '85vh', opacity: 0.06, filter: 'blur(2px)', pointerEvents: 'none', zIndex: 1 }}
+        viewBox="0 0 200 600" width="200" height="600"
+      >
+        <animateTransform attributeName="transform" type="scale" values="1;1.03;1" dur="4s" repeatCount="indefinite" />
+        <polygon points="100,30 85,50 88,80 70,100 75,130 60,160 65,190 55,220 60,250 50,280 55,310 48,350 55,400 45,450 55,500 65,520 75,510 85,530 95,520 105,540 115,520 125,530 135,510 145,520 155,500 145,450 155,400 148,350 155,310 148,280 155,250 145,220 155,190 140,160 145,130 130,100 135,80 115,50" fill="#c0392b" />
+        <rect x="60" y="60" width="80" height="14" rx="4" fill="#c0392b" opacity="0.5" />
+        <rect x="55" y="78" width="90" height="10" rx="3" fill="#c0392b" opacity="0.4" />
+      </svg>
 
-          <p
-            className="text-sm italic mb-8 lg:max-w-[300px] mx-auto lg:mx-0"
-            style={{ color: '#7a5c30', lineHeight: 1.6 }}
-          >
-            The ancient game of strategy and wisdom.
-            Challenge the AI engine in the battle of the mind.
-          </p>
+      <svg
+        style={{ position: 'absolute', bottom: '-5%', right: '5%', height: '75vh', opacity: 0.05, filter: 'blur(2px)', pointerEvents: 'none', zIndex: 1 }}
+        viewBox="0 0 200 600" width="200" height="600"
+      >
+        <animateTransform attributeName="transform" type="scale" values="1;1.03;1" dur="4s" repeatCount="indefinite" begin="-2s" />
+        <polygon points="100,40 92,60 95,90 85,110 90,140 78,170 82,200 75,230 80,260 70,290 75,320 68,360 75,400 65,450 75,500 85,520 95,510 105,530 115,510 125,530 135,510 145,520 155,500 145,450 155,400 148,360 155,320 148,290 155,260 145,230 155,200 140,170 145,140 130,110 135,90 120,60" fill="#3a5fa0" />
+        <rect x="75" y="50" width="50" height="12" rx="3" fill="#3a5fa0" opacity="0.4" />
+      </svg>
 
-          {/* Mini piece preview */}
-          <div className="flex items-center justify-center lg:justify-start gap-3">
-            <span className="inline-block w-5 h-5 rounded-full bg-red-chinese/60 border border-gold/30" />
-            <span className="inline-block w-5 h-5 rounded-full bg-red-chinese/60 border border-gold/30" />
-            <span className="inline-block w-5 h-5 rounded-full bg-red-chinese/60 border border-gold/30" />
-          </div>
-        </div>
+      {/* ─── LAYER 7: Floating background pieces ─── */}
+      {floatingPieces.map((p, i) => (
+        <div key={`fp-${i}`} className="floating-bg-piece" style={{
+          position: 'absolute', left: p.left, right: p.right, top: p.top,
+          width: 48, height: 48, borderRadius: '50%',
+          background: `radial-gradient(circle at 35% 30%, rgba(200,180,140,0.1), transparent 70%)`,
+          border: `1px solid ${p.color}15`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 20, fontFamily: 'Ma Shan Zheng, serif', color: p.color + '10',
+          animation: `pieceFloat ${p.dur}s linear infinite`, animationDelay: p.delay,
+          pointerEvents: 'none', zIndex: 0,
+        }}>{p.char}</div>
+      ))}
 
-        {/* RIGHT — Difficulty card */}
-        <div
-          className="lg:w-[60%] w-full max-w-[480px]"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateX(0)' : 'translateX(20px)',
-            transition: 'opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s',
-          }}
-        >
-          <div
-            className="rounded-2xl p-6"
-            style={{
-              background: 'rgba(30,15,5,0.85)',
-              border: '1px solid #3d2010',
-              backdropFilter: 'blur(4px)',
-            }}
-          >
-            <h3 className="text-center font-serif text-gold text-lg mb-1 tracking-wider">
-              選擇難度 · Difficulty
-            </h3>
-            <div className="w-16 mx-auto mb-5 border-t border-gold/30" />
+      {/* ─── LAYER 8: Vignettes ─── */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to bottom, #050200 0%, transparent 30%)' }} />
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to top, #050200 0%, transparent 30%)' }} />
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {difficulties.map((d) => (
-                <button
-                  key={d.value}
-                  onClick={() => setDifficulty(d.value)}
-                  className="p-3 rounded-xl text-left transition-all duration-200"
-                  style={{
-                    border: `1.5px solid ${difficulty === d.value ? '#d4a843' : '#3d2010'}`,
-                    background: difficulty === d.value ? '#3d1a00' : '#150c00',
-                    boxShadow: difficulty === d.value ? '0 0 12px rgba(212,168,67,0.2)' : 'none',
-                  }}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-serif text-cream text-base" style={{ color: difficulty === d.value ? '#f0d080' : '#a89880' }}>
-                      {d.zh}
-                    </span>
-                    <span
-                      className="text-[10px] px-1.5 py-0.5 rounded font-mono"
-                      style={{
-                        background: difficulty === d.value ? 'rgba(212,168,67,0.15)' : 'rgba(61,32,16,0.5)',
-                        color: difficulty === d.value ? '#d4a843' : '#8b6914',
-                      }}
-                    >
-                      {d.timeLabel}
-                    </span>
-                  </div>
-                  <div className="text-[11px] opacity-60" style={{ color: '#a89880' }}>{d.en}</div>
-                </button>
-              ))}
+      {/* ═══════════════════════════════════════
+           MAIN CONTENT
+           ═══════════════════════════════════════ */}
+      <div style={{
+        position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 10, padding: '2rem',
+      }}>
+        <div style={{
+          width: 'min(680px, 90vw)', textAlign: 'center' as const,
+          opacity: mounted ? 1 : 0, transition: 'opacity 0.3s',
+        }}>
+          {/* ─── ORNAMENT ─── */}
+          <div className="title-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(-30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
+              <div style={{ flex: 1, maxWidth: 80, height: 1, background: 'linear-gradient(90deg, transparent, #d4a84388)' }} />
+              <span style={{ color: '#d4a84388', fontSize: 10 }}>◆</span>
+              <div style={{ flex: 1, maxWidth: 80, height: 1, background: 'linear-gradient(90deg, #d4a84388, transparent)' }} />
             </div>
 
-            <button
-              onClick={handleStart}
-              className="w-full py-4 rounded-lg font-bold font-serif tracking-[0.1em] text-lg transition-all duration-200"
-              style={{
-                background: 'linear-gradient(135deg, #8B1A1A, #c0392b)',
-                color: '#f0d080',
-                letterSpacing: '0.1em',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.filter = 'brightness(1.15)';
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(192,57,43,0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.filter = 'brightness(1)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              開始對局 · Start Game
-            </button>
+            {/* ─── TITLE: 象棋 ─── */}
+            <h1 className="welcome-title" style={{
+              fontFamily: 'Noto Serif SC, serif',
+              fontSize: 'clamp(4rem, 8vw, 7rem)',
+              background: 'linear-gradient(135deg, #f0d080 0%, #d4a843 40%, #a07820 70%, #d4a843 100%)',
+              backgroundSize: '200% 200%',
+              WebkitBackgroundClip: 'text', backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '0.15em', lineHeight: 1.1, margin: 0,
+            }}>象棋</h1>
+
+            {/* ─── SUBTITLE ─── */}
+            <div className="subtitle-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.4s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 14 }}>
+              <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
+              <span style={{ fontSize: '0.85rem', letterSpacing: '0.35em', color: '#a07840', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap' }}>XIANGQI MASTER · 象棋大師</span>
+              <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
+            </div>
+
+            {/* ─── LORE TAGLINE ─── */}
+            <div className="lore-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.6s', marginBottom: 10 }}>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '0.78rem', color: '#7a5c30', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>楚河漢界，兩軍對峙</p>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '0.78rem', color: '#7a5c30', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>千古征戰，一局定乾坤</p>
+            </div>
           </div>
+
+          {/* ─── DIVIDER ─── */}
+          <div className="divider-section" style={{
+            opacity: mounted ? 1 : 0, transform: mounted ? 'scaleX(1)' : 'scaleX(0)',
+            transition: 'opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s',
+            transformOrigin: 'center', margin: '1.5rem auto', width: '80%',
+            height: 1, border: 'none',
+            background: 'linear-gradient(to right, transparent, #3d2010, #d4a843 50%, #3d2010, transparent)',
+          }} />
+
+          {/* ─── DIFFICULTY ─── */}
+          <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.8s, transform 0.5s ease 0.8s' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '0.2em', color: '#7a5c30', fontFamily: 'Noto Serif SC, serif', marginBottom: 12 }}>選擇難度 · CHỌN ĐỘ KHÓ</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+              {difficulties.map((d) => {
+                const active = difficulty === d.value;
+                return (
+                  <button key={d.value} onClick={() => setDifficulty(d.value)} className="diff-card" style={{
+                    background: active ? 'rgba(60,25,5,0.9)' : 'rgba(20,10,2,0.7)',
+                    border: active ? '1.5px solid #d4a843' : '1px solid #2d1505',
+                    borderRadius: 8, padding: '14px 20px', cursor: 'pointer', textAlign: 'left' as const,
+                    transition: 'all 0.25s ease',
+                    backdropFilter: 'blur(8px)',
+                    boxShadow: active ? '0 0 0 1px rgba(212,168,67,0.2), inset 0 0 20px rgba(212,168,67,0.05), 0 8px 30px rgba(0,0,0,0.5)' : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '1rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{d.zh}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#7a5c30', letterSpacing: '0.1em' }}>{d.en}</div>
+                    </div>
+                    <span style={{ fontSize: '0.65rem', color: '#6b4c1a', background: '#1a0f00', padding: '2px 8px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace' }}>{d.timeLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ─── START BUTTON ─── */}
+          <div className="start-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 1.0s, transform 0.5s ease 1.0s' }}>
+            <button onClick={handleStart} className="start-btn" style={{
+              width: '100%', maxWidth: 400, padding: '16px 40px', borderRadius: 6,
+              border: '1px solid rgba(212,168,67,0.5)',
+              background: 'linear-gradient(135deg, #6b1010 0%, #8B1A1A 30%, #c0392b 60%, #8B1A1A 100%)',
+              backgroundSize: '200% 200%',
+              color: '#f0d080', fontSize: '1.05rem', letterSpacing: '0.12em',
+              fontFamily: 'Noto Serif SC, serif', fontWeight: 600,
+              cursor: 'pointer', transition: 'all 0.3s ease',
+            }}>開始對局 · BẮT ĐẦU</button>
+          </div>
+
         </div>
       </div>
     </div>
