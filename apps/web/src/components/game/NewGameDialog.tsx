@@ -82,8 +82,22 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   // ═══════════════════════════════════════════════
   return (
     <div className="welcome-screen" style={{ position: 'fixed', inset: 0, overflow: 'hidden', zIndex: 100 }}>
+      {/* ─── LAYER 0: Battle background image ─── */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: 'url(/battle_bg.jpg)',
+        backgroundSize: 'cover', backgroundPosition: 'center top', backgroundRepeat: 'no-repeat',
+        zIndex: -1,
+      }} />
+      {/* Overlays on top of image for text readability */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(5,2,0,0.55)', zIndex: -1 }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #050100 0%, transparent 40%)', zIndex: -1 }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, #050100 0%, transparent 25%)', zIndex: -1 }} />
+      {/* Center gold river echo */}
+      <div style={{ position: 'absolute', left: '50%', top: 0, transform: 'translateX(-50%)', width: 2, height: '100%', zIndex: 0, pointerEvents: 'none', background: 'transparent', boxShadow: '0 0 40px 12px rgba(212,168,67,0.08)' }} />
+
       {/* ─── LAYER 1: Base atmosphere ─── */}
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 80% at 50% 110%, #3d1a00 0%, #1a0800 40%, #0a0400 70%, #050200 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 80% at 50% 110%, #3d1a00 0%, #1a0800 40%, #0a0400 70%, #050200 100%)', opacity: 0.5 }} />
 
       {/* ─── LAYER 2: Chu crimson (left) ─── */}
       <div style={{ position: 'absolute', left: 0, top: 0, width: '45%', height: '100%', background: 'radial-gradient(ellipse at 20% 60%, rgba(139,26,26,0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
