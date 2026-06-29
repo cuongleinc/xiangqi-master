@@ -26,7 +26,8 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 
 | Area | Details |
 |------|---------|
-| Welcome Screen | Epic intro: 象棋 5rem gold title with shimmer, floating ink particles, giant 象 watermark, 2-column layout, difficulty cards with Chinese names (初級/中級/高級/專家) |
+| Welcome Screen | Battle background PNG (Chu-Han War scene), XIANGQI MASTER title 2.4rem, difficulty cards English+Chinese, START GAME button |
+| Battle BG | 1920×1080 cinematic scene: Chu (crimson) vs Han (blue) armies, blood moon, mountains, 50+ soldiers, generals on horses, gold river 鴻溝 |
 | Board | Bamboo wood (#c8a96e), 8px rounded border with #8B4513 + gold outline, Dong Son bronze drum watermark at 0.04 opacity, inset shadow |
 | Grid Lines | #5c3d1a 1px, river text "楚河 漢界" in Ma Shan Zheng font |
 | Palace | Diagonal X lines #8B4513 in both palaces |
@@ -47,16 +48,19 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 - **Game review UI**: API done, frontend placeholder
 - **Evaluation bar**: Wired but needs real-time polling for live updates
 
-### 🔧 Remaining (Short-term)
+### 🔧 Remaining (Short-term) — Player vs Computer Polish
 
-- [ ] Add comprehensive tests (xiangqi-core 40+ tests, API 20+, Web 15+)
-- [ ] Fix web production build (esbuild-only build, bypass Rollup)
-- [ ] Perpetual chase detection
-- [ ] Game review UI integration
-- [ ] Evaluation bar real-time updates
-- [ ] Mobile-responsive polish
-- [ ] Sound implementation (design spec ready)
-- [ ] Drag-and-drop polish (currently click-to-select works well)
+- [ ] **Sound implementation** (design spec ready in Board.tsx)
+- [ ] **Evaluation bar real-time updates** (poll engine on every move)
+- [ ] **Game review UI integration** (frontend for POST /api/analysis/review)
+- [ ] **Hint highlight animation** (show hint source→destination with arrow/glow)
+- [ ] **Last-move highlight** (highlight source and destination of the most recent move)
+- [ ] **Move classification display** (show BEST/EXCELLENT/GOOD/INACCURACY/MISTAKE/BLUNDER in MoveList and AnalysisPanel)
+- [ ] **Drag-and-drop polish** (currently click-to-select; add full DnD with React DnD)
+- [ ] **Mobile-responsive layout** (stack columns vertically on narrow screens)
+- [ ] **Perpetual chase detection** (xiangqi-core enhancement)
+- [ ] **Fix web production build** (esbuild-only build, bypass Rollup)
+- [ ] **Add comprehensive tests** (xiangqi-core 40+ tests, API 20+, Web 15+)
 
 ### 📋 Future Phases
 
@@ -102,7 +106,8 @@ root/
 │   └── typescript-config/ Shared TS configs
 ├── scripts/
 │   ├── setup.sh          One-time setup (deps + Pikafish build)
-│   └── dev.sh            Start all services (Docker + API + Web)
+│   ├── dev.sh            Start all services (Docker + API + Web)
+│   └── generate_battle_bg.py  Generate welcome screen background
 ├── infrastructure/
 │   ├── docker/           Dockerfiles for api + web
 │   └── nginx/            Reverse proxy config
@@ -211,3 +216,26 @@ make -j build ARCH=apple-silicon             # macOS ARM
 cp pikafish ~/.local/bin/
 cp pikafish.nnue ~/.local/bin/
 ```
+
+---
+
+## Next Phase — Player vs Computer Feature Completion
+
+Priority order for implementing remaining PvC features:
+
+### Priority 1 — Gameplay Polish
+1. **Last-move highlight** — Highlight source & destination squares of the most recent move on the board
+2. **Hint highlight animation** — Show arrow/glow from hint source to destination
+3. **Evaluation bar real-time updates** — Poll `/api/analysis/evaluate` after each move, animate bar
+4. **Move classification display** — Show classification label in MoveList and AnalysisPanel
+
+### Priority 2 — UI Integration
+5. **Game review UI** — Frontend modal showing accuracy, classification counts, critical moments
+6. **Drag-and-drop** — Full drag/drop via React DnD (currently click-to-select works)
+7. **Sound effects** — Implement the sound design spec from Board.tsx comments
+
+### Priority 3 — Robustness
+8. **Mobile-responsive layout** — Stack 3-column layout vertically on narrow viewports
+9. **Perpetual chase detection** — xiangqi-core rule enhancement
+10. **Fix production build** — esbuild-only Vite build bypassing Rollup
+11. **Comprehensive tests** — 75+ tests across all packages
