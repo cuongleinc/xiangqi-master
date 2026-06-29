@@ -85,7 +85,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       {/* ─── LAYER 0: Battle background image ─── */}
       <div style={{
         position: 'absolute', inset: 0,
-        backgroundImage: 'url(/battle_bg.jpg)',
+        backgroundImage: 'url(/battle_bg.png)',
         backgroundSize: 'cover', backgroundPosition: 'center top', backgroundRepeat: 'no-repeat',
         zIndex: -1,
       }} />
