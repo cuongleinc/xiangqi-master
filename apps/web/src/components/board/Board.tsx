@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { parseFen, indexFromRowCol, getPiece } from '@repo/xiangqi-core';
 import { Color } from '@repo/shared';
+import { playPiecePlace } from '../../lib/sound';
 import { BoardGrid } from './BoardGrid';
 import { Piece } from './Piece';
 import { LegalMoves } from './LegalMoves';
@@ -90,7 +91,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
     const pending = (window as unknown as Record<string, unknown>).__pendingMove as string | undefined;
     if (pending) {
       delete (window as unknown as Record<string, unknown>).__pendingMove;
-      // TODO: playSound('piece-place')
+      playPiecePlace();
       makeMove(pending);
     }
   };

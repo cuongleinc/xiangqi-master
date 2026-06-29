@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { gameApi } from '../api/game.api';
 import { Color } from '@repo/shared';
 import type { Difficulty } from '@repo/shared';
+import { playCapture, playCheck, playGameOver } from '../lib/sound';
 
 export interface MoveRecordData {
   moveNumber: number;
@@ -76,6 +77,10 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     try {
       const data = await gameApi.makeMove(gameId, uci);
       if (data.success) {
+        // Sound triggers
+        if (data.isMate || data.gameResult) playGameOver();
+        else if (data.isCheck) playCheck();
+
         set({
           fen: data.fen,
           turn: data.turn === 'w' ? Color.RED : Color.BLACK,
