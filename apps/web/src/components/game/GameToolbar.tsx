@@ -13,7 +13,9 @@ export const GameToolbar: React.FC = () => {
   const hintsRemaining = useGameStore((s) => s.hintsRemaining);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
   const matchType = useGameStore((s) => s.matchType);
+  const moveCount = useGameStore((s) => s.moveCount);
   const makeMove = useGameStore((s) => s.makeMove);
+  const undoMove = useGameStore((s) => s.undoMove);
   const openDialog = useUiStore((s) => s.openDialog);
   const showHint = useUiStore((s) => s.showHint);
 
@@ -40,6 +42,13 @@ export const GameToolbar: React.FC = () => {
       if (data.bestMove) {
         await makeMove(data.bestMove);
       }
+    } catch { /* ignore */ }
+  };
+
+  const handleUndo = async () => {
+    if (!gameId) return;
+    try {
+      await undoMove();
     } catch { /* ignore */ }
   };
 
@@ -94,6 +103,21 @@ export const GameToolbar: React.FC = () => {
           Best Move
         </button>
       )}
+
+      {/* Undo */}
+      <button
+        onClick={handleUndo}
+        disabled={isAiThinking || moveCount === 0}
+        className={`${btnBase} text-cream border border-gold/40 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed`}
+        style={{
+          background: 'linear-gradient(135deg, #4a3520 0%, #7a5530 100%)',
+          boxShadow: '0 2px 8px rgba(74,53,32,0.3)',
+        }}
+        onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
+        onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
+      >
+        悔棋 · Undo
+      </button>
 
       {/* Resign */}
       <button

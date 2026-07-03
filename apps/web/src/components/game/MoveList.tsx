@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores/game.store';
+import { uciToReadable } from '../../lib/notation';
 
 const CLASS_STYLES: Record<string, string> = {
   BEST: 'text-green-300',
@@ -10,10 +11,27 @@ const CLASS_STYLES: Record<string, string> = {
   BLUNDER: 'text-red-200',
 };
 
-/** Client-side classification fallback — mirrors xiangqi-core classifyMove. */
+const CLASS_LABEL: Record<string, string> = {
+  BEST: '',
+  EXCELLENT: '!',
+  GOOD: '',
+  INACCURACY: '?!',
+  MISTAKE: '?',
+  BLUNDER: '??',
+};
+
+const CLASS_DOT: Record<string, string> = {
+  BEST: 'bg-green-400',
+  EXCELLENT: 'bg-green-400/70',
+  GOOD: 'bg-gold-light',
+  INACCURACY: 'bg-yellow-500',
+  MISTAKE: 'bg-orange-400',
+  BLUNDER: 'bg-red-400',
+};
+
+/** Client-side classification fallback */
 function getClassLocal(evalAfter: number, evalBefore: number): string | null {
-  const cpLoss = evalBefore - (-evalAfter);  // negate evalAfter (opponent perspective → player)
-  if (cpLoss <= 0) return 'BEST';
+  const cpLoss = evalBefore - -evalAfter;
   if (cpLoss <= 5) return 'BEST';
   if (cpLoss <= 15) return 'EXCELLENT';
   if (cpLoss <= 50) return 'GOOD';
@@ -22,18 +40,90 @@ function getClassLocal(evalAfter: number, evalBefore: number): string | null {
   return 'BLUNDER';
 }
 
-const CLASS_LABEL: Record<string, string> = {
-  BEST: 'Best',
-  EXCELLENT: 'Excel',
-  GOOD: 'Good',
-  INACCURACY: 'Inacc',
-  MISTAKE: 'Mist',
-  BLUNDER: 'Blunder',
-};
-
 export const MoveList: React.FC = () => {
   const moves = useGameStore((s) => s.moves);
   const moveCount = useGameStore((s) => s.moveCount);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to latest move
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [moveCount]);
+
+  // Pair moves: [Red, Black] per row
+  const rows: Array<{
+    moveNum: number;
+    red: (typeof moves)[0] | null;
+    black: (typeof moves)[0] | null;
+  }> = [];
+
+  for (let i = 0; i < moves.length; i += 2) {
+    rows.push({
+      moveNum: Math.floor(i / 2) + 1,
+      red: moves[i] || null,
+      black: moves[i + 1] || null,
+    });
+  }
+
+  // Render a single move cell
+  const renderCell = (
+    move: (typeof moves)[0] | null,
+    moveIdx: number,
+    isRed: boolean,
+  ) => {
+    if (!move) {
+      return <div className="flex-1 min-w-0" />;
+    }
+
+    const isLatest = moveIdx === moves.length - 1;
+    const readable = uciToReadable(move.uci, move.fenBefore);
+    const cls =
+      move.classification ||
+      (move.evaluationBefore != null && move.evaluationAfter != null
+        ? getClassLocal(move.evaluationAfter, move.evaluationBefore)
+        : null);
+    const dotColor = cls ? CLASS_DOT[cls] : 'bg-cream-dim/30';
+    const label = cls ? CLASS_LABEL[cls] : '';
+    const annotationColor = cls ? CLASS_STYLES[cls] : 'text-cream-dim';
+
+    return (
+      <div
+        className={`flex-1 min-w-0 flex items-center gap-1 px-1.5 py-1 rounded-sm transition-colors cursor-default ${
+          isLatest
+            ? 'bg-gold/15'
+            : isRed
+              ? 'hover:bg-[#3d2010]/20'
+              : 'hover:bg-[#2a1a20]/20'
+        }`}
+        title={`${move.uci} → ${readable}${move.isCheck ? ' +' : ''}${move.isCapture ? ' x' : ''}`}
+      >
+        {/* Classification dot */}
+        <span
+          className={`inline-block w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`}
+        />
+
+        {/* Move notation */}
+        <span
+          className={`flex-1 text-xs truncate ${
+            isLatest ? 'text-gold-light font-semibold' : 'text-cream/80'
+          }`}
+        >
+          {readable}
+          {move.isCheck ? '+' : ''}
+          {move.isCapture ? 'x' : ''}
+        </span>
+
+        {/* Annotation symbol */}
+        {label && (
+          <span className={`text-[10px] font-bold flex-shrink-0 ${annotationColor}`}>
+            {label}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-[#150c00] rounded-lg">
@@ -46,36 +136,33 @@ export const MoveList: React.FC = () => {
         {moves.length === 0 ? (
           <p className="text-cream-dim/40 text-xs text-center py-4">No moves yet</p>
         ) : (
-          <div className="max-h-52 overflow-y-auto space-y-0.5 font-mono text-xs">
-            {moves.map((move, i) => {
-              const isLatest = move.moveNumber === moveCount;
-              const isEven = i % 2 === 0;
+          <div
+            ref={scrollRef}
+            className="max-h-64 overflow-y-auto scrollbar-thin"
+          >
+            {/* Column headers */}
+            <div className="flex items-center gap-1 mb-1 text-[10px] text-cream-dim/50 font-semibold uppercase tracking-wider">
+              <span className="w-7 text-center flex-shrink-0">#</span>
+              <span className="flex-1 px-1.5">Red</span>
+              <span className="flex-1 px-1.5">Black</span>
+            </div>
+
+            {rows.map((row) => {
+              const redIdx = (row.moveNum - 1) * 2;
+              const blackIdx = redIdx + 1;
 
               return (
-                <div
-                  key={i}
-                  className={`flex items-center gap-1.5 px-2 py-1 rounded-sm transition-colors ${
-                    isLatest
-                      ? 'bg-gold/15 text-gold-light'
-                      : isEven
-                        ? 'text-[#a07840]'
-                        : 'text-cream-dim/80'
-                  }`}
-                >
-                  <span className="text-cream-dim/40 w-6 text-right text-[10px] flex-shrink-0">{move.moveNumber}.</span>
-                  <span className="flex-1">{move.uci}</span>
-                  {/* Show classification from backend, or compute locally from eval data */}
-                  {(() => {
-                    const cls = move.classification
-                      || (move.evaluationBefore != null && move.evaluationAfter != null
-                        ? getClassLocal(move.evaluationAfter, move.evaluationBefore)
-                        : null);
-                    return cls ? (
-                      <span className={`text-[9px] font-semibold flex-shrink-0 ${CLASS_STYLES[cls] || 'text-cream-dim'}`}>
-                        {CLASS_LABEL[cls] || cls}
-                      </span>
-                    ) : null;
-                  })()}
+                <div key={row.moveNum} className="flex items-center gap-1">
+                  {/* Move number */}
+                  <span className="w-7 text-right text-[10px] text-cream-dim/40 flex-shrink-0 font-mono">
+                    {row.moveNum}.
+                  </span>
+
+                  {/* Red's move */}
+                  {renderCell(row.red, redIdx, true)}
+
+                  {/* Black's move */}
+                  {renderCell(row.black, blackIdx, false)}
                 </div>
               );
             })}

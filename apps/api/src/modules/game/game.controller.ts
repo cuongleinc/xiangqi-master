@@ -36,6 +36,11 @@ export class GameController {
     return this.gameService.getHint(id);
   }
 
+  @Post(':id/undo')
+  async undoMove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.gameService.undoMove(id);
+  }
+
   @Get(':id/moves')
   async getGameMoves(@Param('id', ParseUUIDPipe) id: string) {
     return this.gameService.getGameMoves(id);

@@ -13,6 +13,9 @@ export const gameApi = {
   getHint: (gameId: string) =>
     apiClient.post(`/games/${gameId}/hint`).then((r) => r.data),
 
+  undoMove: (gameId: string) =>
+    apiClient.post(`/games/${gameId}/undo`).then((r) => r.data),
+
   getMoves: (gameId: string) =>
     apiClient.get(`/games/${gameId}/moves`).then((r) => r.data),
 };

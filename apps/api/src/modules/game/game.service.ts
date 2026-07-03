@@ -58,13 +58,14 @@ export class GameService {
   }
 
   async getGame(id: string) {
-    const game = await this.gameRepo.findOne({
-      where: { id },
-      relations: ['moves'],
-      order: { moves: { moveNumber: 'ASC' } },
-    });
-
+    const game = await this.gameRepo.findOne({ where: { id } });
     if (!game) throw new Error('Game not found');
+
+    // Load moves separately — findOne with nested order can silently drop relations
+    const moves = await this.moveRepo.find({
+      where: { gameId: id },
+      order: { moveNumber: 'ASC' },
+    });
 
     return {
       id: game.id,
@@ -74,7 +75,7 @@ export class GameService {
       result: game.result,
       difficulty: game.difficulty,
       hintsRemaining: game.hintsRemaining,
-      moves: (game.moves || []).map((m) => ({
+      moves: moves.map((m) => ({
         moveNumber: m.moveNumber,
         uci: m.uciMove,
         fenBefore: m.fenBefore,
@@ -431,6 +432,61 @@ export class GameService {
       depth: result.depth,
       hintsRemaining: game.hintsRemaining,
     };
+  }
+
+  async undoMove(gameId: string) {
+    const game = await this.gameRepo.findOne({ where: { id: gameId } });
+    if (!game) throw new Error('Game not found');
+
+    if (game.status !== 'playing') {
+      throw new Error('Cannot undo: game is over');
+    }
+
+    // Read move history from DB — don't rely on in-memory GameManager
+    // which is lost on hot-reload and may be out of sync.
+    const allMoves = await this.moveRepo.find({
+      where: { gameId },
+      order: { moveNumber: 'DESC' },
+    });
+
+    if (allMoves.length === 0) {
+      throw new Error('No moves to undo');
+    }
+
+    // For PvC: undo both AI move and human move so the human can retry
+    let undoCount = 1;
+    if (game.matchType === 'pvc') {
+      undoCount = Math.min(2, allMoves.length);
+    }
+
+    // Restore FEN to before the first undone move
+    const firstUndoneMove = allMoves[undoCount - 1]!;
+    const restoredFen = undoCount < allMoves.length
+      ? allMoves[undoCount]!.fenBefore  // FEN before the first undone move
+      : firstUndoneMove.fenBefore;      // undoing all moves — back to start
+
+    // Delete the last undoCount moves from DB
+    const movesToDelete = allMoves.slice(0, undoCount);
+    await this.moveRepo.remove(movesToDelete);
+
+    // Update game entity
+    game.currentFen = restoredFen;
+    game.moveCount = Math.max(0, game.moveCount - undoCount);
+    game.status = 'playing';
+    game.result = null;
+    game.aiThinking = false;
+    game.recentAiMove = null;
+    await this.gameRepo.save(game);
+
+    // Reset in-memory GameManager to match if it exists
+    const manager = this.activeGames.get(gameId);
+    if (manager) {
+      manager.reset(restoredFen);
+    }
+
+    this.logger.log(`Undid ${undoCount} move(s) for game ${gameId}, new moveCount=${game.moveCount}`);
+
+    return this.getGame(gameId);
   }
 
   async getGameMoves(gameId: string) {

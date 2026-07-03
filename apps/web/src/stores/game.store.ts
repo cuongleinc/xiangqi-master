@@ -33,6 +33,7 @@ interface GameStoreState {
 
   createNewGame: (difficulty: string, matchType?: string) => Promise<void>;
   makeMove: (uci: string) => Promise<boolean>;
+  undoMove: () => Promise<void>;
   fetchGameState: () => Promise<void>;
   setError: (error: string | null) => void;
   reset: () => void;
@@ -96,9 +97,21 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
           lastMoveUci: uci,
           error: null,
         });
-        // Poll for AI move if needed
+        // Poll for AI move if needed; otherwise fetch game state for moves
         if (data.isAiThinking) {
           get().fetchGameState();
+        } else {
+          gameApi.getGame(gameId).then((gameData) => {
+            set({
+              moves: gameData.moves || [],
+              moveCount: gameData.moveCount,
+              hintsRemaining: gameData.hintsRemaining,
+              recentAiMove: gameData.recentAiMove,
+              lastMoveUci: gameData.moves?.length > 0
+                ? gameData.moves[gameData.moves.length - 1].uci
+                : get().lastMoveUci,
+            });
+          }).catch(() => {});
         }
         return true;
       }
@@ -145,6 +158,30 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   },
 
   setError: (error) => set({ error }),
+
+  undoMove: async () => {
+    const { gameId } = get();
+    if (!gameId) return;
+
+    try {
+      const data = await gameApi.undoMove(gameId);
+      set({
+        gameId: data.id,
+        fen: data.fen,
+        turn: data.fen?.includes(' w ') ? Color.RED : Color.BLACK,
+        status: data.status,
+        moveCount: data.moveCount,
+        hintsRemaining: data.hintsRemaining,
+        isAiThinking: data.isAiThinking,
+        moves: data.moves || [],
+        recentAiMove: data.recentAiMove,
+        lastMoveUci: data.moves?.length > 0 ? data.moves[data.moves.length - 1].uci : null,
+        error: null,
+      });
+    } catch (err) {
+      set({ error: (err as Error).message });
+    }
+  },
 
   reset: () => set({
     gameId: null,
