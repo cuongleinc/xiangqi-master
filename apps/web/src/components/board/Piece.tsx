@@ -88,9 +88,13 @@ export const Piece: React.FC<PieceProps> = ({ pieceCode, pieceId, row, col, cell
           </filter>
 
           {/* Selection glow filter */}
-          <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation={2} result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          <filter id={glowId} x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation={4} result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
 
@@ -131,10 +135,15 @@ export const Piece: React.FC<PieceProps> = ({ pieceCode, pieceId, row, col, cell
         {/* Selection glow + pulse */}
         {isSelected && (
           <>
-            <circle cx={0} cy={0} r={radius + strokeWidth * 4.5} fill="none" stroke="#f0d080" strokeWidth={strokeWidth * 2.5} opacity={0.8}>
-              <animate attributeName="opacity" values="0.8;0.15;0.8" dur="1s" repeatCount="indefinite" />
+            {/* Outer glow ring — pulsing */}
+            <circle cx={0} cy={0} r={radius + strokeWidth * 3.5} fill="none" stroke="#f0d080" strokeWidth={strokeWidth * 4} opacity={0.9} filter={`url(#${glowId})`}>
+              <animate attributeName="opacity" values="0.9;0.25;0.9" dur="1.2s" repeatCount="indefinite" />
+              <animate attributeName="r" values={`${radius + strokeWidth * 3.5};${radius + strokeWidth * 5};${radius + strokeWidth * 3.5}`} dur="1.2s" repeatCount="indefinite" />
             </circle>
-            <circle cx={0} cy={0} r={radius + strokeWidth * 2} fill="none" stroke="#d4a843" strokeWidth={strokeWidth * 3} opacity={0.9} />
+            {/* Solid inner ring — bright gold, always visible */}
+            <circle cx={0} cy={0} r={radius + strokeWidth * 1.8} fill="none" stroke="#ffd700" strokeWidth={strokeWidth * 3.5} opacity={0.95} />
+            {/* Inner highlight ring for depth */}
+            <circle cx={0} cy={0} r={radius + strokeWidth * 1.2} fill="none" stroke="rgba(255,240,200,0.5)" strokeWidth={strokeWidth * 1.5} opacity={0.7} />
           </>
         )}
       </g>

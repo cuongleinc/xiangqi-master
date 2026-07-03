@@ -205,8 +205,8 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
         </button>
         <div style={{
           display: 'flex', alignItems: 'center', gap: 2,
-          background: 'rgba(15,8,2,0.8)', border: '1px solid rgba(212,168,67,0.15)',
-          borderRadius: 20, padding: '3px 4px',
+          background: 'rgba(15,8,2,0.85)', border: '1px solid rgba(212,168,67,0.18)',
+          borderRadius: 24, padding: '4px 6px',
           backdropFilter: 'blur(12px)',
         }}>
           <LanguageSwitcher />

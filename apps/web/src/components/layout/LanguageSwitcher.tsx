@@ -12,7 +12,7 @@ export const LanguageSwitcher: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-2">
       {SUPPORTED_LANGUAGES.map((lang) => {
         const isActive = current === lang.code;
         return (
@@ -20,11 +20,12 @@ export const LanguageSwitcher: React.FC = () => {
             key={lang.code}
             onClick={() => handleChange(lang.code)}
             title={lang.label}
-            className={`text-xs px-1.5 py-0.5 rounded transition-colors ${
+            className={`text-lg px-2.5 py-1.5 rounded-md transition-all duration-200 ${
               isActive
-                ? 'bg-gold/20 text-gold-light border border-gold/40'
-                : 'text-cream-dim/50 hover:text-cream-dim border border-transparent hover:border-gold/20'
+                ? 'bg-gold/25 text-gold-light border border-gold/60 shadow-sm'
+                : 'text-cream-dim/40 hover:text-cream-dim/80 border border-transparent hover:border-gold/25 hover:scale-110 grayscale-[30%] hover:grayscale-0'
             }`}
+            style={isActive ? { boxShadow: '0 0 8px rgba(212,168,67,0.25)' } : undefined}
           >
             {lang.flag}
           </button>
