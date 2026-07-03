@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../stores/game.store';
 import { useAnalysisStore } from '../../stores/analysis.store';
 import { Color, MoveClassification } from '@repo/shared';
@@ -10,6 +11,7 @@ import { MoveList } from '../game/MoveList';
 import { StatusBar } from './StatusBar';
 
 export const GameLayout: React.FC = () => {
+  const { t } = useTranslation();
   const fen = useGameStore((s) => s.fen);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
   const evaluatePosition = useAnalysisStore((s) => s.evaluatePosition);
@@ -76,6 +78,22 @@ export const GameLayout: React.FC = () => {
       </div>
 
       <StatusBar />
+
+      {/* Author footer — below the status bar */}
+      <div className="fixed bottom-9 left-0 right-0 text-center pointer-events-none" style={{ zIndex: 5 }}>
+        <span className="text-cream-dim/20 text-[10px] font-serif">
+          &copy; {new Date().getFullYear()}{' '}
+          <a
+            href="https://github.com/cuongleinc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gold transition-colors pointer-events-auto"
+          >
+            Cuong Le
+          </a>
+          {' — '}{t('footer.tagline')}
+        </span>
+      </div>
     </div>
   );
 };

@@ -59,6 +59,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   const setDifficulty = useSettingsStore((s) => s.setDifficulty);
   const matchType = useSettingsStore((s) => s.matchType);
   const setMatchType = useSettingsStore((s) => s.setMatchType);
+  const openDialog = useUiStore((s) => s.openDialog);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
@@ -194,8 +195,14 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to bottom, #050200 0%, transparent 30%)' }} />
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to top, #050200 0%, transparent 30%)' }} />
 
-      {/* ─── Language Switcher (top-right, always visible) ─── */}
-      <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 20 }}>
+      {/* ─── Language Switcher + About (top-right, always visible) ─── */}
+      <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <button
+          onClick={() => openDialog('about')}
+          className="text-xs text-cream-dim/50 hover:text-gold-light transition-colors font-serif tracking-wide"
+        >
+          {t('header.about')}
+        </button>
         <LanguageSwitcher />
       </div>
 
@@ -299,6 +306,22 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           </div>
 
         </div>
+      </div>
+
+      {/* ─── Author Footer ─── */}
+      <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center', zIndex: 20 }}>
+        <span className="text-cream-dim/30 text-[11px] font-serif">
+          &copy; {new Date().getFullYear()}{' '}
+          <a
+            href="https://github.com/cuongleinc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gold transition-colors"
+          >
+            Cuong Le
+          </a>
+          {' — '}{t('footer.tagline')}
+        </span>
       </div>
     </div>
   );

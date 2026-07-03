@@ -8,6 +8,10 @@ const vi = {
   header: {
     title: 'Xiangqi Master',
     subtitle: '中國象棋',
+    about: 'Giới thiệu',
+  },
+  footer: {
+    tagline: 'Nền tảng Cờ Tướng hiện đại',
   },
   board: {
     river: {
@@ -130,6 +134,23 @@ const vi = {
     subtitle: 'Kết thúc',
     playAgain: 'Chơi lại',
     reviewGame: 'Xem lại ván',
+  },
+  about: {
+    engine: {
+      title: 'Cờ Máy',
+      description: 'Được hỗ trợ bởi Pikafish — engine Cờ Tướng mã nguồn mở mạnh nhất, kế thừa từ Stockfish với đánh giá NNUE. Dự án này biết ơn đội ngũ Pikafish vì công trình tuyệt vời của họ.',
+    },
+    author: {
+      title: 'Tác giả',
+    },
+    tech: {
+      title: 'Công nghệ',
+    },
+    license: {
+      title: 'Giấy phép & Mã nguồn',
+    },
+    tagline: 'Nền tảng Cờ Tướng hiện đại',
+    close: 'Đóng',
   },
   status: {
     redWins: 'Đỏ Thắng!',

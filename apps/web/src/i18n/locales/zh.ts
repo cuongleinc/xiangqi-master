@@ -8,6 +8,10 @@ const zh = {
   header: {
     title: 'Xiangqi Master',
     subtitle: '中國象棋',
+    about: '關於',
+  },
+  footer: {
+    tagline: '現代中國象棋平台',
   },
   board: {
     river: {
@@ -130,6 +134,23 @@ const zh = {
     subtitle: '對局結束',
     playAgain: '再來一局',
     reviewGame: '回顧對局',
+  },
+  about: {
+    engine: {
+      title: '象棋引擎',
+      description: '由 Pikafish 驅動 — 最強的開源象棋引擎，源自 Stockfish 並配備 NNUE 評估。本項目感謝 Pikafish 團隊的卓越貢獻。',
+    },
+    author: {
+      title: '作者',
+    },
+    tech: {
+      title: '技術棧',
+    },
+    license: {
+      title: '許可證與源碼',
+    },
+    tagline: '現代中國象棋平台',
+    close: '關閉',
   },
   status: {
     redWins: '紅方勝！',

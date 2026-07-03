@@ -8,6 +8,10 @@ const en = {
   header: {
     title: 'Xiangqi Master',
     subtitle: '中國象棋',
+    about: 'About',
+  },
+  footer: {
+    tagline: 'A modern Chinese Chess platform',
   },
   board: {
     river: {
@@ -130,6 +134,23 @@ const en = {
     subtitle: 'Game Over',
     playAgain: 'Play Again',
     reviewGame: 'Review Game',
+  },
+  about: {
+    engine: {
+      title: 'Chess Engine',
+      description: 'Powered by Pikafish — the strongest open-source Xiangqi engine, derived from Stockfish with NNUE evaluation. This project is grateful to the Pikafish team for their incredible work.',
+    },
+    author: {
+      title: 'Author',
+    },
+    tech: {
+      title: 'Technology',
+    },
+    license: {
+      title: 'License & Source',
+    },
+    tagline: 'A modern Chinese Chess platform',
+    close: 'Close',
   },
   status: {
     redWins: 'Red Wins!',
