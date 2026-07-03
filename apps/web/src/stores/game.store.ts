@@ -27,6 +27,7 @@ interface GameStoreState {
   isAiThinking: boolean;
   moves: MoveRecordData[];
   recentAiMove: { uci: string; fen: string; evaluation?: number } | null;
+  lastMoveUci: string | null;
   error: string | null;
 
   createNewGame: (difficulty: string) => Promise<void>;
@@ -47,6 +48,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   isAiThinking: false,
   moves: [],
   recentAiMove: null,
+  lastMoveUci: null,
   error: null,
 
   createNewGame: async (difficulty: string) => {
@@ -63,6 +65,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         isAiThinking: false,
         moves: [],
         recentAiMove: null,
+        lastMoveUci: null,
         error: null,
       });
     } catch (err) {
@@ -87,6 +90,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
           status: data.gameResult || 'playing',
           moveCount: data.moveNumber,
           isAiThinking: data.isAiThinking || false,
+          lastMoveUci: uci,
           error: null,
         });
         // Poll for AI move if needed
@@ -115,6 +119,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         hintsRemaining: data.hintsRemaining,
         isAiThinking: data.isAiThinking,
         recentAiMove: data.recentAiMove,
+        lastMoveUci: data.recentAiMove?.uci ?? get().lastMoveUci,
         moves: data.moves || [],
       });
 
@@ -139,6 +144,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     isAiThinking: false,
     moves: [],
     recentAiMove: null,
+    lastMoveUci: null,
     error: null,
   }),
 }));

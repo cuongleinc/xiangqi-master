@@ -2,6 +2,7 @@ import React from 'react';
 import { useGameStore } from '../../stores/game.store';
 import { gameApi } from '../../api/game.api';
 import { useUiStore } from '../../stores/ui.store';
+import { FILE_MAP } from '@repo/shared';
 
 const btnBase = 'w-full py-3 px-5 font-medium text-sm tracking-[0.03em] rounded-md transition-all duration-200 font-serif';
 
@@ -18,10 +19,12 @@ export const GameToolbar: React.FC = () => {
     if (!gameId || hintsRemaining <= 0) return;
     try {
       const data = await gameApi.getHint(gameId);
-      const fromFile = data.bestMove.charCodeAt(0) - 97;
-      const fromRank = parseInt(data.bestMove[1]!);
-      const toFile = data.bestMove.charCodeAt(2) - 97;
-      const toRank = parseInt(data.bestMove[3]!);
+      const uci: string = data.bestMove;
+      const fromFile = FILE_MAP[uci[0]!];
+      const fromRank = parseInt(uci[1]!, 10);
+      const toFile = FILE_MAP[uci[2]!];
+      const toRank = parseInt(uci[3]!, 10);
+      if (fromFile === undefined || toFile === undefined || isNaN(fromRank) || isNaN(toRank)) return;
       showHint([fromRank, fromFile], [toRank, toFile]);
     } catch { /* ignore */ }
   };

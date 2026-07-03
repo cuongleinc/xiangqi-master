@@ -1,11 +1,13 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { parseFen, indexFromRowCol, getPiece } from '@repo/xiangqi-core';
-import { Color } from '@repo/shared';
+import { Color, FILE_MAP } from '@repo/shared';
 import { playPiecePlace } from '../../lib/sound';
 import { BoardGrid } from './BoardGrid';
 import { Piece } from './Piece';
 import { LegalMoves } from './LegalMoves';
 import { CheckHighlight } from './CheckHighlight';
+import { LastMoveHighlight } from './LastMoveHighlight';
+import { HintHighlight } from './HintHighlight';
 import { useUiStore } from '../../stores/ui.store';
 import { useGameStore } from '../../stores/game.store';
 import { useSettingsStore } from '../../stores/settings.store';
@@ -22,8 +24,11 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   const selectedSquare = useUiStore((s) => s.selectedSquare);
   const legalMoves = useUiStore((s) => s.legalMoves);
   const selectSquare = useUiStore((s) => s.selectSquare);
+  const hintMove = useUiStore((s) => s.hintMove);
+  const clearHint = useUiStore((s) => s.clearHint);
   const showCoordinates = useSettingsStore((s) => s.showCoordinates);
   const makeMove = useGameStore((s) => s.makeMove);
+  const lastMoveUci = useGameStore((s) => s.lastMoveUci);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -52,6 +57,17 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
       return null;
     }
   }, [fen]);
+
+  // Parse last-move UCI into row/col coordinates for highlighting
+  const lastMove = useMemo(() => {
+    if (!lastMoveUci || lastMoveUci.length !== 4) return null;
+    const fromFile = FILE_MAP[lastMoveUci[0]!];
+    const fromRank = parseInt(lastMoveUci[1]!, 10);
+    const toFile = FILE_MAP[lastMoveUci[2]!];
+    const toRank = parseInt(lastMoveUci[3]!, 10);
+    if (fromFile === undefined || toFile === undefined || isNaN(fromRank) || isNaN(toRank)) return null;
+    return { fromRow: fromRank, fromCol: fromFile, toRow: toRank, toCol: toFile };
+  }, [lastMoveUci]);
 
   // Stable piece identity: each piece gets a unique ID tied to its position,
   // NOT its type occurrence count. This prevents pieces of the same type
@@ -87,6 +103,8 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
    */
   const handleClick = (row: number, col: number) => {
     if (!fen) return;
+    // Clear hint when player interacts with the board
+    clearHint();
     selectSquare(row, col, fen, turn);
     const pending = (window as unknown as Record<string, unknown>).__pendingMove as string | undefined;
     if (pending) {
@@ -170,6 +188,30 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
 
           {/* Grid lines drawn ON the board background */}
           <BoardGrid cellSize={cellSize} padding={padding} showCoordinates={showCoordinates} />
+
+          {/* Last-move highlight on source and destination squares */}
+          {lastMove && (
+            <LastMoveHighlight
+              fromRow={lastMove.fromRow}
+              fromCol={lastMove.fromCol}
+              toRow={lastMove.toRow}
+              toCol={lastMove.toCol}
+              cellSize={cellSize}
+              padding={padding}
+            />
+          )}
+
+          {/* Hint highlight — animated arrow + glow showing the suggested move */}
+          {hintMove && (
+            <HintHighlight
+              fromRow={hintMove.from[0]}
+              fromCol={hintMove.from[1]}
+              toRow={hintMove.to[0]}
+              toCol={hintMove.to[1]}
+              cellSize={cellSize}
+              padding={padding}
+            />
+          )}
 
           {/* Pieces rendered on top of grid */}
           {pieces.map((p) => (
