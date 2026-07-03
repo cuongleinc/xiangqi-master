@@ -60,7 +60,6 @@ const zh = {
     hint: '提示',
     bestMove: '最佳著法',
     undo: '悔棋',
-    resign: '認負',
     id: '對局',
     status: '狀態',
     'status.thinking': '思考中',
@@ -134,6 +133,11 @@ const zh = {
     subtitle: '對局結束',
     playAgain: '再來一局',
     reviewGame: '回顧對局',
+  },
+  confirm: {
+    newGame: '開始新對局？當前對局將會丟失。',
+    cancel: '取消',
+    ok: '確認',
   },
   about: {
     engine: {

@@ -60,7 +60,6 @@ const en = {
     hint: 'Hint',
     bestMove: 'Best Move',
     undo: 'Undo',
-    resign: 'Resign',
     id: 'Game',
     status: 'Status',
     'status.thinking': 'Thinking',
@@ -134,6 +133,11 @@ const en = {
     subtitle: 'Game Over',
     playAgain: 'Play Again',
     reviewGame: 'Review Game',
+  },
+  confirm: {
+    newGame: 'Start a new game? The current game will be lost.',
+    cancel: 'Cancel',
+    ok: 'Confirm',
   },
   about: {
     engine: {

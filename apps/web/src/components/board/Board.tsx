@@ -123,7 +123,6 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
           outline: '1px solid #d4a843',
           outlineOffset: 1,
           boxShadow: 'inset 0 0 30px rgba(0,0,0,0.4), 0 4px 20px rgba(0,0,0,0.5)',
-          overflow: 'hidden',
         }}
       >
         <svg

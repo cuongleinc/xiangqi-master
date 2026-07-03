@@ -60,7 +60,6 @@ const vi = {
     hint: 'Gợi ý',
     bestMove: 'Nước đi tốt nhất',
     undo: 'Hoàn tác',
-    resign: 'Đầu hàng',
     id: 'Ván',
     status: 'Trạng thái',
     'status.thinking': 'Đang nghĩ',
@@ -134,6 +133,11 @@ const vi = {
     subtitle: 'Kết thúc',
     playAgain: 'Chơi lại',
     reviewGame: 'Xem lại ván',
+  },
+  confirm: {
+    newGame: 'Bắt đầu ván mới? Ván hiện tại sẽ bị mất.',
+    cancel: 'Hủy',
+    ok: 'Xác nhận',
   },
   about: {
     engine: {

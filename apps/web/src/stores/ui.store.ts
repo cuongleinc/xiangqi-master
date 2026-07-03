@@ -13,6 +13,8 @@ interface UiStoreState {
   draggedPiece: { piece: number; from: [number, number] } | null;
   hintMove: { from: [number, number]; to: [number, number] } | null;
   activeDialog: string | null;
+  confirmMessage: string | null;
+  confirmCallback: (() => void) | null;
   isBoardLoading: boolean;
   apiErrorMessage: string | null;
 
@@ -22,6 +24,8 @@ interface UiStoreState {
   clearHint: () => void;
   openDialog: (dialog: string) => void;
   closeDialog: () => void;
+  showConfirm: (message: string, onConfirm: () => void) => void;
+  clearConfirm: () => void;
   setLoading: (loading: boolean) => void;
   setError: (msg: string | null) => void;
 }
@@ -33,6 +37,8 @@ export const useUiStore = create<UiStoreState>((set, get) => ({
   draggedPiece: null,
   hintMove: null,
   activeDialog: null,
+  confirmMessage: null,
+  confirmCallback: null,
   isBoardLoading: false,
   apiErrorMessage: null,
 
@@ -96,6 +102,9 @@ export const useUiStore = create<UiStoreState>((set, get) => ({
 
   openDialog: (dialog) => set({ activeDialog: dialog }),
   closeDialog: () => set({ activeDialog: null }),
+
+  showConfirm: (message, onConfirm) => set({ confirmMessage: message, confirmCallback: onConfirm }),
+  clearConfirm: () => set({ confirmMessage: null, confirmCallback: null }),
 
   setLoading: (loading) => set({ isBoardLoading: loading }),
   setError: (msg) => set({ apiErrorMessage: msg }),

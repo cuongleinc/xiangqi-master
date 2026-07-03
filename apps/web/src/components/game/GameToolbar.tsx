@@ -21,7 +21,15 @@ export const GameToolbar: React.FC = () => {
   const openDialog = useUiStore((s) => s.openDialog);
   const showHint = useUiStore((s) => s.showHint);
 
-  const handleNewGame = () => openDialog('newGame');
+  const showConfirm = useUiStore((s) => s.showConfirm);
+
+  const handleNewGame = () => {
+    if (moveCount > 0) {
+      showConfirm(t('confirm.newGame'), () => openDialog('newGame'));
+    } else {
+      openDialog('newGame');
+    }
+  };
 
   const handleHint = async () => {
     if (!gameId || hintsRemaining <= 0) return;
@@ -119,14 +127,6 @@ export const GameToolbar: React.FC = () => {
         onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
       >
         {t('game.undo')}
-      </button>
-
-      {/* Resign */}
-      <button
-        disabled={isAiThinking}
-        className={`${btnBase} text-[#a07840] bg-transparent border border-[#8B4513] hover:bg-[#8B4513]/10 disabled:opacity-30 disabled:cursor-not-allowed`}
-      >
-        {t('game.resign')}
       </button>
 
       {/* Sep */}
