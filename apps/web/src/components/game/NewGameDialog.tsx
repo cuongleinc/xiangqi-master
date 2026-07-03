@@ -196,14 +196,21 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to top, #050200 0%, transparent 30%)' }} />
 
       {/* ─── Language Switcher + About (top-right, always visible) ─── */}
-      <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div style={{ position: 'absolute', top: 24, right: 28, zIndex: 20, display: 'flex', alignItems: 'center', gap: 18 }}>
         <button
           onClick={() => openDialog('about')}
           className="text-xs text-cream-dim/50 hover:text-gold-light transition-colors font-serif tracking-wide"
         >
           {t('header.about')}
         </button>
-        <LanguageSwitcher />
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 2,
+          background: 'rgba(15,8,2,0.8)', border: '1px solid rgba(212,168,67,0.15)',
+          borderRadius: 20, padding: '3px 4px',
+          backdropFilter: 'blur(12px)',
+        }}>
+          <LanguageSwitcher />
+        </div>
       </div>
 
       {/* ═══════════════════════════════════════
@@ -211,49 +218,64 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
            ═══════════════════════════════════════ */}
       <div style={{
         position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 10, padding: '2rem',
+        zIndex: 10, padding: '3rem 2rem',
       }}>
         <div style={{
-          width: 'min(680px, 90vw)', textAlign: 'center' as const,
+          width: 'min(720px, 92vw)', textAlign: 'center' as const,
           opacity: mounted ? 1 : 0, transition: 'opacity 0.3s',
         }}>
           {/* ─── TITLE ─── */}
           <div className="title-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(-30px)', transition: 'opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s' }}>
 
             {/* ─── SUBTITLE ─── */}
-            <div className="subtitle-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.4s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 14 }}>
-              <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
-              <span style={{ fontSize: '2.4rem', letterSpacing: '0.35em', color: '#d4b870', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('newGame.title')}</span>
-              <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
+            <div className="subtitle-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.4s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginBottom: 22 }}>
+              <div style={{ flex: 1, maxWidth: 100, height: 1, background: '#3d2010' }} />
+              <span style={{ fontSize: '2.6rem', letterSpacing: '0.38em', color: '#d4b870', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('newGame.title')}</span>
+              <div style={{ flex: 1, maxWidth: 100, height: 1, background: '#3d2010' }} />
             </div>
 
             {/* ─── LORE TAGLINE ─── */}
-            <div className="lore-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.6s', marginBottom: 10 }}>
-              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>{t('newGame.taglineLine1')}</p>
-              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>{t('newGame.taglineLine2')}</p>
+            <div className="lore-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.6s', marginBottom: 36 }}>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2.2, margin: '0 0 2px 0' }}>{t('newGame.taglineLine1')}</p>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2.2, margin: 0 }}>{t('newGame.taglineLine2')}</p>
             </div>
           </div>
 
           {/* ─── MATCH TYPE ─── */}
           <div className="matchtype-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s' }}>
-            <p style={{ fontSize: '1rem', letterSpacing: '0.2em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 12, fontWeight: 600 }}>{t('newGame.section.matchType')}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+            <p style={{ fontSize: '0.85rem', letterSpacing: '0.22em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 16, fontWeight: 600 }}>{t('newGame.section.matchType')}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 40 }}>
               {MATCH_TYPE_KEYS.map((mt) => {
                 const active = matchType === mt;
                 return (
                   <button key={mt} onClick={() => setMatchType(mt)} className="match-card" style={{
                     background: active ? 'rgba(60,25,5,0.9)' : 'rgba(20,10,2,0.7)',
                     border: active ? '1.5px solid #d4a843' : '1px solid #2d1505',
-                    borderRadius: 8, padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const,
+                    borderRadius: 10, padding: '18px 20px', cursor: 'pointer', textAlign: 'left' as const,
                     transition: 'all 0.25s ease',
                     backdropFilter: 'blur(8px)',
                     boxShadow: active ? '0 0 0 1px rgba(212,168,67,0.2), inset 0 0 20px rgba(212,168,67,0.05), 0 8px 30px rgba(0,0,0,0.5)' : 'none',
-                    display: 'flex', alignItems: 'center', gap: 12,
-                  }}>
-                    <span style={{ fontSize: '1.3rem' }}>{MATCH_TYPE_ICONS[mt]}</span>
-                    <div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{getMatchLabel(mt)}</div>
-                      <div style={{ fontSize: '0.65rem', color: '#8a7550', letterSpacing: '0.05em' }}>{getMatchDesc(mt)}</div>
+                    display: 'flex', alignItems: 'center', gap: 14,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.borderColor = 'rgba(212,168,67,0.5)';
+                      e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.1), 0 4px 16px rgba(0,0,0,0.3)';
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) {
+                      e.currentTarget.style.borderColor = '#2d1505';
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }
+                  }}
+                  >
+                    <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>{MATCH_TYPE_ICONS[mt]}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{getMatchLabel(mt)}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#8a7550', letterSpacing: '0.05em', marginTop: 2 }}>{getMatchDesc(mt)}</div>
                     </div>
                   </button>
                 );
@@ -264,25 +286,40 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           {/* ─── DIFFICULTY (only PvC and CvC) ─── */}
           {showDifficulty && (
             <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.85s, transform 0.5s ease 0.85s' }}>
-              <p style={{ fontSize: '0.9rem', letterSpacing: '0.18em', color: '#b89560', fontFamily: 'Noto Serif SC, serif', marginBottom: 10, fontWeight: 600 }}>{t('newGame.section.difficulty')}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+              <p style={{ fontSize: '0.8rem', letterSpacing: '0.2em', color: '#b89560', fontFamily: 'Noto Serif SC, serif', marginBottom: 14, fontWeight: 600 }}>{t('newGame.section.difficulty')}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 36 }}>
                 {DIFFICULTY_KEYS.map((d) => {
                   const active = difficulty === d;
                   return (
                     <button key={d} onClick={() => setDifficulty(d)} className="diff-card" style={{
                       background: active ? 'rgba(60,25,5,0.9)' : 'rgba(20,10,2,0.7)',
                       border: active ? '1.5px solid #d4a843' : '1px solid #2d1505',
-                      borderRadius: 8, padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const,
+                      borderRadius: 10, padding: '14px 18px', cursor: 'pointer', textAlign: 'left' as const,
                       transition: 'all 0.25s ease',
                       backdropFilter: 'blur(8px)',
                       boxShadow: active ? '0 0 0 1px rgba(212,168,67,0.2), inset 0 0 20px rgba(212,168,67,0.05), 0 8px 30px rgba(0,0,0,0.5)' : 'none',
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    }}>
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.borderColor = 'rgba(212,168,67,0.5)';
+                        e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.1), 0 4px 16px rgba(0,0,0,0.3)';
+                        e.currentTarget.style.transform = 'scale(1.02)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.borderColor = '#2d1505';
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }
+                    }}
+                    >
                       <div>
                         <div style={{ fontSize: '0.9rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{getDiffLabel(d)}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#b89560', letterSpacing: '0.1em' }}>{getDiffChinese(d)}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#b89560', letterSpacing: '0.1em', marginTop: 2 }}>{getDiffChinese(d)}</div>
                       </div>
-                      <span style={{ fontSize: '0.6rem', color: '#6b4c1a', background: '#1a0f00', padding: '2px 8px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace' }}>{getDiffTime(d)}</span>
+                      <span style={{ fontSize: '0.65rem', color: '#6b4c1a', background: '#1a0f00', padding: '3px 10px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace', flexShrink: 0 }}>{getDiffTime(d)}</span>
                     </button>
                   );
                 })}
@@ -293,14 +330,26 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           {/* ─── START BUTTON ─── */}
           <div className="start-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 1.0s, transform 0.5s ease 1.0s' }}>
             <button onClick={handleStart} className="start-btn" style={{
-              width: '100%', maxWidth: 400, padding: '16px 40px', borderRadius: 6,
+              width: '100%', maxWidth: 420, padding: '18px 48px', borderRadius: 8,
               border: '1px solid rgba(212,168,67,0.5)',
               background: 'linear-gradient(135deg, #6b1010 0%, #8B1A1A 30%, #c0392b 60%, #8B1A1A 100%)',
               backgroundSize: '200% 200%',
-              color: '#f0d080', fontSize: '1.05rem', letterSpacing: '0.12em',
+              color: '#f0d080', fontSize: '1.15rem', letterSpacing: '0.15em',
               fontFamily: 'Noto Serif SC, serif', fontWeight: 600,
               cursor: 'pointer', transition: 'all 0.3s ease',
-            }}>
+              boxShadow: '0 4px 24px rgba(139,26,26,0.35)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.filter = 'brightness(1.15)';
+              e.currentTarget.style.boxShadow = '0 6px 32px rgba(139,26,26,0.5)';
+              e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.filter = 'brightness(1)';
+              e.currentTarget.style.boxShadow = '0 4px 24px rgba(139,26,26,0.35)';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            >
               {startLabel}
             </button>
           </div>
