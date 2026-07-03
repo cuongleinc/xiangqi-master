@@ -24,6 +24,7 @@ interface GameStoreState {
   moveCount: number;
   hintsRemaining: number;
   difficulty: Difficulty;
+  matchType: string;
   isAiThinking: boolean;
   moves: MoveRecordData[];
   recentAiMove: { uci: string; fen: string; evaluation?: number } | null;
@@ -45,6 +46,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   moveCount: 0,
   hintsRemaining: 3,
   difficulty: 'medium',
+  matchType: 'pvc',
   isAiThinking: false,
   moves: [],
   recentAiMove: null,
@@ -62,6 +64,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         moveCount: 0,
         hintsRemaining: 3,
         difficulty: difficulty as Difficulty,
+        matchType,
         isAiThinking: false,
         moves: [],
         recentAiMove: null,
@@ -126,6 +129,15 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       // If AI is still thinking, poll again
       if (data.isAiThinking) {
         setTimeout(() => get().fetchGameState(), 500);
+      } else {
+        // AI just finished — schedule a delayed refetch to pick up late classification data
+        setTimeout(() => {
+          if (get().gameId && !get().isAiThinking) {
+            gameApi.getGame(get().gameId!).then((fresh) => {
+              set({ moves: fresh.moves || [] });
+            }).catch(() => {});
+          }
+        }, 1500);
       }
     } catch (err) {
       set({ error: (err as Error).message });
@@ -141,6 +153,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     status: 'playing',
     moveCount: 0,
     hintsRemaining: 3,
+    matchType: 'pvc',
     isAiThinking: false,
     moves: [],
     recentAiMove: null,

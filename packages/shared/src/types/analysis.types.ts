@@ -61,9 +61,15 @@ export interface ClassificationThresholds {
 }
 
 export const DEFAULT_THRESHOLDS: ClassificationThresholds = {
-  bestCp: 20,
-  excellentCp: 50,
-  goodCp: 100,
-  inaccuracyCp: 200,
-  mistakeCp: 400,
+  /** ≤5 cp — matches engine top move or negligible loss */
+  bestCp: 5,
+  /** ≤15 cp — very small eval loss (≤0.15 pawns) */
+  excellentCp: 15,
+  /** ≤50 cp — small eval loss (≤0.5 pawns) */
+  goodCp: 50,
+  /** ≤100 cp — moderate eval loss (≤1.0 pawns) */
+  inaccuracyCp: 100,
+  /** ≤200 cp — large eval loss (≤2.0 pawns) */
+  mistakeCp: 200,
+  // >200 cp → BLUNDER
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores/game.store';
 import { useAnalysisStore } from '../../stores/analysis.store';
-import { Color } from '@repo/shared';
+import { Color, MoveClassification } from '@repo/shared';
 import { Board } from '../board/Board';
 import { EvaluationBar } from '../analysis/EvaluationBar';
 import { AnalysisPanel } from '../analysis/AnalysisPanel';
@@ -13,16 +13,42 @@ export const GameLayout: React.FC = () => {
   const fen = useGameStore((s) => s.fen);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
   const evaluatePosition = useAnalysisStore((s) => s.evaluatePosition);
+  const evaluation = useAnalysisStore((s) => s.evaluation);
+  const setClassification = useAnalysisStore((s) => s.setClassification);
   const currentTurn: Color = fen?.includes(' w ') ? Color.RED : Color.BLACK;
 
   // Re-evaluate position whenever the FEN changes (after each move)
   const prevFenRef = useRef<string | null>(null);
+  const prevEvalRef = useRef<number | null>(null);
+  const fenJustChangedRef = useRef(false);
+
   useEffect(() => {
     if (fen && fen !== prevFenRef.current) {
+      fenJustChangedRef.current = true;
       prevFenRef.current = fen;
       evaluatePosition(fen);
     }
   }, [fen, evaluatePosition]);
+
+  // When the engine eval arrives after a FEN change, classify the move
+  useEffect(() => {
+    if (fenJustChangedRef.current && evaluation !== null && prevEvalRef.current !== null) {
+      const prev = prevEvalRef.current;
+      // evaluation is from the new side-to-move (opponent of the player who moved).
+      // Negate to get the moving player's perspective, then compare.
+      const playerAfter = -evaluation;
+      const cpLoss = prev - playerAfter;
+      let cls: MoveClassification = MoveClassification.BEST;
+      if (cpLoss > 200) cls = MoveClassification.BLUNDER;
+      else if (cpLoss > 100) cls = MoveClassification.MISTAKE;
+      else if (cpLoss > 50) cls = MoveClassification.INACCURACY;
+      else if (cpLoss > 15) cls = MoveClassification.GOOD;
+      else if (cpLoss > 5) cls = MoveClassification.EXCELLENT;
+      setClassification(cls);
+      fenJustChangedRef.current = false;
+    }
+    prevEvalRef.current = evaluation;
+  }, [evaluation, setClassification]);
 
   return (
     <div className="flex h-[calc(100vh-56px-36px)] max-w-[1400px] mx-auto">

@@ -144,25 +144,29 @@ export class GameService {
 
     // If game continues, trigger AI response only for PvC mode
     const isGameOver = !!result.gameResult;
+
+    // Classify the human's move FIRST (fast, ~400ms engine time),
+    // THEN launch the AI computation. This ensures classification is
+    // stored before the frontend polls and receives the AI response.
+    if (!isGameOver && this.engineService.isEngineReady()) {
+      await this.evaluateAndClassify(fenBefore, fenAfter, uci, moveEntity.id).catch((err) => {
+        this.logger.warn(`Classification failed: ${err.message}`);
+      });
+    }
+
     if (!isGameOver && game.matchType === 'pvc') {
       game.aiThinking = true;
       game.recentAiMove = null;
+      await this.gameRepo.save(game);
 
-      // Fire and forget AI computation
+      // Fire and forget AI computation (classification is already done)
       this.computeAiResponse(gameId, fenAfter, game.difficulty).catch((err) => {
         this.logger.error(`AI response failed: ${err.message}`);
         game.aiThinking = false;
         this.gameRepo.save(game).catch(() => {});
       });
-    }
-
-    await this.gameRepo.save(game);
-
-    // Trigger evaluation asynchronously
-    if (this.engineService.isEngineReady()) {
-      this.evaluateAndClassify(fenBefore, fenAfter, uci, moveEntity.id).catch((err) => {
-        this.logger.warn(`Evaluation failed: ${err.message}`);
-      });
+    } else {
+      await this.gameRepo.save(game);
     }
 
     return {
@@ -240,6 +244,13 @@ export class GameService {
 
       game.aiThinking = false;
       await this.gameRepo.save(game);
+
+      // Classify the AI's move asynchronously
+      if (this.engineService.isEngineReady()) {
+        this.evaluateAndClassify(fen, moveResult.fen, aiResult.bestMove, aiMoveEntity.id).catch((err) => {
+          this.logger.warn(`AI move classification failed: ${err.message}`);
+        });
+      }
 
     } catch (err) {
       this.logger.error(`AI computation error: ${(err as Error).message}`);
@@ -358,14 +369,18 @@ export class GameService {
       if (evalBefore !== null && evalAfter !== null) {
         const fenData = parseFen(fenBefore);
         const color = fenData.turn;
-        // Best eval is evalBefore (since the position changed)
         const classification = classifyMove(evalAfter, evalBefore, color, DEFAULT_THRESHOLDS);
 
-        await this.moveRepo.update(moveId, {
-          evaluationBefore: evalBefore,
-          evaluationAfter: evalAfter,
-          classification,
-        });
+        this.logger.log(`Classified move ${uci} (${color}): ${classification} (before=${evalBefore}, after=${evalAfter})`);
+
+        // Use save on the found entity — more reliable than raw update
+        const move = await this.moveRepo.findOne({ where: { id: moveId } });
+        if (move) {
+          move.evaluationBefore = evalBefore;
+          move.evaluationAfter = evalAfter;
+          move.classification = classification;
+          await this.moveRepo.save(move);
+        }
       }
     } catch (err) {
       this.logger.warn(`Evaluation/classification failed: ${(err as Error).message}`);

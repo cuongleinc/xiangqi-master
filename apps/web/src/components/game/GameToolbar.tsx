@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGameStore } from '../../stores/game.store';
 import { gameApi } from '../../api/game.api';
+import { analysisApi } from '../../api/analysis.api';
 import { useUiStore } from '../../stores/ui.store';
 import { FILE_MAP } from '@repo/shared';
 
@@ -8,8 +9,11 @@ const btnBase = 'w-full py-3 px-5 font-medium text-sm tracking-[0.03em] rounded-
 
 export const GameToolbar: React.FC = () => {
   const gameId = useGameStore((s) => s.gameId);
+  const fen = useGameStore((s) => s.fen);
   const hintsRemaining = useGameStore((s) => s.hintsRemaining);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
+  const matchType = useGameStore((s) => s.matchType);
+  const makeMove = useGameStore((s) => s.makeMove);
   const openDialog = useUiStore((s) => s.openDialog);
   const showHint = useUiStore((s) => s.showHint);
 
@@ -29,6 +33,18 @@ export const GameToolbar: React.FC = () => {
     } catch { /* ignore */ }
   };
 
+  const handleBestMove = async () => {
+    if (!fen || !gameId) return;
+    try {
+      const data = await analysisApi.bestMove(fen);
+      if (data.bestMove) {
+        await makeMove(data.bestMove);
+      }
+    } catch { /* ignore */ }
+  };
+
+  const isAnalysisOrPvP = matchType === 'analysis' || matchType === 'pvp';
+
   return (
     <div className="space-y-3">
       {/* New Game */}
@@ -45,20 +61,39 @@ export const GameToolbar: React.FC = () => {
         新局 · New Game
       </button>
 
-      {/* Hint */}
-      <button
-        onClick={handleHint}
-        disabled={isAiThinking || hintsRemaining <= 0}
-        className={`${btnBase} text-cream border border-gold/40 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed`}
-        style={{
-          background: 'linear-gradient(135deg, #6b4c1a 0%, #a07020 100%)',
-          boxShadow: '0 2px 8px rgba(107,76,26,0.3)',
-        }}
-        onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
-        onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
-      >
-        提示 · Hint ({hintsRemaining})
-      </button>
+      {/* Hint (PvC only) */}
+      {matchType === 'pvc' && (
+        <button
+          onClick={handleHint}
+          disabled={isAiThinking || hintsRemaining <= 0}
+          className={`${btnBase} text-cream border border-gold/40 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed`}
+          style={{
+            background: 'linear-gradient(135deg, #6b4c1a 0%, #a07020 100%)',
+            boxShadow: '0 2px 8px rgba(107,76,26,0.3)',
+          }}
+          onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
+          onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
+        >
+          提示 · Hint ({hintsRemaining})
+        </button>
+      )}
+
+      {/* Best Move (Analysis / PvP) */}
+      {isAnalysisOrPvP && (
+        <button
+          onClick={handleBestMove}
+          disabled={isAiThinking || !fen}
+          className={`${btnBase} text-cream border border-gold/40 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed`}
+          style={{
+            background: 'linear-gradient(135deg, #1a5c2a 0%, #2a8c40 100%)',
+            boxShadow: '0 2px 8px rgba(26,92,42,0.3)',
+          }}
+          onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
+          onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
+        >
+          Best Move
+        </button>
+      )}
 
       {/* Resign */}
       <button
