@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../stores/analysis.store';
 
 interface EvaluationBarProps {
@@ -7,6 +8,7 @@ interface EvaluationBarProps {
 }
 
 export const EvaluationBar: React.FC<EvaluationBarProps> = ({ fen: _fen, isThinking }) => {
+  const { t } = useTranslation();
   const evaluation = useAnalysisStore((s) => s.evaluation);
   const isEvaluating = useAnalysisStore((s) => s.isEvaluating);
 
@@ -27,7 +29,7 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({ fen: _fen, isThink
   return (
     <div className="flex flex-col items-center w-8 flex-shrink-0">
       <span className="text-[10px] text-gold-dim font-mono mb-1">
-        {showLoading ? '...' : formatScore(displayScore)}
+        {showLoading ? t('analysis.evaluating') : formatScore(displayScore)}
       </span>
       <div className="flex-1 w-6 bg-ebony rounded-full overflow-hidden relative min-h-[200px] border border-gold/20">
         <div className="absolute top-0 left-0 right-0 bg-red-chinese/80 transition-all duration-700 ease-in-out" style={{ height: `${blackPercent}%` }} />

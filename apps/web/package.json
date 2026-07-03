@@ -13,30 +13,33 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "zustand": "^4.5.4",
+    "@repo/shared": "workspace:*",
+    "@repo/xiangqi-core": "workspace:*",
     "@tanstack/react-query": "^5.50.1",
+    "axios": "^1.7.2",
+    "i18next": "^26.3.4",
+    "i18next-browser-languagedetector": "^8.2.1",
+    "react": "^18.3.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dnd-touch-backend": "^16.0.1",
-    "axios": "^1.7.2",
-    "@repo/shared": "workspace:*",
-    "@repo/xiangqi-core": "workspace:*"
+    "react-dom": "^18.3.1",
+    "react-i18next": "^17.0.8",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "typescript": "^5.5.3",
-    "vite": "^5.3.4",
-    "@vitejs/plugin-react": "^4.3.1",
-    "tailwindcss": "^3.4.6",
-    "postcss": "^8.4.39",
-    "autoprefixer": "^10.4.19",
-    "vitest": "^1.6.0",
-    "@testing-library/react": "^16.0.0",
+    "@repo/typescript-config": "workspace:*",
     "@testing-library/jest-dom": "^6.4.6",
-    "jsdom": "^24.1.0",
+    "@testing-library/react": "^16.0.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@repo/typescript-config": "workspace:*"
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "jsdom": "^24.1.0",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4",
+    "vitest": "^1.6.0"
   }
 }

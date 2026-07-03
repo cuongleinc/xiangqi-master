@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../stores/game.store';
 import { useUiStore } from '../../stores/ui.store';
 import { useSettingsStore } from '../../stores/settings.store';
+import { LanguageSwitcher } from '../layout/LanguageSwitcher';
 import type { MatchType } from '@repo/shared';
 
 interface NewGameDialogProps {
   isInitial?: boolean;
 }
 
-const matchTypes: Array<{ value: MatchType; en: string; zh: string; icon: string; desc: string }> = [
-  { value: 'pvc', en: 'vs Computer', zh: '人機對戰', icon: '⚔️', desc: 'Play against the AI engine' },
-  { value: 'pvp', en: 'vs Player', zh: '雙人對弈', icon: '👥', desc: 'Two players, one board' },
-  { value: 'cvc', en: 'AI vs AI', zh: '電腦對戰', icon: '🤖', desc: 'Watch two AIs battle' },
-  { value: 'analysis', en: 'Analysis', zh: '分析模式', icon: '🔍', desc: 'Free board, explore positions' },
-];
+const MATCH_TYPE_KEYS = ['pvc', 'pvp', 'cvc', 'analysis'] as const;
 
-const difficulties = [
-  { value: 'easy', en: 'Easy', zh: '初學', time: '0.1s', timeLabel: '100ms' },
-  { value: 'medium', en: 'Medium', zh: '中級', time: '0.5s', timeLabel: '500ms' },
-  { value: 'hard', en: 'Hard', zh: '高級', time: '1.5s', timeLabel: '1.5s' },
-  { value: 'expert', en: 'Expert', zh: '專家', time: '5s', timeLabel: '5.0s' },
-];
+const MATCH_TYPE_ICONS: Record<string, string> = {
+  pvc: '⚔️',
+  pvp: '👥',
+  cvc: '🤖',
+  analysis: '🔍',
+};
+
+const DIFFICULTY_KEYS = ['easy', 'medium', 'hard', 'expert'] as const;
 
 const PIECE_CHARS_LIST = ['將', '帥', '車', '馬', '炮', '象', '士', '兵'];
 
@@ -53,6 +52,7 @@ const floatingPieces = [
 ];
 
 export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
+  const { t } = useTranslation();
   const createNewGame = useGameStore((s) => s.createNewGame);
   const closeDialog = useUiStore((s) => s.closeDialog);
   const difficulty = useSettingsStore((s) => s.difficulty);
@@ -70,31 +70,41 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
     closeDialog();
   };
 
+  // ─── Helpers to build localized labels from i18n keys ───
+  const getMatchLabel = (mt: string) => t(`newGame.matchType.${mt}.label`);
+  const getMatchChinese = (mt: string) => t(`newGame.matchType.${mt}.chinese`);
+  const getMatchDesc = (mt: string) => t(`newGame.matchType.${mt}.desc`);
+  const getDiffLabel = (d: string) => t(`newGame.difficulty.${d}.label`);
+  const getDiffChinese = (d: string) => t(`newGame.difficulty.${d}.chinese`);
+  const getDiffTime = (d: string) => t(`newGame.difficulty.${d}.time`);
+
+  const startLabel = t(`newGame.start.${matchType}`);
+
   // ─── In-game compact dialog ───
   if (!isInitial) {
     return (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
         <div className="bg-lacquer border border-gold/40 rounded-xl p-6 max-w-sm mx-auto">
-          <h2 className="text-xl font-bold text-gold-light font-serif mb-2 text-center">New Game</h2>
+          <h2 className="text-xl font-bold text-gold-light font-serif mb-2 text-center">{t('newGame.heading')}</h2>
           {/* Match type */}
           <div className="grid grid-cols-2 gap-1.5 mb-3">
-            {matchTypes.map((m) => (
-              <button key={m.value} onClick={() => setMatchType(m.value)} className={`p-2 rounded-md text-left transition-all border text-xs ${matchType === m.value ? 'bg-gold/20 border-gold text-gold-light' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
-                <div className="font-medium">{m.icon} {m.en}</div>
+            {MATCH_TYPE_KEYS.map((mt) => (
+              <button key={mt} onClick={() => setMatchType(mt)} className={`p-2 rounded-md text-left transition-all border text-xs ${matchType === mt ? 'bg-gold/20 border-gold text-gold-light' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
+                <div className="font-medium">{MATCH_TYPE_ICONS[mt]} {getMatchLabel(mt)}</div>
               </button>
             ))}
           </div>
           {/* Difficulty (only for PvC and CvC) */}
           {showDifficulty && (
             <div className="grid grid-cols-2 gap-1.5 mb-4">
-              {difficulties.map((d) => (
-                <button key={d.value} onClick={() => setDifficulty(d.value)} className={`p-2.5 rounded-lg text-left transition-all border ${difficulty === d.value ? 'bg-gold text-ebony border-gold' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
-                  <div className="font-medium text-xs">{d.en}</div><div className="text-[9px] opacity-70">{d.zh}</div>
+              {DIFFICULTY_KEYS.map((d) => (
+                <button key={d} onClick={() => setDifficulty(d)} className={`p-2.5 rounded-lg text-left transition-all border ${difficulty === d ? 'bg-gold text-ebony border-gold' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
+                  <div className="font-medium text-xs">{getDiffLabel(d)}</div><div className="text-[9px] opacity-70">{getDiffChinese(d)}</div>
                 </button>
               ))}
             </div>
           )}
-          <button onClick={handleStart} className="w-full bg-gold hover:bg-gold-light text-ebony font-bold py-2.5 rounded-lg font-serif tracking-wide text-sm">Play</button>
+          <button onClick={handleStart} className="w-full bg-gold hover:bg-gold-light text-ebony font-bold py-2.5 rounded-lg font-serif tracking-wide text-sm">{t('newGame.play')}</button>
         </div>
       </div>
     );
@@ -184,6 +194,11 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to bottom, #050200 0%, transparent 30%)' }} />
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to top, #050200 0%, transparent 30%)' }} />
 
+      {/* ─── Language Switcher (top-right, always visible) ─── */}
+      <div style={{ position: 'absolute', top: 20, right: 24, zIndex: 20 }}>
+        <LanguageSwitcher />
+      </div>
+
       {/* ═══════════════════════════════════════
            MAIN CONTENT
            ═══════════════════════════════════════ */}
@@ -201,25 +216,25 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
             {/* ─── SUBTITLE ─── */}
             <div className="subtitle-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.4s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 14 }}>
               <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
-              <span style={{ fontSize: '2.4rem', letterSpacing: '0.35em', color: '#d4b870', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap', fontWeight: 600 }}>XIANGQI MASTER</span>
+              <span style={{ fontSize: '2.4rem', letterSpacing: '0.35em', color: '#d4b870', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('newGame.title')}</span>
               <div style={{ flex: 1, maxWidth: 80, height: 1, background: '#3d2010' }} />
             </div>
 
             {/* ─── LORE TAGLINE ─── */}
             <div className="lore-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.6s', marginBottom: 10 }}>
-              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>The legendary Chu-Han Contention</p>
-              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>One game decides the fate of an empire</p>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>{t('newGame.taglineLine1')}</p>
+              <p style={{ fontFamily: 'Noto Serif SC, serif', fontSize: '1.1rem', color: '#b89560', fontStyle: 'italic', lineHeight: 2, margin: 0 }}>{t('newGame.taglineLine2')}</p>
             </div>
           </div>
 
           {/* ─── MATCH TYPE ─── */}
           <div className="matchtype-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s' }}>
-            <p style={{ fontSize: '1rem', letterSpacing: '0.2em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 12, fontWeight: 600 }}>MATCH TYPE</p>
+            <p style={{ fontSize: '1rem', letterSpacing: '0.2em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 12, fontWeight: 600 }}>{t('newGame.section.matchType')}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
-              {matchTypes.map((m) => {
-                const active = matchType === m.value;
+              {MATCH_TYPE_KEYS.map((mt) => {
+                const active = matchType === mt;
                 return (
-                  <button key={m.value} onClick={() => setMatchType(m.value)} className="match-card" style={{
+                  <button key={mt} onClick={() => setMatchType(mt)} className="match-card" style={{
                     background: active ? 'rgba(60,25,5,0.9)' : 'rgba(20,10,2,0.7)',
                     border: active ? '1.5px solid #d4a843' : '1px solid #2d1505',
                     borderRadius: 8, padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const,
@@ -228,10 +243,10 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
                     boxShadow: active ? '0 0 0 1px rgba(212,168,67,0.2), inset 0 0 20px rgba(212,168,67,0.05), 0 8px 30px rgba(0,0,0,0.5)' : 'none',
                     display: 'flex', alignItems: 'center', gap: 12,
                   }}>
-                    <span style={{ fontSize: '1.3rem' }}>{m.icon}</span>
+                    <span style={{ fontSize: '1.3rem' }}>{MATCH_TYPE_ICONS[mt]}</span>
                     <div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{m.en}</div>
-                      <div style={{ fontSize: '0.65rem', color: '#8a7550', letterSpacing: '0.05em' }}>{m.desc}</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{getMatchLabel(mt)}</div>
+                      <div style={{ fontSize: '0.65rem', color: '#8a7550', letterSpacing: '0.05em' }}>{getMatchDesc(mt)}</div>
                     </div>
                   </button>
                 );
@@ -242,12 +257,12 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           {/* ─── DIFFICULTY (only PvC and CvC) ─── */}
           {showDifficulty && (
             <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.85s, transform 0.5s ease 0.85s' }}>
-              <p style={{ fontSize: '0.9rem', letterSpacing: '0.18em', color: '#b89560', fontFamily: 'Noto Serif SC, serif', marginBottom: 10, fontWeight: 600 }}>DIFFICULTY</p>
+              <p style={{ fontSize: '0.9rem', letterSpacing: '0.18em', color: '#b89560', fontFamily: 'Noto Serif SC, serif', marginBottom: 10, fontWeight: 600 }}>{t('newGame.section.difficulty')}</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-                {difficulties.map((d) => {
-                  const active = difficulty === d.value;
+                {DIFFICULTY_KEYS.map((d) => {
+                  const active = difficulty === d;
                   return (
-                    <button key={d.value} onClick={() => setDifficulty(d.value)} className="diff-card" style={{
+                    <button key={d} onClick={() => setDifficulty(d)} className="diff-card" style={{
                       background: active ? 'rgba(60,25,5,0.9)' : 'rgba(20,10,2,0.7)',
                       border: active ? '1.5px solid #d4a843' : '1px solid #2d1505',
                       borderRadius: 8, padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const,
@@ -257,10 +272,10 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     }}>
                       <div>
-                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{d.en}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#b89560', letterSpacing: '0.1em' }}>{d.zh}</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{getDiffLabel(d)}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#b89560', letterSpacing: '0.1em' }}>{getDiffChinese(d)}</div>
                       </div>
-                      <span style={{ fontSize: '0.6rem', color: '#6b4c1a', background: '#1a0f00', padding: '2px 8px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace' }}>{d.timeLabel}</span>
+                      <span style={{ fontSize: '0.6rem', color: '#6b4c1a', background: '#1a0f00', padding: '2px 8px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace' }}>{getDiffTime(d)}</span>
                     </button>
                   );
                 })}
@@ -279,7 +294,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
               fontFamily: 'Noto Serif SC, serif', fontWeight: 600,
               cursor: 'pointer', transition: 'all 0.3s ease',
             }}>
-              {matchType === 'pvc' ? 'START GAME' : matchType === 'pvp' ? 'START MATCH' : matchType === 'cvc' ? 'WATCH BATTLE' : 'OPEN BOARD'}
+              {startLabel}
             </button>
           </div>
 

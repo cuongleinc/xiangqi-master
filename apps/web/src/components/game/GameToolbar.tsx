@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../stores/game.store';
 import { gameApi } from '../../api/game.api';
 import { analysisApi } from '../../api/analysis.api';
@@ -8,6 +9,7 @@ import { FILE_MAP } from '@repo/shared';
 const btnBase = 'w-full py-3 px-5 font-medium text-sm tracking-[0.03em] rounded-md transition-all duration-200 font-serif';
 
 export const GameToolbar: React.FC = () => {
+  const { t } = useTranslation();
   const gameId = useGameStore((s) => s.gameId);
   const fen = useGameStore((s) => s.fen);
   const hintsRemaining = useGameStore((s) => s.hintsRemaining);
@@ -67,7 +69,7 @@ export const GameToolbar: React.FC = () => {
         onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(1.12)')}
         onMouseLeave={(e) => (e.currentTarget.style.filter = 'brightness(1)')}
       >
-        新局 · New Game
+        {t('game.newGame')}
       </button>
 
       {/* Hint (PvC only) */}
@@ -83,7 +85,7 @@ export const GameToolbar: React.FC = () => {
           onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
           onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
         >
-          提示 · Hint ({hintsRemaining})
+          {t('game.hint')} ({hintsRemaining})
         </button>
       )}
 
@@ -100,7 +102,7 @@ export const GameToolbar: React.FC = () => {
           onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
           onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
         >
-          Best Move
+          {t('game.bestMove')}
         </button>
       )}
 
@@ -116,7 +118,7 @@ export const GameToolbar: React.FC = () => {
         onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
         onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
       >
-        悔棋 · Undo
+        {t('game.undo')}
       </button>
 
       {/* Resign */}
@@ -124,20 +126,20 @@ export const GameToolbar: React.FC = () => {
         disabled={isAiThinking}
         className={`${btnBase} text-[#a07840] bg-transparent border border-[#8B4513] hover:bg-[#8B4513]/10 disabled:opacity-30 disabled:cursor-not-allowed`}
       >
-        認負 · Resign
+        {t('game.resign')}
       </button>
 
       {/* Sep */}
       <div className="border-t border-[#3d2010] pt-3 mt-3">
         <div className="text-[#a07840] text-xs space-y-1 font-mono">
           <div className="flex justify-between">
-            <span className="text-cream-dim">Game</span>
-            <span>{gameId ? gameId.slice(0, 8) : '—'}</span>
+            <span className="text-cream-dim">{t('game.id')}</span>
+            <span>{gameId ? gameId.slice(0, 8) : t('common.notAvailable')}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-cream-dim">Status</span>
+            <span className="text-cream-dim">{t('game.status')}</span>
             <span className={isAiThinking ? 'text-gold animate-pulse' : 'text-jade'}>
-              {isAiThinking ? 'Thinking' : 'Ready'}
+              {isAiThinking ? t('game.status.thinking') : t('game.status.ready')}
             </span>
           </div>
         </div>

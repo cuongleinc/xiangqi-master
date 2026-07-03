@@ -5,6 +5,7 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import App from './App';
+import './i18n'; // init i18next before render
 import './index.css';
 
 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;

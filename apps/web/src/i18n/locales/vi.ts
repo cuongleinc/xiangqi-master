@@ -1,0 +1,145 @@
+const vi = {
+  common: {
+    red: 'Đỏ',
+    black: 'Đen',
+    loading: '...',
+    notAvailable: '—',
+  },
+  header: {
+    title: 'Xiangqi Master',
+    subtitle: '中國象棋',
+  },
+  board: {
+    river: {
+      chu: '楚河',
+      han: '漢界',
+    },
+  },
+  analysis: {
+    heading: 'PHÂN TÍCH',
+    evaluation: 'Đánh giá',
+    evaluating: '...',
+    bestMove: 'Nước đi tốt nhất',
+    'bestMove.tooltip': 'Nhấn để đi nước này',
+    depth: 'Độ sâu',
+    pv: 'PV',
+    'pv.tooltip': 'Biến chính — đường đi tối ưu được engine dự đoán cho cả hai bên',
+    classification: 'Xếp loại',
+    'classification.tooltip': 'Đánh giá chất lượng nước đi: Tốt nhất → Xuất sắc → Tốt → Không chính xác → Sai lầm → Sơ suất',
+    fen: 'FEN',
+    'classification.best': 'TỐT NHẤT',
+    'classification.excellent': 'XUẤT SẮC',
+    'classification.good': 'TỐT',
+    'classification.inaccuracy': 'KHÔNG CHÍNH XÁC',
+    'classification.mistake': 'SAI LẦM',
+    'classification.blunder': 'SƠ SUẤT',
+  },
+  moves: {
+    heading: 'NƯỚC ĐI',
+    empty: 'Chưa có nước đi',
+    columnNumber: '#',
+    columnRed: 'Đỏ',
+    columnBlack: 'Đen',
+    indicator: {
+      check: '+',
+      capture: 'x',
+    },
+    annotation: {
+      excellent: '!',
+      inaccuracy: '?!',
+      mistake: '?',
+      blunder: '??',
+    },
+  },
+  game: {
+    newGame: 'Ván mới',
+    hint: 'Gợi ý',
+    bestMove: 'Nước đi tốt nhất',
+    undo: 'Hoàn tác',
+    resign: 'Đầu hàng',
+    id: 'Ván',
+    status: 'Trạng thái',
+    'status.thinking': 'Đang nghĩ',
+    'status.ready': 'Sẵn sàng',
+  },
+  newGame: {
+    heading: 'Ván mới',
+    play: 'Chơi',
+    title: 'XIANGQI MASTER',
+    taglineLine1: 'Hán Sở tranh hùng, thiên cổ lưu truyền',
+    taglineLine2: 'Một ván quyết định vận mệnh đế vương',
+    section: {
+      matchType: 'CHẾ ĐỘ',
+      difficulty: 'ĐỘ KHÓ',
+    },
+    start: {
+      pvc: 'BẮT ĐẦU',
+      pvp: 'ĐẤU ĐÔI',
+      cvc: 'XEM ĐẤU',
+      analysis: 'BÀN TỰ DO',
+    },
+    matchType: {
+      pvc: {
+        label: 'Đấu với Máy',
+        chinese: '人機對戰',
+        desc: 'Đấu với engine AI',
+      },
+      pvp: {
+        label: 'Đấu Đôi',
+        chinese: '雙人對弈',
+        desc: 'Hai người, một bàn cờ',
+      },
+      cvc: {
+        label: 'Máy vs Máy',
+        chinese: '電腦對戰',
+        desc: 'Xem hai AI đấu với nhau',
+      },
+      analysis: {
+        label: 'Phân Tích',
+        chinese: '分析模式',
+        desc: 'Bàn cờ tự do, khám phá thế trận',
+      },
+    },
+    difficulty: {
+      easy: {
+        label: 'Dễ',
+        chinese: '初學',
+        time: '100ms',
+      },
+      medium: {
+        label: 'Trung bình',
+        chinese: '中級',
+        time: '500ms',
+      },
+      hard: {
+        label: 'Khó',
+        chinese: '高級',
+        time: '1.5s',
+      },
+      expert: {
+        label: 'Chuyên gia',
+        chinese: '專家',
+        time: '5.0s',
+      },
+    },
+  },
+  gameOver: {
+    redWins: '🏆 Đỏ Thắng!',
+    blackWins: '🏆 Đen Thắng!',
+    draw: '🤝 Hòa!',
+    subtitle: 'Kết thúc',
+    playAgain: 'Chơi lại',
+    reviewGame: 'Xem lại ván',
+  },
+  status: {
+    redWins: 'Đỏ Thắng!',
+    blackWins: 'Đen Thắng!',
+    draw: 'Hòa!',
+    engineThinking: 'Engine đang nghĩ...',
+    toMove: '{{turn}} đi',
+    check: '{{turn}} đi — Chiếu!',
+    loading: 'Đang tải...',
+  },
+};
+
+export default vi;

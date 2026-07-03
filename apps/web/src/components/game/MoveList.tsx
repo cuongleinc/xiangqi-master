@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../stores/game.store';
 import { uciToReadable } from '../../lib/notation';
 
@@ -11,15 +12,6 @@ const CLASS_STYLES: Record<string, string> = {
   BLUNDER: 'text-red-200',
 };
 
-const CLASS_LABEL: Record<string, string> = {
-  BEST: '',
-  EXCELLENT: '!',
-  GOOD: '',
-  INACCURACY: '?!',
-  MISTAKE: '?',
-  BLUNDER: '??',
-};
-
 const CLASS_DOT: Record<string, string> = {
   BEST: 'bg-green-400',
   EXCELLENT: 'bg-green-400/70',
@@ -27,6 +19,15 @@ const CLASS_DOT: Record<string, string> = {
   INACCURACY: 'bg-yellow-500',
   MISTAKE: 'bg-orange-400',
   BLUNDER: 'bg-red-400',
+};
+
+const CLASS_ANNOTATION: Record<string, string> = {
+  BEST: '',
+  EXCELLENT: '!',
+  GOOD: '',
+  INACCURACY: '?!',
+  MISTAKE: '?',
+  BLUNDER: '??',
 };
 
 /** Client-side classification fallback */
@@ -41,6 +42,7 @@ function getClassLocal(evalAfter: number, evalBefore: number): string | null {
 }
 
 export const MoveList: React.FC = () => {
+  const { t } = useTranslation();
   const moves = useGameStore((s) => s.moves);
   const moveCount = useGameStore((s) => s.moveCount);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -74,7 +76,7 @@ export const MoveList: React.FC = () => {
     isRed: boolean,
   ) => {
     if (!move) {
-      return <div className="flex-1 min-w-0" />;
+      return <div className="flex-1 min-w-0" key={moveIdx} />;
     }
 
     const isLatest = moveIdx === moves.length - 1;
@@ -85,11 +87,15 @@ export const MoveList: React.FC = () => {
         ? getClassLocal(move.evaluationAfter, move.evaluationBefore)
         : null);
     const dotColor = cls ? CLASS_DOT[cls] : 'bg-cream-dim/30';
-    const label = cls ? CLASS_LABEL[cls] : '';
-    const annotationColor = cls ? CLASS_STYLES[cls] : 'text-cream-dim';
+    const label = cls ? CLASS_ANNOTATION[cls] : '';
+
+    const tooltipParts: string[] = [`${move.uci} → ${readable}`];
+    if (move.isCheck) tooltipParts.push(t('moves.indicator.check'));
+    if (move.isCapture) tooltipParts.push(t('moves.indicator.capture'));
 
     return (
       <div
+        key={moveIdx}
         className={`flex-1 min-w-0 flex items-center gap-1 px-1.5 py-1 rounded-sm transition-colors cursor-default ${
           isLatest
             ? 'bg-gold/15'
@@ -97,7 +103,7 @@ export const MoveList: React.FC = () => {
               ? 'hover:bg-[#3d2010]/20'
               : 'hover:bg-[#2a1a20]/20'
         }`}
-        title={`${move.uci} → ${readable}${move.isCheck ? ' +' : ''}${move.isCapture ? ' x' : ''}`}
+        title={tooltipParts.join(' ')}
       >
         {/* Classification dot */}
         <span
@@ -111,13 +117,13 @@ export const MoveList: React.FC = () => {
           }`}
         >
           {readable}
-          {move.isCheck ? '+' : ''}
-          {move.isCapture ? 'x' : ''}
+          {move.isCheck ? t('moves.indicator.check') : ''}
+          {move.isCapture ? t('moves.indicator.capture') : ''}
         </span>
 
         {/* Annotation symbol */}
         {label && (
-          <span className={`text-[10px] font-bold flex-shrink-0 ${annotationColor}`}>
+          <span className={`text-[10px] font-bold flex-shrink-0 ${CLASS_STYLES[cls!] || 'text-cream-dim'}`}>
             {label}
           </span>
         )}
@@ -129,12 +135,12 @@ export const MoveList: React.FC = () => {
     <div className="bg-[#150c00] rounded-lg">
       {/* Header */}
       <h3 className="text-gold font-serif text-xs tracking-[0.08em] uppercase px-3 py-2 border-b border-gold/30">
-        MOVES
+        {t('moves.heading')}
       </h3>
 
       <div className="p-2">
         {moves.length === 0 ? (
-          <p className="text-cream-dim/40 text-xs text-center py-4">No moves yet</p>
+          <p className="text-cream-dim/40 text-xs text-center py-4">{t('moves.empty')}</p>
         ) : (
           <div
             ref={scrollRef}
@@ -142,9 +148,9 @@ export const MoveList: React.FC = () => {
           >
             {/* Column headers */}
             <div className="flex items-center gap-1 mb-1 text-[10px] text-cream-dim/50 font-semibold uppercase tracking-wider">
-              <span className="w-7 text-center flex-shrink-0">#</span>
-              <span className="flex-1 px-1.5">Red</span>
-              <span className="flex-1 px-1.5">Black</span>
+              <span className="w-7 text-center flex-shrink-0">{t('moves.columnNumber')}</span>
+              <span className="flex-1 px-1.5">{t('moves.columnRed')}</span>
+              <span className="flex-1 px-1.5">{t('moves.columnBlack')}</span>
             </div>
 
             {rows.map((row) => {
