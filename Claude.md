@@ -36,8 +36,17 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 | Typography | Ma Shan Zheng (brush calligraphy) for pieces + river text, Noto Serif SC for UI headings |
 | Color Theme | #0d0800 ebony background, #d4a843 gold accents, #f5e6c8 cream text, #4a7c59 jade green |
 | Layout | 3-column: [Controls 220px] [Board flex] [Analysis 220px], bg #1e1005 sidebars |
-| Buttons | 新局 · New Game (red gradient), 提示 · Hint (bronze gradient), 認負 · Resign (outline) |
+| Buttons | New Game (red gradient), Hint (bronze gradient), Undo (brown gradient), Resign (outline) — single-language via i18n |
+| i18n | 3 locales (en/zh/vi), react-i18next, language switcher flags in Header + Welcome screen |
 | Sound Design | Spec documented: piece-place wooden click ~40ms, piece-lift ~30ms, check ~80ms, capture ~60ms, game-over double-tap |
+
+### ✅ Recently Completed (Post-Phase 1)
+
+| Feature | Description | Commit |
+|---------|-------------|--------|
+| Move List | PGN-style two-column layout (Red \| Black), human-readable Xiangqi notation, classification dots + annotation symbols (!, ?!, ?, ??), auto-scroll | `2d6efbe` |
+| Undo Button | Full-stack: DB-driven undo endpoint, PvC undoes 2 moves (AI+human), hot-reload safe, "悔棋 · Undo" button in toolbar | `2d6efbe` |
+| i18n Multi-Language | 3 locales (en/zh/vi) via react-i18next, 75+ strings migrated, language switcher (🇬🇧🇨🇳🇻🇳) in Header + Welcome screen, localStorage persistence | `0dbfe5a` |
 
 ### ⚠️ Known Issues
 
@@ -53,9 +62,10 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 - [ ] **Sound implementation** (design spec ready in Board.tsx)
 - [ ] **Evaluation bar real-time updates** (poll engine on every move)
 - [ ] **Game review UI integration** (frontend for POST /api/analysis/review)
-- [ ] **Hint highlight animation** (show hint source→destination with arrow/glow)
-- [ ] **Last-move highlight** (highlight source and destination of the most recent move)
-- [ ] **Move classification display** (show BEST/EXCELLENT/GOOD/INACCURACY/MISTAKE/BLUNDER in MoveList and AnalysisPanel)
+- [x] ~~Last-move highlight~~ ✅ Done
+- [x] ~~Hint highlight animation~~ ✅ Done
+- [x] ~~Move classification display~~ ✅ Done
+- [x] ~~Move list with readable notation~~ ✅ Done — PGN-style two-column layout with classification dots
 - [ ] **Drag-and-drop polish** (currently click-to-select; add full DnD with React DnD)
 - [ ] **Mobile-responsive layout** (stack columns vertically on narrow screens)
 - [ ] **Perpetual chase detection** (xiangqi-core enhancement)
@@ -182,6 +192,7 @@ Pikafish uses chess-like piece notation (`N`=Horse, `B`=Elephant) while the WXF 
 | GET | /api/games/:id | Get game state |
 | POST | /api/games/:id/move | Make a move |
 | POST | /api/games/:id/hint | Get hint (decrements counter) |
+| POST | /api/games/:id/undo | Undo last move(s) — PvC undoes 2, others undo 1 |
 | GET | /api/games/:id/moves | Get move history |
 | POST | /api/analysis/evaluate | Evaluate position |
 | POST | /api/analysis/best-move | Get best move |

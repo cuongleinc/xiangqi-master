@@ -30,7 +30,7 @@ Xiangqi Master uses **[Pikafish](https://github.com/official-pikafish/Pikafish)*
 
 ---
 
-## ✨ Features — Phase 1
+## ✨ Features
 
 - 🤖 **Human vs AI** — Play against Pikafish at 4 difficulty levels
 - 🎨 **SVG Board** — Crisp vector graphics at any screen size, with Chinese characters on pieces
@@ -38,6 +38,9 @@ Xiangqi Master uses **[Pikafish](https://github.com/official-pikafish/Pikafish)*
 - 📊 **Evaluation Bar** — Animated, real-time score display beside the board
 - 💡 **Hint System** — Get engine-powered move suggestions (3 per game)
 - 🏷️ **Move Classification** — Every move graded Best / Excellent / Good / Inaccuracy / Mistake / Blunder
+- 📋 **Move List** — PGN-style two-column layout with human-readable Xiangqi notation and classification dots
+- ↩️ **Undo** — Take back moves (PvC undoes AI+human pair, other modes undo single moves)
+- 🌐 **i18n** — Multi-language support: English, 中文 (Chinese), Tiếng Việt (Vietnamese)
 - 📝 **Game Review** — Post-game accuracy analysis with critical moment detection
 - 💾 **Persistent Storage** — Full game history saved to PostgreSQL with Redis caching
 - 🐳 **Dockerized** — One-command deployment with Docker Compose
@@ -140,6 +143,7 @@ Access at `http://localhost` — Nginx serves the web frontend and proxies API r
 | `GET` | `/api/games/:id` | Get game state (poll for AI move) |
 | `POST` | `/api/games/:id/move` | Submit a move (`{ "uci": "h2e2" }`) |
 | `POST` | `/api/games/:id/hint` | Get a hint (limited per game) |
+| `POST` | `/api/games/:id/undo` | Undo last move(s) — PvC undoes 2, others undo 1 |
 | `GET` | `/api/games/:id/moves` | Get all moves for a game |
 | `POST` | `/api/analysis/evaluate` | Evaluate a position (`{ "fen": "..." }`) |
 | `POST` | `/api/analysis/best-move` | Get best move for a position |
@@ -152,7 +156,7 @@ Access at `http://localhost` — Nginx serves the web frontend and proxies API r
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, TypeScript, Vite, TailwindCSS, Zustand, React Query, React DnD |
+| Frontend | React 18, TypeScript, Vite, TailwindCSS, Zustand, React Query, React DnD, react-i18next |
 | Backend | NestJS 10, TypeScript, TypeORM, PostgreSQL, Redis |
 | Engine | [Pikafish](https://github.com/official-pikafish/Pikafish) (UCI protocol, NNUE evaluation) |
 | Infrastructure | Docker, Docker Compose, Nginx |
