@@ -1,11 +1,19 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameStore } from '../../stores/game.store';
 import { useUiStore } from '../../stores/ui.store';
 import { useSettingsStore } from '../../stores/settings.store';
+import type { MatchType } from '@repo/shared';
 
 interface NewGameDialogProps {
   isInitial?: boolean;
 }
+
+const matchTypes: Array<{ value: MatchType; en: string; zh: string; icon: string; desc: string }> = [
+  { value: 'pvc', en: 'vs Computer', zh: '人機對戰', icon: '⚔️', desc: 'Play against the AI engine' },
+  { value: 'pvp', en: 'vs Player', zh: '雙人對弈', icon: '👥', desc: 'Two players, one board' },
+  { value: 'cvc', en: 'AI vs AI', zh: '電腦對戰', icon: '🤖', desc: 'Watch two AIs battle' },
+  { value: 'analysis', en: 'Analysis', zh: '分析模式', icon: '🔍', desc: 'Free board, explore positions' },
+];
 
 const difficulties = [
   { value: 'easy', en: 'Easy', zh: '初學', time: '0.1s', timeLabel: '100ms' },
@@ -49,29 +57,44 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   const closeDialog = useUiStore((s) => s.closeDialog);
   const difficulty = useSettingsStore((s) => s.difficulty);
   const setDifficulty = useSettingsStore((s) => s.setDifficulty);
+  const matchType = useSettingsStore((s) => s.matchType);
+  const setMatchType = useSettingsStore((s) => s.setMatchType);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
+  const showDifficulty = matchType === 'pvc' || matchType === 'cvc';
+
   const handleStart = async () => {
-    await createNewGame(difficulty);
+    await createNewGame(difficulty, matchType);
     closeDialog();
   };
 
-  // ─── In-game compact dialog (unchanged) ───
+  // ─── In-game compact dialog ───
   if (!isInitial) {
     return (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
         <div className="bg-lacquer border border-gold/40 rounded-xl p-6 max-w-sm mx-auto">
           <h2 className="text-xl font-bold text-gold-light font-serif mb-2 text-center">New Game</h2>
-          <div className="grid grid-cols-2 gap-2 mb-5">
-            {difficulties.map((d) => (
-              <button key={d.value} onClick={() => setDifficulty(d.value)} className={`p-3 rounded-lg text-left transition-all border ${difficulty === d.value ? 'bg-gold text-ebony border-gold' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
-                <div className="font-medium text-sm">{d.en}</div><div className="text-[10px] opacity-70">{d.zh}</div>
+          {/* Match type */}
+          <div className="grid grid-cols-2 gap-1.5 mb-3">
+            {matchTypes.map((m) => (
+              <button key={m.value} onClick={() => setMatchType(m.value)} className={`p-2 rounded-md text-left transition-all border text-xs ${matchType === m.value ? 'bg-gold/20 border-gold text-gold-light' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
+                <div className="font-medium">{m.icon} {m.en}</div>
               </button>
             ))}
           </div>
-          <button onClick={handleStart} className="w-full bg-gold hover:bg-gold-light text-ebony font-bold py-3 rounded-lg font-serif tracking-wide">Play</button>
+          {/* Difficulty (only for PvC and CvC) */}
+          {showDifficulty && (
+            <div className="grid grid-cols-2 gap-1.5 mb-4">
+              {difficulties.map((d) => (
+                <button key={d.value} onClick={() => setDifficulty(d.value)} className={`p-2.5 rounded-lg text-left transition-all border ${difficulty === d.value ? 'bg-gold text-ebony border-gold' : 'bg-lacquer/50 text-cream-dim border-gold/20 hover:border-gold/50'}`}>
+                  <div className="font-medium text-xs">{d.en}</div><div className="text-[9px] opacity-70">{d.zh}</div>
+                </button>
+              ))}
+            </div>
+          )}
+          <button onClick={handleStart} className="w-full bg-gold hover:bg-gold-light text-ebony font-bold py-2.5 rounded-lg font-serif tracking-wide text-sm">Play</button>
         </div>
       </div>
     );
@@ -189,32 +212,61 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
             </div>
           </div>
 
-          {/* ─── DIFFICULTY ─── */}
-          <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.8s, transform 0.5s ease 0.8s' }}>
-            <p style={{ fontSize: '1rem', letterSpacing: '0.2em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 12, fontWeight: 600 }}>SELECT DIFFICULTY</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-              {difficulties.map((d) => {
-                const active = difficulty === d.value;
+          {/* ─── MATCH TYPE ─── */}
+          <div className="matchtype-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s' }}>
+            <p style={{ fontSize: '1rem', letterSpacing: '0.2em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 12, fontWeight: 600 }}>MATCH TYPE</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+              {matchTypes.map((m) => {
+                const active = matchType === m.value;
                 return (
-                  <button key={d.value} onClick={() => setDifficulty(d.value)} className="diff-card" style={{
+                  <button key={m.value} onClick={() => setMatchType(m.value)} className="match-card" style={{
                     background: active ? 'rgba(60,25,5,0.9)' : 'rgba(20,10,2,0.7)',
                     border: active ? '1.5px solid #d4a843' : '1px solid #2d1505',
-                    borderRadius: 8, padding: '14px 20px', cursor: 'pointer', textAlign: 'left' as const,
+                    borderRadius: 8, padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const,
                     transition: 'all 0.25s ease',
                     backdropFilter: 'blur(8px)',
                     boxShadow: active ? '0 0 0 1px rgba(212,168,67,0.2), inset 0 0 20px rgba(212,168,67,0.05), 0 8px 30px rgba(0,0,0,0.5)' : 'none',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    display: 'flex', alignItems: 'center', gap: 12,
                   }}>
+                    <span style={{ fontSize: '1.3rem' }}>{m.icon}</span>
                     <div>
-                      <div style={{ fontSize: '1rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{d.en}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#b89560', letterSpacing: '0.1em' }}>{d.zh}</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{m.en}</div>
+                      <div style={{ fontSize: '0.65rem', color: '#8a7550', letterSpacing: '0.05em' }}>{m.desc}</div>
                     </div>
-                    <span style={{ fontSize: '0.65rem', color: '#6b4c1a', background: '#1a0f00', padding: '2px 8px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace' }}>{d.timeLabel}</span>
                   </button>
                 );
               })}
             </div>
           </div>
+
+          {/* ─── DIFFICULTY (only PvC and CvC) ─── */}
+          {showDifficulty && (
+            <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.85s, transform 0.5s ease 0.85s' }}>
+              <p style={{ fontSize: '0.9rem', letterSpacing: '0.18em', color: '#b89560', fontFamily: 'Noto Serif SC, serif', marginBottom: 10, fontWeight: 600 }}>DIFFICULTY</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                {difficulties.map((d) => {
+                  const active = difficulty === d.value;
+                  return (
+                    <button key={d.value} onClick={() => setDifficulty(d.value)} className="diff-card" style={{
+                      background: active ? 'rgba(60,25,5,0.9)' : 'rgba(20,10,2,0.7)',
+                      border: active ? '1.5px solid #d4a843' : '1px solid #2d1505',
+                      borderRadius: 8, padding: '12px 16px', cursor: 'pointer', textAlign: 'left' as const,
+                      transition: 'all 0.25s ease',
+                      backdropFilter: 'blur(8px)',
+                      boxShadow: active ? '0 0 0 1px rgba(212,168,67,0.2), inset 0 0 20px rgba(212,168,67,0.05), 0 8px 30px rgba(0,0,0,0.5)' : 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    }}>
+                      <div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: 600, color: active ? '#f0d080' : '#d4c5a0', fontFamily: 'Noto Serif SC, serif' }}>{d.en}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#b89560', letterSpacing: '0.1em' }}>{d.zh}</div>
+                      </div>
+                      <span style={{ fontSize: '0.6rem', color: '#6b4c1a', background: '#1a0f00', padding: '2px 8px', borderRadius: 20, border: '1px solid #3d2010', fontFamily: 'monospace' }}>{d.timeLabel}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* ─── START BUTTON ─── */}
           <div className="start-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 1.0s, transform 0.5s ease 1.0s' }}>
@@ -226,7 +278,9 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
               color: '#f0d080', fontSize: '1.05rem', letterSpacing: '0.12em',
               fontFamily: 'Noto Serif SC, serif', fontWeight: 600,
               cursor: 'pointer', transition: 'all 0.3s ease',
-            }}>START GAME</button>
+            }}>
+              {matchType === 'pvc' ? 'START GAME' : matchType === 'pvp' ? 'START MATCH' : matchType === 'cvc' ? 'WATCH BATTLE' : 'OPEN BOARD'}
+            </button>
           </div>
 
         </div>

@@ -9,12 +9,12 @@ export const MoveList: React.FC = () => {
     <div className="bg-[#150c00] rounded-lg">
       {/* Header */}
       <h3 className="text-gold font-serif text-xs tracking-[0.08em] uppercase px-3 py-2 border-b border-gold/30">
-        NƯỚC ĐI
+        MOVES
       </h3>
 
       <div className="p-2">
         {moves.length === 0 ? (
-          <p className="text-cream-dim/40 text-xs text-center py-4">Chưa có nước đi</p>
+          <p className="text-cream-dim/40 text-xs text-center py-4">No moves yet</p>
         ) : (
           <div className="max-h-52 overflow-y-auto space-y-0.5 font-mono text-xs">
             {moves.map((move, i) => {

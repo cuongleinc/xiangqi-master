@@ -10,7 +10,7 @@ export type { Position, BoardSquare, FenData } from './types/board.types';
 
 // game.types
 export { DIFFICULTY_MOVETIME } from './types/game.types';
-export type { GameStatus, GameResultReason, Difficulty, MoveRecord, GameResult, GameStateData } from './types/game.types';
+export type { GameStatus, GameResultReason, Difficulty, MatchType, MoveRecord, GameResult, GameStateData } from './types/game.types';
 
 // analysis.types
 export { MoveClassification, DEFAULT_THRESHOLDS } from './types/analysis.types';

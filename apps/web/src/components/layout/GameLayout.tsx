@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores/game.store';
+import { useAnalysisStore } from '../../stores/analysis.store';
 import { Color } from '@repo/shared';
 import { Board } from '../board/Board';
 import { EvaluationBar } from '../analysis/EvaluationBar';
@@ -11,7 +12,17 @@ import { StatusBar } from './StatusBar';
 export const GameLayout: React.FC = () => {
   const fen = useGameStore((s) => s.fen);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
+  const evaluatePosition = useAnalysisStore((s) => s.evaluatePosition);
   const currentTurn: Color = fen?.includes(' w ') ? Color.RED : Color.BLACK;
+
+  // Re-evaluate position whenever the FEN changes (after each move)
+  const prevFenRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (fen && fen !== prevFenRef.current) {
+      prevFenRef.current = fen;
+      evaluatePosition(fen);
+    }
+  }, [fen, evaluatePosition]);
 
   return (
     <div className="flex h-[calc(100vh-56px-36px)] max-w-[1400px] mx-auto">

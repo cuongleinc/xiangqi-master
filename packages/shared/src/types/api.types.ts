@@ -2,12 +2,13 @@
 // API types (request/response DTOs)
 // ==========================================
 
-import type { Difficulty, GameStatus, MoveRecord } from './game.types';
+import type { Difficulty, MatchType, GameStatus, MoveRecord } from './game.types';
 import type { MoveClassification } from './analysis.types';
 
 // Create Game
 export interface CreateGameRequest {
   difficulty?: Difficulty;
+  matchType?: MatchType;
 }
 
 export interface CreateGameResponse {

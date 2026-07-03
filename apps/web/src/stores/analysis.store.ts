@@ -30,6 +30,7 @@ export const useAnalysisStore = create<AnalysisStoreState>((set) => ({
       const data = await analysisApi.evaluate(fen);
       set({
         evaluation: data.score,
+        bestMove: data.pv?.[0] || null,
         depth: data.depth,
         pv: data.pv || [],
         isEvaluating: false,

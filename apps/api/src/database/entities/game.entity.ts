@@ -32,6 +32,9 @@ export class Game {
   @Column({ type: 'varchar', length: 20, default: 'medium' })
   difficulty!: string;
 
+  @Column({ type: 'varchar', length: 20, default: 'pvc' })
+  matchType!: string;
+
   @Column({ type: 'boolean', default: false })
   aiThinking!: boolean;
 

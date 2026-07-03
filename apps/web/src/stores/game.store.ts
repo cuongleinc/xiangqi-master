@@ -30,7 +30,7 @@ interface GameStoreState {
   lastMoveUci: string | null;
   error: string | null;
 
-  createNewGame: (difficulty: string) => Promise<void>;
+  createNewGame: (difficulty: string, matchType?: string) => Promise<void>;
   makeMove: (uci: string) => Promise<boolean>;
   fetchGameState: () => Promise<void>;
   setError: (error: string | null) => void;
@@ -51,9 +51,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   lastMoveUci: null,
   error: null,
 
-  createNewGame: async (difficulty: string) => {
+  createNewGame: async (difficulty: string, matchType: string = 'pvc') => {
     try {
-      const data = await gameApi.createGame(difficulty);
+      const data = await gameApi.createGame(difficulty, matchType);
       set({
         gameId: data.gameId,
         fen: data.fen,

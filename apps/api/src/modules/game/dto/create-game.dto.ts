@@ -4,6 +4,10 @@ export class CreateGameDto {
   @IsOptional()
   @IsEnum(['easy', 'medium', 'hard', 'expert'])
   difficulty?: string = 'medium';
+
+  @IsOptional()
+  @IsEnum(['pvc', 'pvp', 'cvc', 'analysis'])
+  matchType?: string = 'pvc';
 }
 
 export class MakeMoveDto {

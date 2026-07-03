@@ -15,7 +15,7 @@ export class GameController {
 
   @Post()
   async createGame(@Body() dto: CreateGameDto) {
-    return this.gameService.createGame(dto.difficulty);
+    return this.gameService.createGame(dto.difficulty, dto.matchType);
   }
 
   @Get(':id')

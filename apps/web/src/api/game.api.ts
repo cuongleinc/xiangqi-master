@@ -1,8 +1,8 @@
 import apiClient from './client';
 
 export const gameApi = {
-  createGame: (difficulty: string = 'medium') =>
-    apiClient.post('/games', { difficulty }).then((r) => r.data),
+  createGame: (difficulty: string = 'medium', matchType: string = 'pvc') =>
+    apiClient.post('/games', { difficulty, matchType }).then((r) => r.data),
 
   getGame: (id: string) =>
     apiClient.get(`/games/${id}`).then((r) => r.data),

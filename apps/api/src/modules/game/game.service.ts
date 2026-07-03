@@ -30,17 +30,29 @@ export class GameService {
     private readonly engineService: EngineService,
   ) {}
 
-  async createGame(difficulty: string = 'medium'): Promise<{ gameId: string; fen: string }> {
+  async createGame(difficulty: string = 'medium', matchType: string = 'pvc'): Promise<{ gameId: string; fen: string }> {
     const game = this.gameRepo.create({
       currentFen: STARTING_FEN,
       difficulty,
-      hintsRemaining: 3,
+      matchType,
+      hintsRemaining: matchType === 'pvc' ? 3 : 0, // hints only for PvC
     });
     const saved = await this.gameRepo.save(game);
 
     // Create in-memory game manager
     const manager = new GameManager(STARTING_FEN);
     this.activeGames.set(saved.id, manager);
+
+    // For CvC, trigger AI to play the first move (Red)
+    if (matchType === 'cvc') {
+      game.aiThinking = true;
+      await this.gameRepo.save(game);
+      this.computeCvcLoop(saved.id, STARTING_FEN, difficulty).catch((err) => {
+        this.logger.error(`CvC loop failed: ${err.message}`);
+        game.aiThinking = false;
+        this.gameRepo.save(game).catch(() => {});
+      });
+    }
 
     return { gameId: saved.id, fen: STARTING_FEN };
   }
@@ -130,9 +142,9 @@ export class GameService {
           : 'draw';
     }
 
-    // If game continues, trigger AI response asynchronously
+    // If game continues, trigger AI response only for PvC mode
     const isGameOver = !!result.gameResult;
-    if (!isGameOver) {
+    if (!isGameOver && game.matchType === 'pvc') {
       game.aiThinking = true;
       game.recentAiMove = null;
 
@@ -234,6 +246,87 @@ export class GameService {
       game.aiThinking = false;
       game.recentAiMove = null;
       await this.gameRepo.save(game);
+    }
+  }
+
+  /**
+   * CvC auto-play loop: AI plays both Red and Black until the game ends.
+   * Uses a small delay between moves so the frontend can poll and render each move.
+   */
+  private async computeCvcLoop(gameId: string, fen: string, difficulty: string): Promise<void> {
+    const movetime = DIFFICULTY_MOVETIME[difficulty] || 500;
+    const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    let currentFen = fen;
+    while (true) {
+      const game = await this.gameRepo.findOne({ where: { id: gameId } });
+      if (!game || game.status !== 'playing') return;
+
+      try {
+        const aiResult = await this.engineService.getBestMove(currentFen, movetime);
+
+        // Validate AI move
+        let manager = this.activeGames.get(gameId);
+        if (!manager) {
+          manager = new GameManager(currentFen);
+          this.activeGames.set(gameId, manager);
+        }
+
+        const moveResult = manager.makeMove(aiResult.bestMove);
+        if (!moveResult.success || !moveResult.fen) {
+          this.logger.error(`CvC: AI generated illegal move: ${aiResult.bestMove}`);
+          game.aiThinking = false;
+          await this.gameRepo.save(game);
+          return;
+        }
+
+        // Save AI move
+        const moveEntity = this.moveRepo.create({
+          gameId,
+          moveNumber: game.moveCount + 1,
+          uciMove: aiResult.bestMove,
+          fenBefore: currentFen,
+          fenAfter: moveResult.fen,
+          isCheck: moveResult.isCheck || false,
+          isCapture: moveResult.captured !== undefined,
+          evaluationBefore: aiResult.score,
+        });
+        await this.moveRepo.save(moveEntity);
+
+        // Update game
+        currentFen = moveResult.fen;
+        game.currentFen = currentFen;
+        await this.gameRepo.increment({ id: gameId }, 'moveCount', 1);
+        game.moveCount = game.moveCount + 1;
+
+        game.recentAiMove = {
+          uci: aiResult.bestMove,
+          fen: currentFen,
+          evaluation: aiResult.score,
+        };
+
+        if (moveResult.gameResult) {
+          game.status = moveResult.gameResult;
+          game.result = moveResult.isMate
+            ? 'checkmate'
+            : moveResult.isStalemate
+              ? 'stalemate'
+              : 'draw';
+          game.aiThinking = false;
+          await this.gameRepo.save(game);
+          return;
+        }
+
+        await this.gameRepo.save(game);
+
+        // Small delay so frontend has time to poll and render
+        await delay(600);
+      } catch (err) {
+        this.logger.error(`CvC loop error: ${(err as Error).message}`);
+        game.aiThinking = false;
+        await this.gameRepo.save(game);
+        return;
+      }
     }
   }
 
