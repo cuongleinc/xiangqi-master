@@ -60,6 +60,7 @@ const vi = {
     hint: 'Gợi ý',
     bestMove: 'Nước đi tốt nhất',
     undo: 'Hoàn tác',
+    exportPgn: 'Xuất PGN',
     id: 'Ván',
     status: 'Trạng thái',
     'status.thinking': 'Đang nghĩ',

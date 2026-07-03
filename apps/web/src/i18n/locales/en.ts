@@ -60,6 +60,7 @@ const en = {
     hint: 'Hint',
     bestMove: 'Best Move',
     undo: 'Undo',
+    exportPgn: 'Export PGN',
     id: 'Game',
     status: 'Status',
     'status.thinking': 'Thinking',

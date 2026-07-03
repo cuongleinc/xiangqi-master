@@ -60,6 +60,7 @@ const zh = {
     hint: '提示',
     bestMove: '最佳著法',
     undo: '悔棋',
+    exportPgn: '導出 PGN',
     id: '對局',
     status: '狀態',
     'status.thinking': '思考中',

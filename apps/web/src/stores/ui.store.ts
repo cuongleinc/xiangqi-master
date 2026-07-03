@@ -22,6 +22,7 @@ interface UiStoreState {
   clearSelection: () => void;
   showHint: (from: [number, number], to: [number, number]) => void;
   clearHint: () => void;
+  clearAllHighlights: () => void;
   openDialog: (dialog: string) => void;
   closeDialog: () => void;
   showConfirm: (message: string, onConfirm: () => void) => void;
@@ -97,8 +98,11 @@ export const useUiStore = create<UiStoreState>((set, get) => ({
 
   clearSelection: () => set({ selectedSquare: null, legalMoves: [] }),
 
-  showHint: (from, to) => set({ hintMove: { from, to } }),
+  showHint: (from, to) => set({ hintMove: { from, to }, selectedSquare: null, legalMoves: [] }),
   clearHint: () => set({ hintMove: null }),
+
+  /** Clear both selection and hint — for Best Move / auto-play */
+  clearAllHighlights: () => set({ selectedSquare: null, legalMoves: [], hintMove: null }),
 
   openDialog: (dialog) => set({ activeDialog: dialog }),
   closeDialog: () => set({ activeDialog: null }),

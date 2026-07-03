@@ -5,6 +5,7 @@ import { gameApi } from '../../api/game.api';
 import { analysisApi } from '../../api/analysis.api';
 import { useUiStore } from '../../stores/ui.store';
 import { FILE_MAP } from '@repo/shared';
+import { downloadPgn } from '../../lib/pgn';
 
 const btnBase = 'w-full py-3 px-5 font-medium text-sm tracking-[0.03em] rounded-md transition-all duration-200 font-serif';
 
@@ -19,6 +20,8 @@ export const GameToolbar: React.FC = () => {
   const makeMove = useGameStore((s) => s.makeMove);
   const undoMove = useGameStore((s) => s.undoMove);
   const openDialog = useUiStore((s) => s.openDialog);
+  const clearAllHighlights = useUiStore((s) => s.clearAllHighlights);
+  const clearSelection = useUiStore((s) => s.clearSelection);
   const showHint = useUiStore((s) => s.showHint);
 
   const showConfirm = useUiStore((s) => s.showConfirm);
@@ -41,6 +44,7 @@ export const GameToolbar: React.FC = () => {
       const toFile = FILE_MAP[uci[2]!];
       const toRank = parseInt(uci[3]!, 10);
       if (fromFile === undefined || toFile === undefined || isNaN(fromRank) || isNaN(toRank)) return;
+      clearSelection(); // ensure mutually exclusive with piece selection
       showHint([fromRank, fromFile], [toRank, toFile]);
     } catch { /* ignore */ }
   };
@@ -50,6 +54,7 @@ export const GameToolbar: React.FC = () => {
     try {
       const data = await analysisApi.bestMove(fen);
       if (data.bestMove) {
+        clearAllHighlights();
         await makeMove(data.bestMove);
       }
     } catch { /* ignore */ }
@@ -60,6 +65,14 @@ export const GameToolbar: React.FC = () => {
     try {
       await undoMove();
     } catch { /* ignore */ }
+  };
+
+  const moves = useGameStore((s) => s.moves);
+  const estatus = useGameStore((s) => s.status);
+
+  const handleExportPgn = () => {
+    if (!gameId || !fen) return;
+    downloadPgn({ gameId, fen, status: estatus, moves });
   };
 
   const isAnalysisOrPvP = matchType === 'analysis' || matchType === 'pvp';
@@ -127,6 +140,21 @@ export const GameToolbar: React.FC = () => {
         onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
       >
         {t('game.undo')}
+      </button>
+
+      {/* Export PGN */}
+      <button
+        onClick={handleExportPgn}
+        disabled={isAiThinking || !gameId}
+        className={`${btnBase} text-cream-dim border border-gold/30 shadow-sm disabled:opacity-30 disabled:cursor-not-allowed`}
+        style={{
+          background: 'linear-gradient(135deg, #1a2a3a 0%, #2a4a6a 100%)',
+          boxShadow: '0 2px 8px rgba(26,42,58,0.3)',
+        }}
+        onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1.12)'; }}
+        onMouseLeave={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.filter = 'brightness(1)'; }}
+      >
+        {t('game.exportPgn')}
       </button>
 
       {/* Sep */}
