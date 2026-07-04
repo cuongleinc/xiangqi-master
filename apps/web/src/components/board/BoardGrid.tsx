@@ -64,25 +64,32 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
     </text>,
   );
 
-  // Coordinates — placed outside the grid, in the padding zone
+  // Coordinates — in the outer zone, symmetric on all four sides
   if (showCoordinates) {
-    const labelSize = 12;
-    const labelColor = '#8B6914';
-    const labelOpacity = 0.7;
+    const labelSize = 14;
+    const labelColor = '#5c3d1a';
+    const labelOpacity = 0.8;
     const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
+    const o = padding * 0.20; // offset from SVG edge — identical top/bottom/left/right
 
-    // Column labels: above and below the board
+    // Column labels: top and bottom — same distance from SVG edge
+    const colTopY = o;
+    const gridBot = padding + 9 * cellSize;
+    const colBotY = gridBot + padding * 0.80; // = svgHeight - o
     for (let col = 0; col < 9; col++) {
       const x = padding + col * cellSize;
-      lines.push(<text key={`ct${col}`} x={x} y={padding * 0.35} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" fontFamily="system-ui, sans-serif">{files[col]}</text>);
-      lines.push(<text key={`cb${col}`} x={x} y={padding + 9 * cellSize + padding * 0.65} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" fontFamily="system-ui, sans-serif">{files[col]}</text>);
+      lines.push(<text key={`ct${col}`} x={x} y={colTopY} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" fontFamily="system-ui, sans-serif">{files[col]}</text>);
+      lines.push(<text key={`cb${col}`} x={x} y={colBotY} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" fontFamily="system-ui, sans-serif">{files[col]}</text>);
     }
 
-    // Row labels: left and right of the board
+    // Row labels: left and right — same distance from SVG edge
+    const rowLeftX = o;
+    const gridRight = padding + 8 * cellSize;
+    const rowRightX = gridRight + padding * 0.80; // = svgWidth - o
     for (let row = 0; row < 10; row++) {
       const y = padding + row * cellSize;
-      lines.push(<text key={`rl${row}`} x={padding * 0.3} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
-      lines.push(<text key={`rr${row}`} x={padding + 8 * cellSize + padding * 0.7} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
+      lines.push(<text key={`rl${row}`} x={rowLeftX} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
+      lines.push(<text key={`rr${row}`} x={rowRightX} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
     }
   }
 

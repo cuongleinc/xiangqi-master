@@ -39,6 +39,7 @@ const App: React.FC = () => {
       <GameLayout />
       {status !== 'playing' && <GameOverDialog />}
       {activeDialog === 'about' && <AboutDialog />}
+      {activeDialog === 'newGame' && <NewGameDialog />}
       <ConfirmDialog />
     </div>
   );

@@ -44,7 +44,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
 
   // Target 70px cells. At 70px: board grid = 8×70 = 560px wide, 9×70 = 630px tall
   const TARGET_CELL = 70;
-  const padding = 40; // space for row/col labels outside the grid
+  const padding = 50; // labels in outer third, border in inner third, grid at padding
   const cellSize = Math.max(TARGET_CELL, Math.min((containerWidth - padding * 2) / 8, TARGET_CELL * 1.3));
   const svgWidth = padding * 2 + 8 * cellSize;
   const svgHeight = padding * 2 + 9 * cellSize;
@@ -174,12 +174,12 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
           {/* Dong Son bronze drum watermark — very subtle depth */}
           <rect x={0} y={0} width={svgWidth} height={svgHeight} fill="url(#bronzeDrum)" opacity={0.04} />
 
-          {/* Board inner border at the board edge */}
+          {/* Board inner border — sits between labels and grid */}
           <rect
-            x={padding * 0.5}
-            y={padding * 0.5}
-            width={svgWidth - padding}
-            height={svgHeight - padding}
+            x={padding * 0.55}
+            y={padding * 0.55}
+            width={svgWidth - padding * 1.1}
+            height={svgHeight - padding * 1.1}
             fill="none"
             stroke="#8B4513"
             strokeWidth={cellSize * 0.06}
