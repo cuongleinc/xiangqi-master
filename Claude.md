@@ -121,7 +121,7 @@ root/
 ├── infrastructure/
 │   ├── docker/           Dockerfiles for api + web
 │   └── nginx/            Reverse proxy config
-├── docs/                 deployment.md
+├── DEPLOYMENT.md         Hostinger VPS deployment guide
 ├── docker-compose.yml    Production stack
 ├── docker-compose.dev.yml Development (postgres + redis)
 └── turbo.json            Build pipeline
