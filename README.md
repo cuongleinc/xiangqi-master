@@ -2,11 +2,12 @@
 
 <div align="center">
 
-**A modern Chinese Chess platform — play against a powerful AI engine**
+**A modern Chinese Chess platform — play against AI or online opponents**
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs)](https://nestjs.com/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-4-010101?logo=socketdotio)](https://socket.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
@@ -33,15 +34,16 @@ Xiangqi Master uses **[Pikafish](https://github.com/official-pikafish/Pikafish)*
 ## ✨ Features
 
 - 🤖 **Human vs AI** — Play against Pikafish at 4 difficulty levels
+- 🌐 **Online PvP** — Real-time multiplayer via Socket.IO with matchmaking, reconnect, spectator mode
 - 🎨 **SVG Board** — Crisp vector graphics at any screen size, with Chinese characters on pieces
-- 🖱️ **Click & Drag** — Click to select pieces, click legal destinations to move, or drag-and-drop
-- 📊 **Evaluation Bar** — Animated, real-time score display beside the board
-- 💡 **Hint System** — Get engine-powered move suggestions (3 per game)
+- 🖱️ **Click to Move** — Click to select pieces, click legal destinations to move
+- 📊 **Evaluation Bar** — Animated, real-time score display beside the board (PvC/Analysis only)
+- 💡 **Hint System** — Get engine-powered move suggestions (3 per game, PvC only)
 - 🏷️ **Move Classification** — Every move graded Best / Excellent / Good / Inaccuracy / Mistake / Blunder
 - 📋 **Move List** — PGN-style two-column layout with human-readable Xiangqi notation and classification dots
-- ↩️ **Undo** — Take back moves (PvC undoes AI+human pair, other modes undo single moves)
+- ↩️ **Undo** — Take back moves (PvC undoes AI+human pair)
+- 👁️ **Spectator Mode** — Watch live PvP games, browse active matches
 - 🌐 **i18n** — Multi-language support: English, 中文 (Chinese), Tiếng Việt (Vietnamese)
-- 📝 **Game Review** — Post-game accuracy analysis with critical moment detection
 - 💾 **Persistent Storage** — Full game history saved to PostgreSQL with Redis caching
 - 🐳 **Dockerized** — One-command deployment with Docker Compose
 
@@ -50,20 +52,23 @@ Xiangqi Master uses **[Pikafish](https://github.com/official-pikafish/Pikafish)*
 ## 🏗️ Architecture
 
 ```
-Browser (React + Vite)
+Browser (React + Vite + Zustand)
     │
-    ▼
-Nginx (reverse proxy)
-    │
-    ▼
-NestJS API ────── Game Service ──── xiangqi-core (rules engine)
-    │                 │
-    │                 ├── Analysis Service ──── engine-client (UCI wrapper)
-    │                 │                              │
-    │                 │                         Pikafish Engine
-    │                 │
-    ├── PostgreSQL ──── games, moves, analysis_cache
-    └── Redis ──────── engine cache, session cache
+    ├── REST /api ────► Nginx ────► NestJS API
+    │                                    │
+    │                              ┌─────┼─────────────┐
+    │                              │     │             │
+    └── WebSocket /pvp ─────────► │ Game Service     PvP Gateway (Socket.IO)
+                                   │     │             │
+                                   │  xiangqi-core    MatchmakingQueue
+                                   │  (rules engine)  Room Manager
+                                   │     │             │
+                                   │  engine-client    Spectator
+                                   │     │             │
+                                   │  Pikafish        Reconnect
+                                   │     │
+                                   ├── PostgreSQL ──── games, moves, analysis_cache
+                                   └── Redis ──────── engine cache, session cache
 ```
 
 ### Monorepo
@@ -150,14 +155,29 @@ Access at `http://localhost` — Nginx serves the web frontend and proxies API r
 | `GET` | `/api/analysis/review/:id` | Get game review summary |
 | `GET` | `/api/engine/status` | Engine health check |
 
+### Socket.IO (namespace `/pvp`)
+
+| Event | Direction | Description |
+|-------|-----------|-------------|
+| `join_queue` | Client→Server | Enter matchmaking queue |
+| `match_found` | Server→Client | Paired with opponent |
+| `match_ai_fallback` | Server→Client | No opponent — AI match |
+| `move` | Client→Server | Submit a move |
+| `game_update` | Server→Client | Move applied, board updated |
+| `game_over` | Server→Client | Game ended |
+| `spectate` | Client→Server | Join as spectator |
+| `game_state` | Server→Client | Full board state on join |
+| `get_live_games` | Client→Server | Browse active matches |
+| `reconnect_game` | Client→Server | Rejoin after disconnect |
+
 ---
 
 ## 🧪 Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, TypeScript, Vite, TailwindCSS, Zustand, React Query, React DnD, react-i18next |
-| Backend | NestJS 10, TypeScript, TypeORM, PostgreSQL, Redis |
+| Frontend | React 18, TypeScript, Vite, TailwindCSS, Zustand, Socket.IO Client, react-i18next |
+| Backend | NestJS 10, TypeScript, TypeORM, Socket.IO, PostgreSQL, Redis |
 | Engine | [Pikafish](https://github.com/official-pikafish/Pikafish) (UCI protocol, NNUE evaluation) |
 | Infrastructure | Docker, Docker Compose, Nginx |
 | Monorepo | pnpm workspaces + Turborepo |
@@ -188,7 +208,8 @@ xiangqi-master/
 
 ## 🔜 Roadmap
 
-- **Phase 2** — Online PvP with Socket.IO, matchmaking, spectator mode
+- ✅ **Phase 1** — Core: AI engine, board UI, analysis, move classification
+- ✅ **Phase 2** — Online PvP with Socket.IO, matchmaking, spectator, reconnect
 - **Phase 3** — User accounts, JWT auth, ratings, leaderboards
 - **Phase 4** — Training mode: puzzles, endgame trainer, opening explorer
 - **Phase 5** — Tournament system: Swiss, Round Robin, Knockout
