@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { gameApi } from '../api/game.api';
-import { Color } from '@repo/shared';
+import { Color, STARTING_FEN } from '@repo/shared';
 import type { Difficulty } from '@repo/shared';
 import { playCapture, playCheck, playGameOver } from '../lib/sound';
+import { useAnalysisStore } from './analysis.store';
 
 export interface MoveRecordData {
   moveNumber: number;
@@ -21,6 +22,7 @@ interface GameStoreState {
   fen: string | null;
   turn: Color;
   status: string;
+  result: string | null;
   moveCount: number;
   hintsRemaining: number;
   difficulty: Difficulty;
@@ -30,6 +32,7 @@ interface GameStoreState {
   recentAiMove: { uci: string; fen: string; evaluation?: number } | null;
   lastMoveUci: string | null;
   error: string | null;
+  _epoch: number;
 
   createNewGame: (difficulty: string, matchType?: string) => Promise<void>;
   makeMove: (uci: string) => Promise<boolean>;
@@ -37,6 +40,13 @@ interface GameStoreState {
   fetchGameState: () => Promise<void>;
   setError: (error: string | null) => void;
   reset: () => void;
+
+  // PvP socket-driven methods
+  setPvPGame: (gameId: string, color: string) => void;
+  applySocketMove: (data: { fen: string; lastMove: string; turn: 'w' | 'b'; isCheck: boolean; moveNumber: number; gameResult?: string }) => void;
+  applyGameOver: (result: string, reason: string) => void;
+  applySpectatorState: (gameId: string, state: { fen: string; turn: 'w' | 'b'; status: string; moveNumber: number; moves: any[]; players: { red: string; black: string }; yourColor?: 'red' | 'black' }) => void;
+  applyReconnectState: (gameId: string, state: { fen: string; turn: 'w' | 'b'; status: string; moveNumber: number; moves: any[]; players: { red: string; black: string }; yourColor?: 'red' | 'black' }) => void;
 }
 
 export const useGameStore = create<GameStoreState>((set, get) => ({
@@ -44,6 +54,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   fen: null,
   turn: Color.RED,
   status: 'playing',
+  result: null,
   moveCount: 0,
   hintsRemaining: 3,
   difficulty: 'medium',
@@ -53,15 +64,19 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   recentAiMove: null,
   lastMoveUci: null,
   error: null,
+  _epoch: 0,
 
   createNewGame: async (difficulty: string, matchType: string = 'pvc') => {
     try {
       const data = await gameApi.createGame(difficulty, matchType);
+      // Clear analysis store to prevent stale data from previous game
+      useAnalysisStore.getState().clear();
       set({
         gameId: data.gameId,
         fen: data.fen,
         turn: Color.RED,
         status: 'playing',
+        result: null,
         moveCount: 0,
         hintsRemaining: 3,
         difficulty: difficulty as Difficulty,
@@ -71,6 +86,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         recentAiMove: null,
         lastMoveUci: null,
         error: null,
+        _epoch: get()._epoch + 1,
       });
     } catch (err) {
       set({ error: (err as Error).message });
@@ -78,8 +94,16 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   },
 
   makeMove: async (uci: string) => {
-    const { gameId } = get();
+    const { gameId, matchType } = get();
     if (!gameId) return false;
+
+    // PvP: emit move via socket instead of REST
+    if (matchType === 'pvp') {
+      const socket = (await import('../api/socket')).getPvpSocket();
+      socket.emit('move', { gameId, uci });
+      // The actual state update comes via the game_update socket event
+      return true;
+    }
 
     try {
       const data = await gameApi.makeMove(gameId, uci);
@@ -92,6 +116,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
           fen: data.fen,
           turn: data.turn === 'w' ? Color.RED : Color.BLACK,
           status: data.gameResult || 'playing',
+          result: data.gameResult || null,
           moveCount: data.moveNumber,
           isAiThinking: data.isAiThinking || false,
           lastMoveUci: uci,
@@ -107,9 +132,6 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
               moveCount: gameData.moveCount,
               hintsRemaining: gameData.hintsRemaining,
               recentAiMove: gameData.recentAiMove,
-              lastMoveUci: gameData.moves?.length > 0
-                ? gameData.moves[gameData.moves.length - 1].uci
-                : get().lastMoveUci,
             });
           }).catch(() => {});
         }
@@ -131,6 +153,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       set({
         fen: data.fen,
         status: data.status,
+        result: data.result ?? get().result,
         moveCount: data.moveCount,
         hintsRemaining: data.hintsRemaining,
         isAiThinking: data.isAiThinking,
@@ -165,11 +188,14 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
 
     try {
       const data = await gameApi.undoMove(gameId);
+      // Clear analysis store to prevent stale eval from pre-undo position
+      useAnalysisStore.getState().clear();
       set({
         gameId: data.id,
         fen: data.fen,
         turn: data.fen?.includes(' w ') ? Color.RED : Color.BLACK,
         status: data.status,
+        result: data.result ?? null,
         moveCount: data.moveCount,
         hintsRemaining: data.hintsRemaining,
         isAiThinking: data.isAiThinking,
@@ -177,6 +203,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         recentAiMove: data.recentAiMove,
         lastMoveUci: data.moves?.length > 0 ? data.moves[data.moves.length - 1].uci : null,
         error: null,
+        _epoch: get()._epoch + 1,
       });
     } catch (err) {
       set({ error: (err as Error).message });
@@ -188,6 +215,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     fen: null,
     turn: Color.RED,
     status: 'playing',
+    result: null,
     moveCount: 0,
     hintsRemaining: 3,
     matchType: 'pvc',
@@ -197,4 +225,84 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     lastMoveUci: null,
     error: null,
   }),
+
+  // ── PvP socket-driven methods ──
+
+  setPvPGame: (gameId: string, color: string) => {
+    set({
+      gameId,
+      fen: STARTING_FEN,
+      turn: Color.RED,
+      status: 'playing',
+      result: null,
+      moveCount: 0,
+      hintsRemaining: 0,
+      matchType: 'pvp',
+      isAiThinking: false,
+      moves: [],
+      recentAiMove: null,
+      lastMoveUci: null,
+      error: null,
+    });
+  },
+
+  applySocketMove: (data) => {
+    set({
+      fen: data.fen,
+      turn: data.turn === 'w' ? Color.RED : Color.BLACK,
+      status: data.gameResult || 'playing',
+      result: data.gameResult || null,
+      moveCount: data.moveNumber,
+      lastMoveUci: data.lastMove,
+      isAiThinking: false,
+    });
+  },
+
+  applyGameOver: (result, _reason) => {
+    set({ status: result, result });
+  },
+
+  applySpectatorState: (gameId, state) => {
+    set({
+      gameId,
+      fen: state.fen,
+      turn: state.turn === 'w' ? Color.RED : Color.BLACK,
+      status: state.status,
+      moveCount: state.moveNumber,
+      moves: (state.moves || []).map((m: any) => ({
+        moveNumber: m.moveNumber,
+        uci: m.uci,
+        fenBefore: m.fenBefore,
+        fenAfter: m.fenAfter,
+        isCheck: m.isCheck,
+        isCapture: m.isCapture,
+        classification: m.classification,
+        evaluationBefore: m.evaluationBefore,
+        evaluationAfter: m.evaluationAfter,
+      })),
+      matchType: 'pvp',
+      isAiThinking: false,
+      hintsRemaining: 0,
+    });
+  },
+
+  applyReconnectState: (gameId, state) => {
+    set({
+      gameId,
+      fen: state.fen,
+      turn: state.turn === 'w' ? Color.RED : Color.BLACK,
+      status: state.status,
+      moveCount: state.moveNumber,
+      moves: (state.moves || []).map((m: any) => ({
+        moveNumber: m.moveNumber,
+        uci: m.uci,
+        fenBefore: m.fenBefore,
+        fenAfter: m.fenAfter,
+        isCheck: m.isCheck,
+        isCapture: m.isCapture,
+      })),
+      isAiThinking: false,
+      hintsRemaining: 0,
+    });
+  },
 }));

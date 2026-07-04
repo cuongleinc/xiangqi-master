@@ -67,8 +67,15 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   const showDifficulty = matchType === 'pvc' || matchType === 'cvc';
 
   const handleStart = async () => {
-    await createNewGame(difficulty, matchType);
-    closeDialog();
+    if (matchType === 'pvp') {
+      // Route PvP through matchmaking
+      closeDialog();
+      const { usePvPStore } = await import('../../stores/pvp.store');
+      usePvPStore.getState().joinQueue();
+    } else {
+      await createNewGame(difficulty, matchType);
+      closeDialog();
+    }
   };
 
   // ─── Helpers to build localized labels from i18n keys ───

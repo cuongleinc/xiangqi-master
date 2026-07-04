@@ -9,12 +9,13 @@ export const StatusBar: React.FC = () => {
   const fen = useGameStore((s) => s.fen);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
   const status = useGameStore((s) => s.status);
+  const result = useGameStore((s) => s.result);
   const error = useGameStore((s) => s.error);
 
   if (status !== 'playing') {
     const resultText =
-      status === 'red_wins' ? t('status.redWins') :
-      status === 'black_wins' ? t('status.blackWins') :
+      status === 'red_wins' || result === 'red_wins' ? t('status.redWins') :
+      status === 'black_wins' || result === 'black_wins' ? t('status.blackWins') :
       t('status.draw');
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-lacquer border-t border-gold/30 py-2 px-4 text-center">

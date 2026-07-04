@@ -166,6 +166,24 @@ const en = {
     check: '{{turn}} to move — Check!',
     loading: 'Loading...',
   },
+  pvp: {
+    findMatch: 'Find Match',
+    finding: 'Looking for opponent...',
+    cancel: 'Cancel',
+    queuePosition: 'Position in queue: {{pos}}',
+    aiFallback: 'No opponent found — playing against AI',
+    liveGames: 'Live Games',
+    noLiveGames: 'No active games',
+    spectate: 'Watch',
+    spectatorCount: '👁 {{count}}',
+    disconnectWarning: 'Opponent disconnected — waiting {{seconds}}s...',
+    opponentReconnected: 'Opponent reconnected!',
+    connectionLost: 'Connection lost — reconnecting...',
+    forfeitWin: 'Opponent disconnected — you win!',
+    playerNames: '{{red}} vs {{black}}',
+    yourTurn: 'Your turn',
+    opponentTurn: "Opponent's turn",
+  },
 };
 
 export default en;

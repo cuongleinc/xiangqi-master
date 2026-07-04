@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../stores/analysis.store';
 import { useGameStore } from '../../stores/game.store';
 import { pvToReadable } from '../../lib/notation';
+import { classifyMove } from '@repo/xiangqi-core';
+import { Color, DEFAULT_THRESHOLDS } from '@repo/shared';
 
 /* ── Info icon + portal tooltip (renders at document root to avoid clipping) ── */
 const InfoTip: React.FC<{ label: string }> = ({ label }) => {
@@ -53,20 +55,6 @@ function formatScoreCp(cp: number | null, na: string): string {
   return pawns > 0 ? `+${pawns.toFixed(2)}` : pawns.toFixed(2);
 }
 
-/** Client-side classification fallback — mirrors xiangqi-core classifyMove logic. */
-function classifyLocally(evalAfter: number, evalBefore: number): string {
-  const playerBefore = evalBefore;
-  const playerAfter = -evalAfter;
-  const cpLoss = playerBefore - playerAfter;
-  if (cpLoss <= 0) return 'BEST';
-  if (cpLoss <= 5) return 'BEST';
-  if (cpLoss <= 15) return 'EXCELLENT';
-  if (cpLoss <= 50) return 'GOOD';
-  if (cpLoss <= 100) return 'INACCURACY';
-  if (cpLoss <= 200) return 'MISTAKE';
-  return 'BLUNDER';
-}
-
 const CLASS_COLORS: Record<string, string> = {
   BEST: 'text-green-300',
   EXCELLENT: 'text-green-300/80',
@@ -86,6 +74,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ fen }) => {
   const moves = useGameStore((s) => s.moves);
   const makeMove = useGameStore((s) => s.makeMove);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
+  const matchType = useGameStore((s) => s.matchType);
   const storeClassification = useAnalysisStore((s) => s.lastClassification);
 
   const na = t('common.notAvailable');
@@ -104,7 +93,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ fen }) => {
       lastMove?.evaluationBefore != null &&
       lastMove?.evaluationAfter != null
     ) {
-      return classifyLocally(lastMove.evaluationAfter, lastMove.evaluationBefore);
+      return classifyMove(lastMove.evaluationAfter, lastMove.evaluationBefore, Color.RED, DEFAULT_THRESHOLDS);
     }
 
     return storeClassification;
@@ -145,7 +134,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ fen }) => {
         {/* Best Move — click to auto-play */}
         <div>
           <span className="text-cream-dim/60 text-[11px] uppercase tracking-wider">{t('analysis.bestMove')}</span>
-          {bestMove && !isAiThinking ? (
+          {bestMove && !isAiThinking && matchType !== 'pvp' ? (
             <button
               onClick={() => makeMove(bestMove)}
               className="block w-full text-left font-mono text-base text-cream bg-transparent border-0 outline-none p-0 m-0 hover:text-gold-light hover:underline transition-colors focus:outline-none appearance-none"
