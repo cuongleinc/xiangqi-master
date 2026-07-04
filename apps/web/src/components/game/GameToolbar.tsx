@@ -75,7 +75,7 @@ export const GameToolbar: React.FC = () => {
     downloadPgn({ gameId, fen, status: estatus, moves });
   };
 
-  const isAnalysisOrPvP = matchType === 'analysis' || matchType === 'pvp';
+  const isAnalysis = matchType === 'analysis';
 
   return (
     <div className="space-y-3">
@@ -111,7 +111,7 @@ export const GameToolbar: React.FC = () => {
       )}
 
       {/* Best Move (Analysis / PvP) */}
-      {isAnalysisOrPvP && (
+      {isAnalysis && (
         <button
           onClick={handleBestMove}
           disabled={isAiThinking || !fen}
@@ -127,7 +127,8 @@ export const GameToolbar: React.FC = () => {
         </button>
       )}
 
-      {/* Undo */}
+      {/* Undo (not available in PvP) */}
+      {matchType !== 'pvp' && (
       <button
         onClick={handleUndo}
         disabled={isAiThinking || moveCount === 0}
@@ -141,6 +142,7 @@ export const GameToolbar: React.FC = () => {
       >
         {t('game.undo')}
       </button>
+      )}
 
       {/* Export PGN */}
       <button

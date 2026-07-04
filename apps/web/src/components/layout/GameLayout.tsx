@@ -9,11 +9,16 @@ import { AnalysisPanel } from '../analysis/AnalysisPanel';
 import { GameToolbar } from '../game/GameToolbar';
 import { MoveList } from '../game/MoveList';
 import { StatusBar } from './StatusBar';
+import { ConnectionIndicator } from '../pvp/ConnectionIndicator';
+import { LiveGamesList } from '../pvp/LiveGamesList';
+import { PvPInfoPanel } from '../pvp/PvPInfoPanel';
 
 export const GameLayout: React.FC = () => {
   const { t } = useTranslation();
   const fen = useGameStore((s) => s.fen);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
+  const matchType = useGameStore((s) => s.matchType);
+  const isPvP = matchType === 'pvp';
   const evaluatePosition = useAnalysisStore((s) => s.evaluatePosition);
   const evaluation = useAnalysisStore((s) => s.evaluation);
   const setClassification = useAnalysisStore((s) => s.setClassification);
@@ -32,13 +37,13 @@ export const GameLayout: React.FC = () => {
   }, [_epoch]);
 
   useEffect(() => {
-    if (fen && fen !== prevFenRef.current) {
+    if (fen && fen !== prevFenRef.current && !isPvP) {
       const gen = ++evalGenRef.current;
       pendingGenRef.current = gen;
       prevFenRef.current = fen;
       evaluatePosition(fen);
     }
-  }, [fen, evaluatePosition]);
+  }, [fen, evaluatePosition, isPvP]);
 
   // When the engine eval arrives after a FEN change, classify the move
   useEffect(() => {
@@ -71,22 +76,28 @@ export const GameLayout: React.FC = () => {
       {/* Left sidebar — Controls */}
       <div className="w-[220px] flex-shrink-0 bg-[#1e1005] border-r border-[#3d2010] overflow-y-auto">
         <div className="p-3">
+          <ConnectionIndicator />
           <GameToolbar />
+          <LiveGamesList />
         </div>
       </div>
 
-      {/* Center — Board + Eval */}
+      {/* Center — Board (no eval bar in PvP) */}
       <div className="flex-1 flex items-start justify-center p-3 gap-2 min-w-0">
-        <EvaluationBar fen={fen} isThinking={isAiThinking} />
+        {!isPvP && <EvaluationBar fen={fen} isThinking={isAiThinking} />}
         <div className="flex-1">
           <Board fen={fen} turn={currentTurn} />
         </div>
       </div>
 
-      {/* Right sidebar — Analysis */}
+      {/* Right sidebar — Analysis or PvP info */}
       <div className="w-[220px] flex-shrink-0 bg-[#1e1005] border-l border-[#3d2010] overflow-y-auto">
         <div className="p-3 space-y-3">
-          <AnalysisPanel fen={fen} />
+          {isPvP ? (
+            <PvPInfoPanel />
+          ) : (
+            <AnalysisPanel fen={fen} />
+          )}
           <MoveList />
         </div>
       </div>

@@ -5,6 +5,7 @@ import { CacheModule } from './cache/cache.module';
 import { EngineModule } from './modules/engine/engine.module';
 import { GameModule } from './modules/game/game.module';
 import { AnalysisModule } from './modules/analysis/analysis.module';
+import { PvpModule } from './modules/pvp/pvp.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AnalysisModule } from './modules/analysis/analysis.module';
     EngineModule,
     GameModule,
     AnalysisModule,
+    PvpModule,
   ],
 })
 export class AppModule {}

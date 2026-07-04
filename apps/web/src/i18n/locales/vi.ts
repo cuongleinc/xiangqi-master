@@ -166,6 +166,24 @@ const vi = {
     check: '{{turn}} đi — Chiếu!',
     loading: 'Đang tải...',
   },
+  pvp: {
+    findMatch: 'Tìm trận',
+    finding: 'Đang tìm đối thủ...',
+    cancel: 'Hủy',
+    queuePosition: 'Vị trí trong hàng đợi: {{pos}}',
+    aiFallback: 'Không tìm thấy đối thủ — đang ghép với AI...',
+    liveGames: 'Trận đang đấu',
+    noLiveGames: 'Không có trận nào',
+    spectate: 'Xem',
+    spectatorCount: '👁 {{count}}',
+    disconnectWarning: 'Đối thủ đang mất kết nối — chờ {{seconds}}s...',
+    opponentReconnected: 'Đối thủ đã kết nối lại!',
+    connectionLost: 'Mất kết nối — đang kết nối lại...',
+    forfeitWin: 'Đối thủ mất kết nối — bạn thắng!',
+    playerNames: '{{red}} vs {{black}}',
+    yourTurn: 'Lượt của bạn',
+    opponentTurn: 'Lượt đối thủ',
+  },
 };
 
 export default vi;

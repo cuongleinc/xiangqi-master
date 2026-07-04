@@ -25,6 +25,7 @@
     "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^17.0.8",
+    "socket.io-client": "^4.8.3",
     "zustand": "^4.5.4"
   },
   "devDependencies": {

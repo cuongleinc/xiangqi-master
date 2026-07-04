@@ -19,16 +19,26 @@ export const GameOverDialog: React.FC = () => {
   const result = useGameStore((s) => s.result);
   const createNewGame = useGameStore((s) => s.createNewGame);
   const difficulty = useGameStore((s) => s.difficulty);
+  const matchType = useGameStore((s) => s.matchType);
   const moveCount = useGameStore((s) => s.moveCount);
   const showConfirm = useUiStore((s) => s.showConfirm);
 
   const resultText = t(resultKey(status, result));
 
-  const handleNewGame = () => {
+  const handleNewGame = async () => {
+    const onConfirm = async () => {
+      if (matchType === 'pvp') {
+        const { usePvPStore } = await import('../../stores/pvp.store');
+        usePvPStore.getState().reset();
+        usePvPStore.getState().joinQueue();
+      } else {
+        createNewGame(difficulty);
+      }
+    };
     if (moveCount > 0) {
-      showConfirm(t('confirm.newGame'), () => createNewGame(difficulty));
+      showConfirm(t('confirm.newGame'), onConfirm);
     } else {
-      createNewGame(difficulty);
+      onConfirm();
     }
   };
 
