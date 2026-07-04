@@ -12,6 +12,7 @@ interface UiStoreState {
   isDragging: boolean;
   draggedPiece: { piece: number; from: [number, number] } | null;
   hintMove: { from: [number, number]; to: [number, number] } | null;
+  pendingMoveUci: string | null;
   activeDialog: string | null;
   confirmMessage: string | null;
   confirmCallback: (() => void) | null;
@@ -23,6 +24,7 @@ interface UiStoreState {
   showHint: (from: [number, number], to: [number, number]) => void;
   clearHint: () => void;
   clearAllHighlights: () => void;
+  consumePendingMove: () => string | null;
   openDialog: (dialog: string) => void;
   closeDialog: () => void;
   showConfirm: (message: string, onConfirm: () => void) => void;
@@ -37,6 +39,7 @@ export const useUiStore = create<UiStoreState>((set, get) => ({
   isDragging: false,
   draggedPiece: null,
   hintMove: null,
+  pendingMoveUci: null,
   activeDialog: null,
   confirmMessage: null,
   confirmCallback: null,
@@ -71,10 +74,9 @@ export const useUiStore = create<UiStoreState>((set, get) => ({
       // Check if clicking on a legal destination
       const isLegal = get().legalMoves.some(([r, c]) => r === row && c === col);
       if (isLegal) {
-        // Make the move
+        // Make the move — store UCI for Board.handleClick to consume
         const ucci = `${String.fromCharCode(97 + selCol)}${selRow}${String.fromCharCode(97 + col)}${row}`;
-        set({ selectedSquare: null, legalMoves: [] });
-        (window as unknown as Record<string, unknown>).__pendingMove = ucci;
+        set({ selectedSquare: null, legalMoves: [], pendingMoveUci: ucci });
         return;
       }
 
@@ -103,6 +105,12 @@ export const useUiStore = create<UiStoreState>((set, get) => ({
 
   /** Clear both selection and hint — for Best Move / auto-play */
   clearAllHighlights: () => set({ selectedSquare: null, legalMoves: [], hintMove: null }),
+
+  consumePendingMove: () => {
+    const uci = get().pendingMoveUci;
+    if (uci) set({ pendingMoveUci: null });
+    return uci;
+  },
 
   openDialog: (dialog) => set({ activeDialog: dialog }),
   closeDialog: () => set({ activeDialog: null }),

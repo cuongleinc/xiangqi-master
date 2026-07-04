@@ -26,6 +26,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   const selectSquare = useUiStore((s) => s.selectSquare);
   const hintMove = useUiStore((s) => s.hintMove);
   const clearHint = useUiStore((s) => s.clearHint);
+  const consumePendingMove = useUiStore((s) => s.consumePendingMove);
   const showCoordinates = useSettingsStore((s) => s.showCoordinates);
   const makeMove = useGameStore((s) => s.makeMove);
   const lastMoveUci = useGameStore((s) => s.lastMoveUci);
@@ -106,9 +107,8 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
     // Clear hint when player interacts with the board
     clearHint();
     selectSquare(row, col, fen, turn);
-    const pending = (window as unknown as Record<string, unknown>).__pendingMove as string | undefined;
+    const pending = consumePendingMove();
     if (pending) {
-      delete (window as unknown as Record<string, unknown>).__pendingMove;
       playPiecePlace();
       makeMove(pending);
     }

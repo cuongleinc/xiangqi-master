@@ -22,11 +22,19 @@ export const GameLayout: React.FC = () => {
   // Re-evaluate position whenever the FEN changes (after each move)
   const prevFenRef = useRef<string | null>(null);
   const prevEvalRef = useRef<number | null>(null);
-  const fenJustChangedRef = useRef(false);
+  const evalGenRef = useRef(0);
+  const pendingGenRef = useRef(0);
+  const _epoch = useGameStore((s) => s._epoch);
+
+  // Reset prevEvalRef on undo/new-game to prevent classification with wrong eval pair
+  useEffect(() => {
+    prevEvalRef.current = null;
+  }, [_epoch]);
 
   useEffect(() => {
     if (fen && fen !== prevFenRef.current) {
-      fenJustChangedRef.current = true;
+      const gen = ++evalGenRef.current;
+      pendingGenRef.current = gen;
       prevFenRef.current = fen;
       evaluatePosition(fen);
     }
@@ -34,7 +42,13 @@ export const GameLayout: React.FC = () => {
 
   // When the engine eval arrives after a FEN change, classify the move
   useEffect(() => {
-    if (fenJustChangedRef.current && evaluation !== null && prevEvalRef.current !== null) {
+    // Only classify if:
+    // 1. A FEN change is pending classification (pendingGen > 0)
+    // 2. No newer FEN change occurred while eval was in-flight (gen matches)
+    // 3. Evaluation is available
+    // 4. We have a previous eval to compare (won't be after undo/new-game)
+    if (pendingGenRef.current > 0 && pendingGenRef.current === evalGenRef.current
+        && evaluation !== null && prevEvalRef.current !== null) {
       const prev = prevEvalRef.current;
       // evaluation is from the new side-to-move (opponent of the player who moved).
       // Negate to get the moving player's perspective, then compare.
@@ -47,7 +61,7 @@ export const GameLayout: React.FC = () => {
       else if (cpLoss > 15) cls = MoveClassification.GOOD;
       else if (cpLoss > 5) cls = MoveClassification.EXCELLENT;
       setClassification(cls);
-      fenJustChangedRef.current = false;
+      pendingGenRef.current = 0; // mark as consumed
     }
     prevEvalRef.current = evaluation;
   }, [evaluation, setClassification]);

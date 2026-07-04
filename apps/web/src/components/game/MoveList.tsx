@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../stores/game.store';
 import { uciToReadable } from '../../lib/notation';
+import { classifyMove } from '@repo/xiangqi-core';
+import { Color, DEFAULT_THRESHOLDS } from '@repo/shared';
 
 const CLASS_STYLES: Record<string, string> = {
   BEST: 'text-green-300',
@@ -29,17 +31,6 @@ const CLASS_ANNOTATION: Record<string, string> = {
   MISTAKE: '?',
   BLUNDER: '??',
 };
-
-/** Client-side classification fallback */
-function getClassLocal(evalAfter: number, evalBefore: number): string | null {
-  const cpLoss = evalBefore - -evalAfter;
-  if (cpLoss <= 5) return 'BEST';
-  if (cpLoss <= 15) return 'EXCELLENT';
-  if (cpLoss <= 50) return 'GOOD';
-  if (cpLoss <= 100) return 'INACCURACY';
-  if (cpLoss <= 200) return 'MISTAKE';
-  return 'BLUNDER';
-}
 
 export const MoveList: React.FC = () => {
   const { t } = useTranslation();
@@ -84,7 +75,7 @@ export const MoveList: React.FC = () => {
     const cls =
       move.classification ||
       (move.evaluationBefore != null && move.evaluationAfter != null
-        ? getClassLocal(move.evaluationAfter, move.evaluationBefore)
+        ? classifyMove(move.evaluationAfter, move.evaluationBefore, Color.RED, DEFAULT_THRESHOLDS)
         : null);
     const dotColor = cls ? CLASS_DOT[cls] : 'bg-cream-dim/30';
     const label = cls ? CLASS_ANNOTATION[cls] : '';

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface BoardGridProps {
   cellSize: number;
@@ -7,6 +8,7 @@ interface BoardGridProps {
 }
 
 export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoordinates }) => {
+  const { t } = useTranslation();
   const lines: React.ReactElement[] = [];
   const lineColor = '#5c3d1a';
   const palaceColor = '#8B4513';
@@ -55,12 +57,12 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
   const fontSize = cellSize * 0.5;
   lines.push(
     <text key="river-left" x={padding + 1.2 * cellSize} y={riverY} fontSize={fontSize} fill={riverColor} textAnchor="middle" dominantBaseline="middle" fontFamily="Ma Shan Zheng, serif" fontWeight="bold" letterSpacing={cellSize * 0.15}>
-      楚河
+      {t('board.river.chu')}
     </text>,
   );
   lines.push(
     <text key="river-right" x={padding + 6.8 * cellSize} y={riverY} fontSize={fontSize} fill={riverColor} textAnchor="middle" dominantBaseline="middle" fontFamily="Ma Shan Zheng, serif" fontWeight="bold" letterSpacing={cellSize * 0.15}>
-      漢界
+      {t('board.river.han')}
     </text>,
   );
 

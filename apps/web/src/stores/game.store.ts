@@ -3,6 +3,7 @@ import { gameApi } from '../api/game.api';
 import { Color } from '@repo/shared';
 import type { Difficulty } from '@repo/shared';
 import { playCapture, playCheck, playGameOver } from '../lib/sound';
+import { useAnalysisStore } from './analysis.store';
 
 export interface MoveRecordData {
   moveNumber: number;
@@ -21,6 +22,7 @@ interface GameStoreState {
   fen: string | null;
   turn: Color;
   status: string;
+  result: string | null;
   moveCount: number;
   hintsRemaining: number;
   difficulty: Difficulty;
@@ -30,6 +32,7 @@ interface GameStoreState {
   recentAiMove: { uci: string; fen: string; evaluation?: number } | null;
   lastMoveUci: string | null;
   error: string | null;
+  _epoch: number;
 
   createNewGame: (difficulty: string, matchType?: string) => Promise<void>;
   makeMove: (uci: string) => Promise<boolean>;
@@ -44,6 +47,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   fen: null,
   turn: Color.RED,
   status: 'playing',
+  result: null,
   moveCount: 0,
   hintsRemaining: 3,
   difficulty: 'medium',
@@ -53,15 +57,19 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   recentAiMove: null,
   lastMoveUci: null,
   error: null,
+  _epoch: 0,
 
   createNewGame: async (difficulty: string, matchType: string = 'pvc') => {
     try {
       const data = await gameApi.createGame(difficulty, matchType);
+      // Clear analysis store to prevent stale data from previous game
+      useAnalysisStore.getState().clear();
       set({
         gameId: data.gameId,
         fen: data.fen,
         turn: Color.RED,
         status: 'playing',
+        result: null,
         moveCount: 0,
         hintsRemaining: 3,
         difficulty: difficulty as Difficulty,
@@ -71,6 +79,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         recentAiMove: null,
         lastMoveUci: null,
         error: null,
+        _epoch: get()._epoch + 1,
       });
     } catch (err) {
       set({ error: (err as Error).message });
@@ -92,6 +101,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
           fen: data.fen,
           turn: data.turn === 'w' ? Color.RED : Color.BLACK,
           status: data.gameResult || 'playing',
+          result: data.gameResult || null,
           moveCount: data.moveNumber,
           isAiThinking: data.isAiThinking || false,
           lastMoveUci: uci,
@@ -107,9 +117,6 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
               moveCount: gameData.moveCount,
               hintsRemaining: gameData.hintsRemaining,
               recentAiMove: gameData.recentAiMove,
-              lastMoveUci: gameData.moves?.length > 0
-                ? gameData.moves[gameData.moves.length - 1].uci
-                : get().lastMoveUci,
             });
           }).catch(() => {});
         }
@@ -131,6 +138,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       set({
         fen: data.fen,
         status: data.status,
+        result: data.result ?? get().result,
         moveCount: data.moveCount,
         hintsRemaining: data.hintsRemaining,
         isAiThinking: data.isAiThinking,
@@ -165,11 +173,14 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
 
     try {
       const data = await gameApi.undoMove(gameId);
+      // Clear analysis store to prevent stale eval from pre-undo position
+      useAnalysisStore.getState().clear();
       set({
         gameId: data.id,
         fen: data.fen,
         turn: data.fen?.includes(' w ') ? Color.RED : Color.BLACK,
         status: data.status,
+        result: data.result ?? null,
         moveCount: data.moveCount,
         hintsRemaining: data.hintsRemaining,
         isAiThinking: data.isAiThinking,
@@ -177,6 +188,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
         recentAiMove: data.recentAiMove,
         lastMoveUci: data.moves?.length > 0 ? data.moves[data.moves.length - 1].uci : null,
         error: null,
+        _epoch: get()._epoch + 1,
       });
     } catch (err) {
       set({ error: (err as Error).message });
@@ -188,6 +200,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     fen: null,
     turn: Color.RED,
     status: 'playing',
+    result: null,
     moveCount: 0,
     hintsRemaining: 3,
     matchType: 'pvc',

@@ -9,6 +9,7 @@ interface AnalysisStoreState {
   pv: string[];
   lastClassification: MoveClassification | null;
   isEvaluating: boolean;
+  _requestId: number;
 
   evaluatePosition: (fen: string) => Promise<void>;
   setEvaluationManually: (score: number, depth: number, pv: string[]) => void;
@@ -16,27 +17,34 @@ interface AnalysisStoreState {
   clear: () => void;
 }
 
-export const useAnalysisStore = create<AnalysisStoreState>((set) => ({
+export const useAnalysisStore = create<AnalysisStoreState>((set, get) => ({
   evaluation: null,
   bestMove: null,
   depth: null,
   pv: [],
   lastClassification: null,
   isEvaluating: false,
+  _requestId: 0,
 
   evaluatePosition: async (fen: string) => {
-    set({ isEvaluating: true });
+    const id = get()._requestId + 1;
+    set({ isEvaluating: true, _requestId: id });
     try {
       const data = await analysisApi.evaluate(fen);
-      set({
-        evaluation: data.score,
-        bestMove: data.pv?.[0] || null,
-        depth: data.depth,
-        pv: data.pv || [],
-        isEvaluating: false,
-      });
+      // Only apply if no newer request was made (fixes stale-response race)
+      if (get()._requestId === id) {
+        set({
+          evaluation: data.score,
+          bestMove: data.pv?.[0] || null,
+          depth: data.depth,
+          pv: data.pv || [],
+          isEvaluating: false,
+        });
+      }
     } catch {
-      set({ isEvaluating: false });
+      if (get()._requestId === id) {
+        set({ isEvaluating: false });
+      }
     }
   },
 

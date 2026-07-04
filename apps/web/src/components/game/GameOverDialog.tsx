@@ -3,24 +3,33 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../../stores/game.store';
 import { useUiStore } from '../../stores/ui.store';
 
+/** Map status/result to the correct i18n key, falling back gracefully. */
+function resultKey(status: string, result: string | null): string {
+  if (status === 'red_wins' || result === 'red_wins') return 'gameOver.redWins';
+  if (status === 'black_wins' || result === 'black_wins') return 'gameOver.blackWins';
+  if (status === 'draw' || result === 'draw') return 'gameOver.draw';
+  // Defensive fallback — if status is an unexpected value, use result
+  if (result === 'red_wins' || result === 'black_wins' || result === 'draw') return `gameOver.${result === 'red_wins' ? 'redWins' : result === 'black_wins' ? 'blackWins' : 'draw'}` as const;
+  return 'gameOver.draw';
+}
+
 export const GameOverDialog: React.FC = () => {
   const { t } = useTranslation();
   const status = useGameStore((s) => s.status);
+  const result = useGameStore((s) => s.result);
   const createNewGame = useGameStore((s) => s.createNewGame);
   const difficulty = useGameStore((s) => s.difficulty);
-  const openDialog = useUiStore((s) => s.openDialog);
+  const moveCount = useGameStore((s) => s.moveCount);
+  const showConfirm = useUiStore((s) => s.showConfirm);
 
-  const resultText =
-    status === 'red_wins' ? t('gameOver.redWins') :
-    status === 'black_wins' ? t('gameOver.blackWins') :
-    t('gameOver.draw');
+  const resultText = t(resultKey(status, result));
 
-  const handleNewGame = async () => {
-    await createNewGame(difficulty);
-  };
-
-  const handleReview = () => {
-    openDialog('review');
+  const handleNewGame = () => {
+    if (moveCount > 0) {
+      showConfirm(t('confirm.newGame'), () => createNewGame(difficulty));
+    } else {
+      createNewGame(difficulty);
+    }
   };
 
   return (
@@ -29,20 +38,12 @@ export const GameOverDialog: React.FC = () => {
         <h2 className="text-2xl font-bold text-gold-light font-serif mb-2">{resultText}</h2>
         <p className="text-cream-dim text-sm mb-6 font-serif">{t('gameOver.subtitle')}</p>
 
-        <div className="space-y-2">
-          <button
-            onClick={handleNewGame}
-            className="w-full bg-gold hover:bg-gold-light text-ebony font-bold py-2 px-4 rounded-lg transition-all duration-200 font-serif tracking-wide"
-          >
-            {t('gameOver.playAgain')}
-          </button>
-          <button
-            onClick={handleReview}
-            className="w-full bg-lacquer border border-gold/30 hover:border-gold/60 text-cream font-medium py-2 px-4 rounded-lg transition-all duration-200"
-          >
-            {t('gameOver.reviewGame')}
-          </button>
-        </div>
+        <button
+          onClick={handleNewGame}
+          className="w-full bg-gold hover:bg-gold-light text-ebony font-bold py-2 px-4 rounded-lg transition-all duration-200 font-serif tracking-wide"
+        >
+          {t('gameOver.playAgain')}
+        </button>
       </div>
     </div>
   );
