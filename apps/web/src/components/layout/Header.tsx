@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUiStore } from '../../stores/ui.store';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { MusicToggle } from './MusicToggle';
 
 export const Header: React.FC = () => {
   const { t } = useTranslation();
@@ -20,6 +21,7 @@ export const Header: React.FC = () => {
         >
           {t('header.about')}
         </button>
+        <MusicToggle />
         <LanguageSwitcher />
         <span className="text-sm text-cream-dim font-serif">{t('header.subtitle')}</span>
       </div>

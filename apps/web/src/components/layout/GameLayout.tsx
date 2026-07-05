@@ -72,7 +72,7 @@ export const GameLayout: React.FC = () => {
   }, [evaluation, setClassification]);
 
   return (
-    <div className="flex h-[calc(100vh-56px-36px)] max-w-[1400px] mx-auto">
+    <div className="flex h-[calc(100vh-56px)] max-w-[1400px] mx-auto">
       {/* Left sidebar — Controls */}
       <div className="w-[220px] flex-shrink-0 bg-[#1e1005] border-r border-[#3d2010] overflow-y-auto">
         <div className="p-3">
@@ -104,9 +104,9 @@ export const GameLayout: React.FC = () => {
 
       <StatusBar />
 
-      {/* Author footer — below the status bar */}
-      <div className="fixed bottom-9 left-0 right-0 text-center pointer-events-none" style={{ zIndex: 5 }}>
-        <span className="text-cream-dim/20 text-[10px] font-serif">
+      {/* Author footer */}
+      <div className="fixed bottom-0 left-0 right-0 text-center pointer-events-none pb-3" style={{ zIndex: 5 }}>
+        <span className="text-cream-dim/40 text-[13px] font-serif">
           &copy; {new Date().getFullYear()}{' '}
           <a
             href="https://github.com/cuongleinc"

@@ -9,6 +9,7 @@ import { AboutDialog } from './components/layout/AboutDialog';
 import { ConfirmDialog } from './components/layout/ConfirmDialog';
 import { MatchmakingOverlay } from './components/pvp/MatchmakingOverlay';
 import { LiveGamesList } from './components/pvp/LiveGamesList';
+import { BackgroundMusic } from './components/layout/BackgroundMusic';
 
 const App: React.FC = () => {
   const gameId = useGameStore((s) => s.gameId);
@@ -29,6 +30,7 @@ const App: React.FC = () => {
   if (!gameId) {
     return (
       <>
+        <BackgroundMusic screen="welcome" />
         <NewGameDialog isInitial />
         {activeDialog === 'about' && <AboutDialog />}
         <MatchmakingOverlay />
@@ -43,6 +45,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0d0800] text-cream">
+      <BackgroundMusic screen="main" />
       <Header />
       <GameLayout />
       {status !== 'playing' && <GameOverDialog />}

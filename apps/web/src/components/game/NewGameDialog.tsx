@@ -4,6 +4,7 @@ import { useGameStore } from '../../stores/game.store';
 import { useUiStore } from '../../stores/ui.store';
 import { useSettingsStore } from '../../stores/settings.store';
 import { LanguageSwitcher } from '../layout/LanguageSwitcher';
+import { MusicToggle } from '../layout/MusicToggle';
 import type { MatchType } from '@repo/shared';
 
 interface NewGameDialogProps {
@@ -202,8 +203,9 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to bottom, #050200 0%, transparent 30%)' }} />
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to top, #050200 0%, transparent 30%)' }} />
 
-      {/* ─── Language Switcher + About (top-right, always visible) ─── */}
-      <div style={{ position: 'absolute', top: 24, right: 28, zIndex: 20, display: 'flex', alignItems: 'center', gap: 18 }}>
+      {/* ─── Music Toggle + Language Switcher + About (top-right, always visible) ─── */}
+      <div style={{ position: 'absolute', top: 24, right: 28, zIndex: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+        <MusicToggle />
         <button
           onClick={() => openDialog('about')}
           className="text-xs text-cream-dim/50 hover:text-gold-light transition-colors font-serif tracking-wide"
@@ -365,8 +367,8 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       </div>
 
       {/* ─── Author Footer ─── */}
-      <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center', zIndex: 20 }}>
-        <span className="text-cream-dim/30 text-[11px] font-serif">
+      <div style={{ position: 'absolute', bottom: 20, left: 0, right: 0, textAlign: 'center', zIndex: 20 }}>
+        <span className="text-cream-dim/40 text-[13px] font-serif">
           &copy; {new Date().getFullYear()}{' '}
           <a
             href="https://github.com/cuongleinc"
