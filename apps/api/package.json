@@ -17,9 +17,7 @@
     "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.3.10",
     "@nestjs/platform-express": "^10.3.10",
-    "@nestjs/platform-socket.io": "^11.1.27",
     "@nestjs/typeorm": "^10.0.2",
-    "@nestjs/websockets": "^11.1.27",
     "@repo/engine-client": "workspace:*",
     "@repo/shared": "workspace:*",
     "@repo/xiangqi-core": "workspace:*",
@@ -29,7 +27,6 @@
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "socket.io": "^4.8.3",
     "tsx": "^4.22.4",
     "typeorm": "^0.3.20"
   },

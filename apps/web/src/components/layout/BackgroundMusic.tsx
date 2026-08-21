@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSettingsStore } from '../../stores/settings.store';
 
 // ─── Track registry ───
-const TRACKS: Record<string, string> = {
+const TRACKS: Record<'welcome' | 'main', string> = {
   welcome: '/welcome_screen_bg_song.mp3',
   main: '/main_screen_bg_song.mp3',
 };

@@ -78,7 +78,6 @@ const en = {
     },
     start: {
       pvc: 'START GAME',
-      pvp: 'START MATCH',
       cvc: 'WATCH BATTLE',
       analysis: 'OPEN BOARD',
     },
@@ -87,11 +86,6 @@ const en = {
         label: 'vs Computer',
         chinese: '人機對戰',
         desc: 'Play against the AI engine',
-      },
-      pvp: {
-        label: 'vs Player',
-        chinese: '雙人對弈',
-        desc: 'Two players, one board',
       },
       cvc: {
         label: 'AI vs AI',
@@ -165,24 +159,6 @@ const en = {
     toMove: '{{turn}} to move',
     check: '{{turn}} to move — Check!',
     loading: 'Loading...',
-  },
-  pvp: {
-    findMatch: 'Find Match',
-    finding: 'Looking for opponent...',
-    cancel: 'Cancel',
-    queuePosition: 'Position in queue: {{pos}}',
-    aiFallback: 'No opponent found — playing against AI',
-    liveGames: 'Live Games',
-    noLiveGames: 'No active games',
-    spectate: 'Watch',
-    spectatorCount: '👁 {{count}}',
-    disconnectWarning: 'Opponent disconnected — waiting {{seconds}}s...',
-    opponentReconnected: 'Opponent reconnected!',
-    connectionLost: 'Connection lost — reconnecting...',
-    forfeitWin: 'Opponent disconnected — you win!',
-    playerNames: '{{red}} vs {{black}}',
-    yourTurn: 'Your turn',
-    opponentTurn: "Opponent's turn",
   },
 };
 

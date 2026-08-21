@@ -6,7 +6,7 @@ export class CreateGameDto {
   difficulty?: string = 'medium';
 
   @IsOptional()
-  @IsEnum(['pvc', 'pvp', 'cvc', 'analysis'])
+  @IsEnum(['pvc', 'cvc', 'analysis'])
   matchType?: string = 'pvc';
 }
 

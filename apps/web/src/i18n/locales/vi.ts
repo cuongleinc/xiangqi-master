@@ -78,7 +78,6 @@ const vi = {
     },
     start: {
       pvc: 'BẮT ĐẦU',
-      pvp: 'ĐẤU ĐÔI',
       cvc: 'XEM ĐẤU',
       analysis: 'BÀN TỰ DO',
     },
@@ -87,11 +86,6 @@ const vi = {
         label: 'Đấu với Máy',
         chinese: '人機對戰',
         desc: 'Đấu với engine AI',
-      },
-      pvp: {
-        label: 'Đấu Đôi',
-        chinese: '雙人對弈',
-        desc: 'Hai người, một bàn cờ',
       },
       cvc: {
         label: 'Máy vs Máy',
@@ -165,24 +159,6 @@ const vi = {
     toMove: '{{turn}} đi',
     check: '{{turn}} đi — Chiếu!',
     loading: 'Đang tải...',
-  },
-  pvp: {
-    findMatch: 'Tìm trận',
-    finding: 'Đang tìm đối thủ...',
-    cancel: 'Hủy',
-    queuePosition: 'Vị trí trong hàng đợi: {{pos}}',
-    aiFallback: 'Không tìm thấy đối thủ — đang ghép với AI...',
-    liveGames: 'Trận đang đấu',
-    noLiveGames: 'Không có trận nào',
-    spectate: 'Xem',
-    spectatorCount: '👁 {{count}}',
-    disconnectWarning: 'Đối thủ đang mất kết nối — chờ {{seconds}}s...',
-    opponentReconnected: 'Đối thủ đã kết nối lại!',
-    connectionLost: 'Mất kết nối — đang kết nối lại...',
-    forfeitWin: 'Đối thủ mất kết nối — bạn thắng!',
-    playerNames: '{{red}} vs {{black}}',
-    yourTurn: 'Lượt của bạn',
-    opponentTurn: 'Lượt đối thủ',
   },
 };
 

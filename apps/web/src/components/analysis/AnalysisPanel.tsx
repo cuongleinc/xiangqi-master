@@ -74,7 +74,6 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ fen }) => {
   const moves = useGameStore((s) => s.moves);
   const makeMove = useGameStore((s) => s.makeMove);
   const isAiThinking = useGameStore((s) => s.isAiThinking);
-  const matchType = useGameStore((s) => s.matchType);
   const storeClassification = useAnalysisStore((s) => s.lastClassification);
 
   const na = t('common.notAvailable');
@@ -134,7 +133,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ fen }) => {
         {/* Best Move — click to auto-play */}
         <div>
           <span className="text-cream-dim/60 text-[11px] uppercase tracking-wider">{t('analysis.bestMove')}</span>
-          {bestMove && !isAiThinking && matchType !== 'pvp' ? (
+          {bestMove && !isAiThinking ? (
             <button
               onClick={() => makeMove(bestMove)}
               className="block w-full text-left font-mono text-base text-cream bg-transparent border-0 outline-none p-0 m-0 hover:text-gold-light hover:underline transition-colors focus:outline-none appearance-none"

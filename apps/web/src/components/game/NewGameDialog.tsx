@@ -11,11 +11,10 @@ interface NewGameDialogProps {
   isInitial?: boolean;
 }
 
-const MATCH_TYPE_KEYS = ['pvc', 'pvp', 'cvc', 'analysis'] as const;
+const MATCH_TYPE_KEYS = ['pvc', 'cvc', 'analysis'] as const;
 
 const MATCH_TYPE_ICONS: Record<string, string> = {
   pvc: '⚔️',
-  pvp: '👥',
   cvc: '🤖',
   analysis: '🔍',
 };
@@ -68,15 +67,8 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   const showDifficulty = matchType === 'pvc' || matchType === 'cvc';
 
   const handleStart = async () => {
-    if (matchType === 'pvp') {
-      // Route PvP through matchmaking
-      closeDialog();
-      const { usePvPStore } = await import('../../stores/pvp.store');
-      usePvPStore.getState().joinQueue();
-    } else {
-      await createNewGame(difficulty, matchType);
-      closeDialog();
-    }
+    await createNewGame(difficulty, matchType);
+    closeDialog();
   };
 
   // ─── Helpers to build localized labels from i18n keys ───

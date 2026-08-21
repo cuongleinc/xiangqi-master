@@ -2,12 +2,11 @@
 
 <div align="center">
 
-**A modern Chinese Chess platform — play against AI or online opponents**
+**A modern Chinese Chess platform — play against the AI engine**
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs)](https://nestjs.com/)
-[![Socket.IO](https://img.shields.io/badge/Socket.IO-4-010101?logo=socketdotio)](https://socket.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
@@ -34,7 +33,6 @@ Xiangqi Master uses **[Pikafish](https://github.com/official-pikafish/Pikafish)*
 ## ✨ Features
 
 - 🤖 **Human vs AI** — Play against Pikafish at 4 difficulty levels
-- 🌐 **Online PvP** — Real-time multiplayer via Socket.IO with matchmaking, reconnect, spectator mode
 - 🎨 **SVG Board** — Crisp vector graphics at any screen size, with Chinese characters on pieces
 - 🖱️ **Click to Move** — Click to select pieces, click legal destinations to move
 - 📊 **Evaluation Bar** — Animated, real-time score display beside the board (PvC/Analysis only)
@@ -42,7 +40,6 @@ Xiangqi Master uses **[Pikafish](https://github.com/official-pikafish/Pikafish)*
 - 🏷️ **Move Classification** — Every move graded Best / Excellent / Good / Inaccuracy / Mistake / Blunder
 - 📋 **Move List** — PGN-style two-column layout with human-readable Xiangqi notation and classification dots
 - ↩️ **Undo** — Take back moves (PvC undoes AI+human pair)
-- 👁️ **Spectator Mode** — Watch live PvP games, browse active matches
 - 🌐 **i18n** — Multi-language support: English, 中文 (Chinese), Tiếng Việt (Vietnamese)
 - 💾 **Persistent Storage** — Full game history saved to PostgreSQL with Redis caching
 - 🐳 **Dockerized** — One-command deployment with Docker Compose
@@ -54,21 +51,19 @@ Xiangqi Master uses **[Pikafish](https://github.com/official-pikafish/Pikafish)*
 ```
 Browser (React + Vite + Zustand)
     │
-    ├── REST /api ────► Nginx ────► NestJS API
-    │                                    │
-    │                              ┌─────┼─────────────┐
-    │                              │     │             │
-    └── WebSocket /pvp ─────────► │ Game Service     PvP Gateway (Socket.IO)
-                                   │     │             │
-                                   │  xiangqi-core    MatchmakingQueue
-                                   │  (rules engine)  Room Manager
-                                   │     │             │
-                                   │  engine-client    Spectator
-                                   │     │             │
-                                   │  Pikafish        Reconnect
-                                   │     │
-                                   ├── PostgreSQL ──── games, moves, analysis_cache
-                                   └── Redis ──────── engine cache, session cache
+    └── REST /api ────► Nginx ────► NestJS API
+                                       │
+                                       ├── Game Service
+                                       │     │
+                                       │  xiangqi-core
+                                       │  (rules engine)
+                                       │     │
+                                       │  engine-client
+                                       │     │
+                                       │  Pikafish
+                                       │
+                                       ├── PostgreSQL ──── games, moves, analysis_cache
+                                       └── Redis ──────── engine cache, session cache
 ```
 
 ### Monorepo
@@ -138,6 +133,17 @@ docker compose up -d
 
 Access at `http://localhost` — Nginx serves the web frontend and proxies API requests.
 
+### Cloudflare (Workers Static Assets)
+
+The **frontend only** is deployable to Cloudflare Workers (Static Assets) — the API cannot run on Workers (Pikafish engine + PostgreSQL + Redis) and stays on a VPS or local machine.
+
+1. Create/select the Worker **`xiangqi-master`** in the Cloudflare dashboard and enable **Workers Builds**.
+2. Set **Build command** `pnpm run build` and **Deploy command** `npx wrangler deploy`.
+3. Add a build environment variable **`VITE_API_URL`** pointing at your API — e.g. `http://localhost:3000/api` for local testing. The deployed page calls this URL from the *visitor's* browser, so a `localhost` URL works on your own machine while your local API runs (not for other visitors). Swap in a real API URL when one exists.
+4. The Worker serves `apps/web/dist` (see `wrangler.toml`); `.node-version` pins Node 22 for the Cloudflare build image.
+
+For local testing from the deployed site, set `CORS_ORIGIN=*` in your API `.env` (the app uses no auth/cookies; tighten this when a real API domain exists). Deploying manually requires `npx wrangler login` once.
+
 ---
 
 ## 📡 API
@@ -155,29 +161,14 @@ Access at `http://localhost` — Nginx serves the web frontend and proxies API r
 | `GET` | `/api/analysis/review/:id` | Get game review summary |
 | `GET` | `/api/engine/status` | Engine health check |
 
-### Socket.IO (namespace `/pvp`)
-
-| Event | Direction | Description |
-|-------|-----------|-------------|
-| `join_queue` | Client→Server | Enter matchmaking queue |
-| `match_found` | Server→Client | Paired with opponent |
-| `match_ai_fallback` | Server→Client | No opponent — AI match |
-| `move` | Client→Server | Submit a move |
-| `game_update` | Server→Client | Move applied, board updated |
-| `game_over` | Server→Client | Game ended |
-| `spectate` | Client→Server | Join as spectator |
-| `game_state` | Server→Client | Full board state on join |
-| `get_live_games` | Client→Server | Browse active matches |
-| `reconnect_game` | Client→Server | Rejoin after disconnect |
-
 ---
 
 ## 🧪 Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18, TypeScript, Vite, TailwindCSS, Zustand, Socket.IO Client, react-i18next |
-| Backend | NestJS 10, TypeScript, TypeORM, Socket.IO, PostgreSQL, Redis |
+| Frontend | React 18, TypeScript, Vite, TailwindCSS, Zustand, react-i18next |
+| Backend | NestJS 10, TypeScript, TypeORM, PostgreSQL, Redis |
 | Engine | [Pikafish](https://github.com/official-pikafish/Pikafish) (UCI protocol, NNUE evaluation) |
 | Infrastructure | Docker, Docker Compose, Nginx |
 | Monorepo | pnpm workspaces + Turborepo |
@@ -209,10 +200,9 @@ xiangqi-master/
 ## 🔜 Roadmap
 
 - ✅ **Phase 1** — Core: AI engine, board UI, analysis, move classification
-- ✅ **Phase 2** — Online PvP with Socket.IO, matchmaking, spectator, reconnect
-- **Phase 3** — User accounts, JWT auth, ratings, leaderboards
-- **Phase 4** — Training mode: puzzles, endgame trainer, opening explorer
-- **Phase 5** — Tournament system: Swiss, Round Robin, Knockout
+- **Phase 2** — User accounts, JWT auth, ratings, leaderboards
+- **Phase 3** — Training mode: puzzles, endgame trainer, opening explorer
+- **Phase 4** — Tournament system: Swiss, Round Robin, Knockout
 
 ---
 

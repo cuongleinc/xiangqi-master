@@ -10,7 +10,6 @@ import { LastMoveHighlight } from './LastMoveHighlight';
 import { HintHighlight } from './HintHighlight';
 import { useUiStore } from '../../stores/ui.store';
 import { useGameStore } from '../../stores/game.store';
-import { usePvPStore } from '../../stores/pvp.store';
 import { useSettingsStore } from '../../stores/settings.store';
 
 interface BoardProps {
@@ -105,15 +104,6 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
    */
   const handleClick = (row: number, col: number) => {
     if (!fen) return;
-
-    // PvP: only allow moves on your turn (spectators can never move)
-    const matchType = useGameStore.getState().matchType;
-    if (matchType === 'pvp') {
-      const pvpState = usePvPStore.getState();
-      if (pvpState.isSpectating) return;
-      const pvpTurn = fen?.includes(' w ') ? 'red' : 'black';
-      if (pvpState.playerColor !== pvpTurn) return;
-    }
 
     // Clear hint when player interacts with the board
     clearHint();

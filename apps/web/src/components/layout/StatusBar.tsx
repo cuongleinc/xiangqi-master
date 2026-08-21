@@ -5,8 +5,7 @@ import { useGameStore } from '../../stores/game.store';
 /**
  * StatusBar — only renders for game-over results or errors.
  * Turn indicators ("Red to move", "Engine thinking...") are intentionally
- * excluded because they're already shown in the sidebar (PvPInfoPanel /
- * ConnectionIndicator) and are visually obvious on the board itself.
+ * excluded because they're visually obvious on the board itself.
  */
 export const StatusBar: React.FC = () => {
   const { t } = useTranslation();
