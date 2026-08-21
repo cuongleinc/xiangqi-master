@@ -133,6 +133,17 @@ docker compose up -d
 
 Access at `http://localhost` — Nginx serves the web frontend and proxies API requests.
 
+### Cloudflare (Workers Static Assets)
+
+The **frontend only** is deployable to Cloudflare Workers (Static Assets) — the API cannot run on Workers (Pikafish engine + PostgreSQL + Redis) and stays on a VPS or local machine.
+
+1. Create/select the Worker **`xiangqi-master`** in the Cloudflare dashboard and enable **Workers Builds**.
+2. Set **Build command** `pnpm run build` and **Deploy command** `npx wrangler deploy`.
+3. Add a build environment variable **`VITE_API_URL`** pointing at your API — e.g. `http://localhost:3000/api` for local testing. The deployed page calls this URL from the *visitor's* browser, so a `localhost` URL works on your own machine while your local API runs (not for other visitors). Swap in a real API URL when one exists.
+4. The Worker serves `apps/web/dist` (see `wrangler.toml`); `.node-version` pins Node 22 for the Cloudflare build image.
+
+For local testing from the deployed site, set `CORS_ORIGIN=*` in your API `.env` (the app uses no auth/cookies; tighten this when a real API domain exists). Deploying manually requires `npx wrangler login` once.
+
 ---
 
 ## 📡 API

@@ -8,7 +8,9 @@ export default defineConfig({
   },
   build: {
     commonjsOptions: {
-      include: [/@repo\/shared/, /@repo\/xiangqi-core/],
+      // Must keep the default /node_modules/ include (overriding it breaks React CJS interop),
+      // and match the workspace packages by realpath (Vite resolves @repo/* symlinks to packages/*/dist).
+      include: [/node_modules/, /packages\/(shared|xiangqi-core|engine-client)\/dist/],
       transformMixedEsModules: true,
     },
   },
