@@ -74,26 +74,19 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 
 ### 📋 Future Phases
 
-**Phase 2: Online PvP**
-- Socket.IO integration
-- Matchmaking queue
-- Friend challenge
-- Reconnect support
-- Spectator mode
-
-**Phase 3: Accounts**
+**Phase 2: Accounts**
 - JWT auth
 - Register / Login
 - Player profiles
 - Ratings & leaderboards
 
-**Phase 4: Training**
+**Phase 3: Training**
 - Puzzles
 - Endgame trainer
 - Opening Explorer
 - Position analysis board
 
-**Phase 5: Tournament**
+**Phase 4: Tournament**
 - Swiss system
 - Round Robin
 - Knockout brackets

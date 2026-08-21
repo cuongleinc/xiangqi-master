@@ -78,7 +78,6 @@ const zh = {
     },
     start: {
       pvc: '開始對局',
-      pvp: '開始對弈',
       cvc: '觀看對戰',
       analysis: '自由棋盤',
     },
@@ -87,11 +86,6 @@ const zh = {
         label: '人機對戰',
         chinese: '人機對戰',
         desc: '與 AI 引擎對弈',
-      },
-      pvp: {
-        label: '雙人對弈',
-        chinese: '雙人對弈',
-        desc: '兩人共享一盤',
       },
       cvc: {
         label: '電腦對戰',
@@ -165,24 +159,6 @@ const zh = {
     toMove: '{{turn}} 走棋',
     check: '{{turn}} 走棋 — 將軍！',
     loading: '載入中...',
-  },
-  pvp: {
-    findMatch: '尋找對手',
-    finding: '正在尋找對手...',
-    cancel: '取消',
-    queuePosition: '隊列位置：{{pos}}',
-    aiFallback: '未找到對手 — 與AI對戰',
-    liveGames: '即時對局',
-    noLiveGames: '暫無對局',
-    spectate: '觀看',
-    spectatorCount: '👁 {{count}}',
-    disconnectWarning: '對手已斷線 — 等待 {{seconds}} 秒...',
-    opponentReconnected: '對手已重新連線！',
-    connectionLost: '連線中斷 — 重新連線中...',
-    forfeitWin: '對手斷線 — 你贏了！',
-    playerNames: '{{red}} vs {{black}}',
-    yourTurn: '輪到你',
-    opponentTurn: '對手回合',
   },
 };
 

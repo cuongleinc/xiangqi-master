@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { gameApi } from '../api/game.api';
-import { Color, STARTING_FEN } from '@repo/shared';
+import { Color } from '@repo/shared';
 import type { Difficulty } from '@repo/shared';
 import { playCapture, playCheck, playGameOver } from '../lib/sound';
 import { useAnalysisStore } from './analysis.store';
@@ -40,13 +40,6 @@ interface GameStoreState {
   fetchGameState: () => Promise<void>;
   setError: (error: string | null) => void;
   reset: () => void;
-
-  // PvP socket-driven methods
-  setPvPGame: (gameId: string, color: string) => void;
-  applySocketMove: (data: { fen: string; lastMove: string; turn: 'w' | 'b'; isCheck: boolean; moveNumber: number; gameResult?: string }) => void;
-  applyGameOver: (result: string, reason: string) => void;
-  applySpectatorState: (gameId: string, state: { fen: string; turn: 'w' | 'b'; status: string; moveNumber: number; moves: any[]; players: { red: string; black: string }; yourColor?: 'red' | 'black' }) => void;
-  applyReconnectState: (gameId: string, state: { fen: string; turn: 'w' | 'b'; status: string; moveNumber: number; moves: any[]; players: { red: string; black: string }; yourColor?: 'red' | 'black' }) => void;
 }
 
 export const useGameStore = create<GameStoreState>((set, get) => ({
@@ -94,16 +87,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   },
 
   makeMove: async (uci: string) => {
-    const { gameId, matchType } = get();
+    const { gameId } = get();
     if (!gameId) return false;
-
-    // PvP: emit move via socket instead of REST
-    if (matchType === 'pvp') {
-      const socket = (await import('../api/socket')).getPvpSocket();
-      socket.emit('move', { gameId, uci });
-      // The actual state update comes via the game_update socket event
-      return true;
-    }
 
     try {
       const data = await gameApi.makeMove(gameId, uci);
@@ -225,84 +210,4 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     lastMoveUci: null,
     error: null,
   }),
-
-  // ── PvP socket-driven methods ──
-
-  setPvPGame: (gameId: string, color: string) => {
-    set({
-      gameId,
-      fen: STARTING_FEN,
-      turn: Color.RED,
-      status: 'playing',
-      result: null,
-      moveCount: 0,
-      hintsRemaining: 0,
-      matchType: 'pvp',
-      isAiThinking: false,
-      moves: [],
-      recentAiMove: null,
-      lastMoveUci: null,
-      error: null,
-    });
-  },
-
-  applySocketMove: (data) => {
-    set({
-      fen: data.fen,
-      turn: data.turn === 'w' ? Color.RED : Color.BLACK,
-      status: data.gameResult || 'playing',
-      result: data.gameResult || null,
-      moveCount: data.moveNumber,
-      lastMoveUci: data.lastMove,
-      isAiThinking: false,
-    });
-  },
-
-  applyGameOver: (result, _reason) => {
-    set({ status: result, result });
-  },
-
-  applySpectatorState: (gameId, state) => {
-    set({
-      gameId,
-      fen: state.fen,
-      turn: state.turn === 'w' ? Color.RED : Color.BLACK,
-      status: state.status,
-      moveCount: state.moveNumber,
-      moves: (state.moves || []).map((m: any) => ({
-        moveNumber: m.moveNumber,
-        uci: m.uci,
-        fenBefore: m.fenBefore,
-        fenAfter: m.fenAfter,
-        isCheck: m.isCheck,
-        isCapture: m.isCapture,
-        classification: m.classification,
-        evaluationBefore: m.evaluationBefore,
-        evaluationAfter: m.evaluationAfter,
-      })),
-      matchType: 'pvp',
-      isAiThinking: false,
-      hintsRemaining: 0,
-    });
-  },
-
-  applyReconnectState: (gameId, state) => {
-    set({
-      gameId,
-      fen: state.fen,
-      turn: state.turn === 'w' ? Color.RED : Color.BLACK,
-      status: state.status,
-      moveCount: state.moveNumber,
-      moves: (state.moves || []).map((m: any) => ({
-        moveNumber: m.moveNumber,
-        uci: m.uci,
-        fenBefore: m.fenBefore,
-        fenAfter: m.fenAfter,
-        isCheck: m.isCheck,
-        isCapture: m.isCapture,
-      })),
-      isAiThinking: false,
-      hintsRemaining: 0,
-    });
-  },
 }));

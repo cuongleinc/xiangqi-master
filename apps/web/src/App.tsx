@@ -7,8 +7,6 @@ import { NewGameDialog } from './components/game/NewGameDialog';
 import { GameOverDialog } from './components/game/GameOverDialog';
 import { AboutDialog } from './components/layout/AboutDialog';
 import { ConfirmDialog } from './components/layout/ConfirmDialog';
-import { MatchmakingOverlay } from './components/pvp/MatchmakingOverlay';
-import { LiveGamesList } from './components/pvp/LiveGamesList';
 import { BackgroundMusic } from './components/layout/BackgroundMusic';
 
 const App: React.FC = () => {
@@ -33,12 +31,6 @@ const App: React.FC = () => {
         <BackgroundMusic screen="welcome" />
         <NewGameDialog isInitial />
         {activeDialog === 'about' && <AboutDialog />}
-        <MatchmakingOverlay />
-        <div className="fixed bottom-4 left-4 z-[400] w-[220px]">
-          <div className="bg-lacquer border border-gold/40 rounded-lg p-3 shadow-xl">
-            <LiveGamesList />
-          </div>
-        </div>
       </>
     );
   }
@@ -52,7 +44,6 @@ const App: React.FC = () => {
       {activeDialog === 'about' && <AboutDialog />}
       {activeDialog === 'newGame' && <NewGameDialog />}
       <ConfirmDialog />
-      <MatchmakingOverlay />
     </div>
   );
 };

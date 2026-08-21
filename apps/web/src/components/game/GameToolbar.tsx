@@ -110,7 +110,7 @@ export const GameToolbar: React.FC = () => {
         </button>
       )}
 
-      {/* Best Move (Analysis / PvP) */}
+      {/* Best Move (Analysis) */}
       {isAnalysis && (
         <button
           onClick={handleBestMove}
@@ -127,8 +127,7 @@ export const GameToolbar: React.FC = () => {
         </button>
       )}
 
-      {/* Undo (not available in PvP) */}
-      {matchType !== 'pvp' && (
+      {/* Undo */}
       <button
         onClick={handleUndo}
         disabled={isAiThinking || moveCount === 0}
@@ -142,7 +141,6 @@ export const GameToolbar: React.FC = () => {
       >
         {t('game.undo')}
       </button>
-      )}
 
       {/* Export PGN */}
       <button

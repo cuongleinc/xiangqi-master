@@ -43,9 +43,16 @@ function saveSettings(state: Partial<SettingsStoreState>): void {
 
 const saved = loadSettings();
 
+// Stale localStorage from the removed online-PvP mode can hold 'pvp' — fall back to 'pvc'
+const rawMatchType = saved.matchType as string | undefined;
+const savedMatchType: MatchType =
+  rawMatchType === 'pvc' || rawMatchType === 'cvc' || rawMatchType === 'analysis'
+    ? rawMatchType
+    : 'pvc';
+
 export const useSettingsStore = create<SettingsStoreState>((set, get) => ({
   difficulty: saved.difficulty || 'medium',
-  matchType: (saved.matchType as MatchType) || 'pvc',
+  matchType: savedMatchType,
   soundEnabled: saved.soundEnabled ?? false,
   showLegalMoves: saved.showLegalMoves ?? true,
   showCoordinates: saved.showCoordinates ?? true,
