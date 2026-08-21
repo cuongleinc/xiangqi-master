@@ -18,7 +18,7 @@ export type GameResultReason =
 
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'expert';
 
-export type MatchType = 'pvc' | 'cvc' | 'analysis';
+export type MatchType = 'pvc' | 'analysis';
 
 export interface MoveRecord {
   moveNumber: number;

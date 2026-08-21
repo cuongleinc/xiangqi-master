@@ -78,19 +78,14 @@ const en = {
     },
     start: {
       pvc: 'START GAME',
-      cvc: 'WATCH BATTLE',
       analysis: 'OPEN BOARD',
     },
+    startFailed: 'Could not start the game',
     matchType: {
       pvc: {
         label: 'vs Computer',
         chinese: '人機對戰',
         desc: 'Play against the AI engine',
-      },
-      cvc: {
-        label: 'AI vs AI',
-        chinese: '電腦對戰',
-        desc: 'Watch two AIs battle',
       },
       analysis: {
         label: 'Analysis',

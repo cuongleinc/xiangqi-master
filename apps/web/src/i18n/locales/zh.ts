@@ -78,19 +78,14 @@ const zh = {
     },
     start: {
       pvc: '開始對局',
-      cvc: '觀看對戰',
       analysis: '自由棋盤',
     },
+    startFailed: '無法開始對局',
     matchType: {
       pvc: {
         label: '人機對戰',
         chinese: '人機對戰',
         desc: '與 AI 引擎對弈',
-      },
-      cvc: {
-        label: '電腦對戰',
-        chinese: '電腦對戰',
-        desc: '觀看兩個 AI 對戰',
       },
       analysis: {
         label: '分析模式',
