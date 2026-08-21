@@ -4,6 +4,8 @@
 
 **A modern Chinese Chess platform — play against the AI engine**
 
+**🚀 Live Demo: [xiangqi-master.cuonglh2807.workers.dev](https://xiangqi-master.cuonglh2807.workers.dev)**
+
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs)](https://nestjs.com/)
@@ -137,12 +139,14 @@ Access at `http://localhost` — Nginx serves the web frontend and proxies API r
 
 The **frontend only** is deployable to Cloudflare Workers (Static Assets) — the API cannot run on Workers (Pikafish engine + PostgreSQL + Redis) and stays on a VPS or local machine.
 
+> 🌐 The live demo is deployed at **https://xiangqi-master.cuonglh2807.workers.dev**
+
 1. Create/select the Worker **`xiangqi-master`** in the Cloudflare dashboard and enable **Workers Builds**.
 2. Set **Build command** `pnpm run build` and **Deploy command** `npx wrangler deploy`.
 3. Add a build environment variable **`VITE_API_URL`** pointing at your API — e.g. `http://localhost:3000/api` for local testing. The deployed page calls this URL from the *visitor's* browser, so a `localhost` URL works on your own machine while your local API runs (not for other visitors). Swap in a real API URL when one exists.
 4. The Worker serves `apps/web/dist` (see `wrangler.toml`); `.node-version` pins Node 22 for the Cloudflare build image.
 
-For local testing from the deployed site, set `CORS_ORIGIN=*` in your API `.env` (the app uses no auth/cookies; tighten this when a real API domain exists). Deploying manually requires `npx wrangler login` once.
+For local testing from the deployed site, set `CORS_ORIGIN=*` in your API `.env` (the app uses no auth/cookies; tighten this when a real API domain exists) — or set it to the demo origin, `https://xiangqi-master.cuonglh2807.workers.dev`. Deploying manually requires `npx wrangler login` once.
 
 ---
 
@@ -172,7 +176,7 @@ For local testing from the deployed site, set `CORS_ORIGIN=*` in your API `.env`
 | Engine | [Pikafish](https://github.com/official-pikafish/Pikafish) (UCI protocol, NNUE evaluation) |
 | Infrastructure | Docker, Docker Compose, Nginx |
 | Monorepo | pnpm workspaces + Turborepo |
-| Deployment | Ubuntu 24.04, Hostinger VPS |
+| Deployment | Docker (Ubuntu VPS) + Cloudflare Workers Static Assets |
 
 ---
 

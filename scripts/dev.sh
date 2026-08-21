@@ -5,27 +5,59 @@ echo "🏯 Xiangqi Master — Starting..."
 echo "================================"
 echo ""
 
-# 1. Start Docker services (PostgreSQL + Redis)
-echo "🐳 [1/4] Starting PostgreSQL + Redis..."
-docker compose -f docker-compose.dev.yml up -d 2>/dev/null || true
+# 1. Check Docker daemon
+echo "🐳 [1/5] Checking Docker..."
+if ! docker info >/dev/null 2>&1; then
+  echo "   ❌ Docker is not running."
+  echo "   Start Docker Desktop, wait for it to finish booting, then run: bash scripts/dev.sh"
+  exit 1
+fi
+echo "   ✅ Docker is running"
+echo ""
+
+# 2. Start Docker services (PostgreSQL + Redis)
+echo "🐘 [2/5] Starting PostgreSQL + Redis..."
+docker compose -f docker-compose.dev.yml up -d
 echo "   ✅ Database & cache ready"
 echo ""
 
-# 2. Build packages
-echo "🔨 [2/4] Building packages..."
-pnpm run build 2>/dev/null || true
-echo "   ✅ Packages built"
+# 3. Build packages
+echo "🔨 [3/5] Building packages..."
+if ! pnpm run build; then
+  echo "   ⚠️  Package build failed — continuing with existing dist/ if present"
+fi
 echo ""
 
-# 3. Start API
-echo "🔧 [3/4] Starting API (http://localhost:3000)..."
-pnpm --filter @repo/api dev &
+# 4. Start API and wait until it actually answers
+echo "🔧 [4/5] Starting API (http://localhost:3000)..."
+pnpm --filter @repo/api dev > /tmp/xiangqi-api.log 2>&1 &
 API_PID=$!
-sleep 3
+
+API_READY=0
+for _ in $(seq 1 45); do
+  if curl -sf http://localhost:3000/api/engine/status >/dev/null 2>&1; then
+    API_READY=1
+    break
+  fi
+  if ! kill -0 $API_PID 2>/dev/null; then
+    break
+  fi
+  sleep 2
+done
+
+if [ "$API_READY" != "1" ]; then
+  echo ""
+  echo "   ❌ API did not become ready. Last log lines (full log: /tmp/xiangqi-api.log):"
+  tail -20 /tmp/xiangqi-api.log 2>/dev/null
+  echo ""
+  echo "   Common causes: PostgreSQL/Redis containers not healthy, or Pikafish missing at ENGINE_PATH."
+  exit 1
+fi
+echo "   ✅ API ready"
 echo ""
 
-# 4. Start Web
-echo "🎨 [4/4] Starting Web (http://localhost:5173)..."
+# 5. Start Web
+echo "🎨 [5/5] Starting Web (http://localhost:5173)..."
 pnpm --filter @repo/web dev &
 WEB_PID=$!
 sleep 2

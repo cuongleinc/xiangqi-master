@@ -11,11 +11,10 @@ interface NewGameDialogProps {
   isInitial?: boolean;
 }
 
-const MATCH_TYPE_KEYS = ['pvc', 'cvc', 'analysis'] as const;
+const MATCH_TYPE_KEYS = ['pvc', 'analysis'] as const;
 
 const MATCH_TYPE_ICONS: Record<string, string> = {
   pvc: '⚔️',
-  cvc: '🤖',
   analysis: '🔍',
 };
 
@@ -60,11 +59,12 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   const matchType = useSettingsStore((s) => s.matchType);
   const setMatchType = useSettingsStore((s) => s.setMatchType);
   const openDialog = useUiStore((s) => s.openDialog);
+  const error = useGameStore((s) => s.error);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { requestAnimationFrame(() => setMounted(true)); }, []);
 
-  const showDifficulty = matchType === 'pvc' || matchType === 'cvc';
+  const showDifficulty = matchType === 'pvc';
 
   const handleStart = async () => {
     await createNewGame(difficulty, matchType);
@@ -95,7 +95,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
               </button>
             ))}
           </div>
-          {/* Difficulty (only for PvC and CvC) */}
+          {/* Difficulty (only for PvC) */}
           {showDifficulty && (
             <div className="grid grid-cols-2 gap-1.5 mb-4">
               {DIFFICULTY_KEYS.map((d) => (
@@ -106,6 +106,11 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
             </div>
           )}
           <button onClick={handleStart} className="w-full bg-gold hover:bg-gold-light text-ebony font-bold py-2.5 rounded-lg font-serif tracking-wide text-sm">{t('newGame.play')}</button>
+          {error && (
+            <p className="mt-3 text-center text-xs" style={{ color: '#c44b4b' }}>
+              {t('newGame.startFailed')}: {error}
+            </p>
+          )}
         </div>
       </div>
     );
@@ -284,7 +289,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
             </div>
           </div>
 
-          {/* ─── DIFFICULTY (only PvC and CvC) ─── */}
+          {/* ─── DIFFICULTY (only PvC) ─── */}
           {showDifficulty && (
             <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.85s, transform 0.5s ease 0.85s' }}>
               <p style={{ fontSize: '0.8rem', letterSpacing: '0.2em', color: '#b89560', fontFamily: 'Noto Serif SC, serif', marginBottom: 14, fontWeight: 600 }}>{t('newGame.section.difficulty')}</p>
@@ -353,6 +358,11 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
             >
               {startLabel}
             </button>
+            {error && (
+              <p style={{ marginTop: 16, fontSize: '0.8rem', color: '#c44b4b', textAlign: 'center', fontFamily: 'Noto Serif SC, serif' }}>
+                {t('newGame.startFailed')}: {error}
+              </p>
+            )}
           </div>
 
         </div>

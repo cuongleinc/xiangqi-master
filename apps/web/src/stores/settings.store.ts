@@ -43,10 +43,10 @@ function saveSettings(state: Partial<SettingsStoreState>): void {
 
 const saved = loadSettings();
 
-// Stale localStorage from the removed online-PvP mode can hold 'pvp' — fall back to 'pvc'
+// Stale localStorage from removed modes ('pvp', 'cvc') — fall back to 'pvc'
 const rawMatchType = saved.matchType as string | undefined;
 const savedMatchType: MatchType =
-  rawMatchType === 'pvc' || rawMatchType === 'cvc' || rawMatchType === 'analysis'
+  rawMatchType === 'pvc' || rawMatchType === 'analysis'
     ? rawMatchType
     : 'pvc';
 

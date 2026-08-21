@@ -78,19 +78,14 @@ const vi = {
     },
     start: {
       pvc: 'BẮT ĐẦU',
-      cvc: 'XEM ĐẤU',
       analysis: 'BÀN TỰ DO',
     },
+    startFailed: 'Không thể bắt đầu ván cờ',
     matchType: {
       pvc: {
         label: 'Đấu với Máy',
         chinese: '人機對戰',
         desc: 'Đấu với engine AI',
-      },
-      cvc: {
-        label: 'Máy vs Máy',
-        chinese: '電腦對戰',
-        desc: 'Xem hai AI đấu với nhau',
       },
       analysis: {
         label: 'Phân Tích',
