@@ -120,7 +120,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
   // WELCOME SCREEN — Chu-Han Contention
   // ═══════════════════════════════════════════════
   return (
-    <div className="welcome-screen" style={{ position: 'fixed', inset: 0, overflow: 'hidden', zIndex: 100 }}>
+    <div className="welcome-screen" style={{ position: 'fixed', inset: 0, overflowY: 'auto', overflowX: 'hidden', zIndex: 100 }}>
       {/* ─── LAYER 0: Battle background image ─── */}
       <div style={{
         position: 'absolute', inset: 0,
@@ -201,7 +201,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, background: 'linear-gradient(to top, #050200 0%, transparent 30%)' }} />
 
       {/* ─── Music Toggle + Language Switcher + About (top-right, always visible) ─── */}
-      <div style={{ position: 'absolute', top: 24, right: 28, zIndex: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
         <MusicToggle />
         <button
           onClick={() => openDialog('about')}
@@ -223,11 +223,11 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
            MAIN CONTENT
            ═══════════════════════════════════════ */}
       <div style={{
-        position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 10, padding: '3rem 2rem',
+        position: 'absolute', inset: 0, display: 'flex',
+        zIndex: 10, padding: 'clamp(1.5rem, 5vh, 3rem) 1.25rem',
       }}>
         <div style={{
-          width: 'min(720px, 92vw)', textAlign: 'center' as const,
+          width: 'min(720px, 92vw)', textAlign: 'center' as const, margin: 'auto',
           opacity: mounted ? 1 : 0, transition: 'opacity 0.3s',
         }}>
           {/* ─── TITLE ─── */}
@@ -236,7 +236,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
             {/* ─── SUBTITLE ─── */}
             <div className="subtitle-section" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.6s ease 0.4s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginBottom: 22 }}>
               <div style={{ flex: 1, maxWidth: 100, height: 1, background: '#3d2010' }} />
-              <span style={{ fontSize: '2.6rem', letterSpacing: '0.38em', color: '#d4b870', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('newGame.title')}</span>
+              <span style={{ fontSize: 'clamp(1.15rem, 6vw, 2.6rem)', letterSpacing: 'clamp(0.04em, calc(0.5vw + 0.03em), 0.38em)', color: '#d4b870', fontFamily: 'Noto Serif SC, serif', whiteSpace: 'nowrap', fontWeight: 600 }}>{t('newGame.title')}</span>
               <div style={{ flex: 1, maxWidth: 100, height: 1, background: '#3d2010' }} />
             </div>
 
@@ -250,7 +250,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           {/* ─── MATCH TYPE ─── */}
           <div className="matchtype-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.7s, transform 0.5s ease 0.7s' }}>
             <p style={{ fontSize: '0.85rem', letterSpacing: '0.22em', color: '#c4a060', fontFamily: 'Noto Serif SC, serif', marginBottom: 16, fontWeight: 600 }}>{t('newGame.section.matchType')}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 40 }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" style={{ marginBottom: 40 }}>
               {MATCH_TYPE_KEYS.map((mt) => {
                 const active = matchType === mt;
                 return (
@@ -293,7 +293,7 @@ export const NewGameDialog: React.FC<NewGameDialogProps> = ({ isInitial }) => {
           {showDifficulty && (
             <div className="difficulty-section" style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)', transition: 'opacity 0.5s ease 0.85s, transform 0.5s ease 0.85s' }}>
               <p style={{ fontSize: '0.8rem', letterSpacing: '0.2em', color: '#b89560', fontFamily: 'Noto Serif SC, serif', marginBottom: 14, fontWeight: 600 }}>{t('newGame.section.difficulty')}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 36 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5" style={{ marginBottom: 36 }}>
                 {DIFFICULTY_KEYS.map((d) => {
                   const active = difficulty === d;
                   return (

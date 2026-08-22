@@ -78,7 +78,7 @@ export const GameToolbar: React.FC = () => {
   const isAnalysis = matchType === 'analysis';
 
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-2 gap-3 lg:flex lg:flex-col lg:gap-3">
       {/* New Game */}
       <button
         onClick={handleNewGame}
@@ -158,7 +158,7 @@ export const GameToolbar: React.FC = () => {
       </button>
 
       {/* Sep */}
-      <div className="border-t border-[#3d2010] pt-3 mt-3">
+      <div className="col-span-2 lg:col-span-1 border-t border-[#3d2010] pt-3 mt-3">
         <div className="text-[#a07840] text-xs space-y-1 font-mono">
           <div className="flex justify-between">
             <span className="text-cream-dim">{t('game.id')}</span>

@@ -20,7 +20,7 @@ export const StatusBar: React.FC = () => {
       status === 'black_wins' || result === 'black_wins' ? t('status.blackWins') :
       t('status.draw');
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-lacquer border-t border-gold/30 py-2 px-4 text-center z-10">
+      <div className="lg:fixed lg:bottom-0 left-0 right-0 bg-lacquer border-t border-gold/30 py-2 px-4 text-center lg:z-10">
         <span className="text-lg font-bold text-gold-light font-serif">{resultText}</span>
       </div>
     );
@@ -29,7 +29,7 @@ export const StatusBar: React.FC = () => {
   // ── Error ──
   if (error) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 bg-red-chinese/20 border-t border-red-chinese/50 py-2 px-4 text-center z-10">
+      <div className="lg:fixed lg:bottom-0 left-0 right-0 bg-red-chinese/20 border-t border-red-chinese/50 py-2 px-4 text-center lg:z-10">
         <span className="text-sm text-red-chinese">{error}</span>
       </div>
     );

@@ -9,12 +9,12 @@ export const Header: React.FC = () => {
   const openDialog = useUiStore((s) => s.openDialog);
 
   return (
-    <header className="bg-lacquer border-b border-gold/30 px-6 py-3 flex items-center justify-between">
+    <header className="bg-lacquer border-b border-gold/30 px-4 sm:px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <span className="text-2xl" style={{ filter: 'drop-shadow(0 0 4px #d4a843)' }}>🏯</span>
         <h1 className="text-xl font-bold text-gold-light font-serif tracking-wide">{t('header.title')}</h1>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <button
           onClick={() => openDialog('about')}
           className="text-xs text-cream-dim/60 hover:text-gold-light transition-colors font-serif tracking-wide"
@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
         </button>
         <MusicToggle />
         <LanguageSwitcher />
-        <span className="text-sm text-cream-dim font-serif">{t('header.subtitle')}</span>
+        <span className="hidden md:inline text-sm text-cream-dim font-serif">{t('header.subtitle')}</span>
       </div>
     </header>
   );

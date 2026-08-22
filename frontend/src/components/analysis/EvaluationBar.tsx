@@ -5,9 +5,10 @@ import { useAnalysisStore } from '../../stores/analysis.store';
 interface EvaluationBarProps {
   fen: string | null;
   isThinking?: boolean;
+  horizontal?: boolean;
 }
 
-export const EvaluationBar: React.FC<EvaluationBarProps> = ({ fen: _fen, isThinking }) => {
+export const EvaluationBar: React.FC<EvaluationBarProps> = ({ fen: _fen, isThinking, horizontal = false }) => {
   const { t } = useTranslation();
   const evaluation = useAnalysisStore((s) => s.evaluation);
   const isEvaluating = useAnalysisStore((s) => s.isEvaluating);
@@ -25,6 +26,21 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({ fen: _fen, isThink
   };
 
   const showLoading = isThinking || isEvaluating;
+
+  if (horizontal) {
+    return (
+      <div className="w-full flex items-center gap-2">
+        <span className="text-[10px] text-gold-dim font-mono w-14 text-right flex-shrink-0">
+          {showLoading ? t('analysis.evaluating') : formatScore(displayScore)}
+        </span>
+        <div className="flex-1 h-2.5 bg-ebony rounded-full overflow-hidden relative border border-gold/20">
+          <div className="absolute top-0 bottom-0 left-0 bg-red-chinese/80 transition-all duration-700 ease-in-out" style={{ width: `${blackPercent}%` }} />
+          <div className="absolute top-0 bottom-0 right-0 bg-jade/80 transition-all duration-700 ease-in-out" style={{ width: `${redPercent}%` }} />
+          <div className="absolute top-0 bottom-0 left-1/2 border-l border-gold/40" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center w-8 flex-shrink-0">

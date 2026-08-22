@@ -19,7 +19,7 @@ interface BoardProps {
 
 export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(400);
+  const [containerWidth, setContainerWidth] = useState(1400);
 
   const selectedSquare = useUiStore((s) => s.selectedSquare);
   const legalMoves = useUiStore((s) => s.legalMoves);
@@ -32,7 +32,10 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   const lastMoveUci = useGameStore((s) => s.lastMoveUci);
 
   useEffect(() => {
-    const el = containerRef.current;
+    // Observe the PARENT, not the wrapper: the wrapper's own width is capped by
+    // svgWidth (min(100%, svgWidth)), so observing it would trap the board at
+    // whatever size it first rendered — it could shrink but never grow back.
+    const el = containerRef.current?.parentElement;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -43,10 +46,13 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
     return () => observer.disconnect();
   }, []);
 
-  // Target 70px cells. At 70px: board grid = 8×70 = 560px wide, 9×70 = 630px tall
-  const TARGET_CELL = 70;
-  const padding = 50; // labels in outer third, border in inner third, grid at padding
-  const cellSize = Math.max(TARGET_CELL, Math.min((containerWidth - padding * 2) / 8, TARGET_CELL * 1.3));
+  // Desktop target ~70px cells; shrink to fill narrow viewports (mobile).
+  // Two-pass: estimate cell to size padding proportionally, then refine.
+  const MIN_CELL = 36;
+  const MAX_CELL = 91; // 70 * 1.3 desktop cap
+  const cellSizeRaw = Math.max(MIN_CELL, Math.min((containerWidth - 2 * 50) / 8, MAX_CELL));
+  const padding = Math.max(16, Math.min(50, Math.round(cellSizeRaw * 0.7))); // labels in outer third, border in inner third, grid at padding
+  const cellSize = Math.max(MIN_CELL, Math.min((containerWidth - padding * 2) / 8, MAX_CELL));
   const svgWidth = padding * 2 + 8 * cellSize;
   const svgHeight = padding * 2 + 9 * cellSize;
 
@@ -116,7 +122,7 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
   };
 
   return (
-    <div ref={containerRef} className="w-fit mx-auto" style={{ minWidth: svgWidth }}>
+    <div ref={containerRef} className="mx-auto" style={{ width: `min(100%, ${svgWidth}px)`, touchAction: 'manipulation' }}>
       <div
         style={{
           borderRadius: 8,

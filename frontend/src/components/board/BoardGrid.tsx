@@ -68,7 +68,7 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
 
   // Coordinates — in the outer zone, symmetric on all four sides
   if (showCoordinates) {
-    const labelSize = 14;
+    const labelSize = Math.max(8, Math.min(14, Math.round(cellSize * 0.2)));
     const labelColor = '#5c3d1a';
     const labelOpacity = 0.8;
     const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];

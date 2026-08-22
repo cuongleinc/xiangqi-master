@@ -67,34 +67,43 @@ export const GameLayout: React.FC = () => {
   }, [evaluation, setClassification]);
 
   return (
-    <div className="flex h-[calc(100vh-56px)] max-w-[1400px] mx-auto">
+    <div className="flex flex-col lg:flex-row lg:h-[calc(100dvh-56px)] max-w-[1400px] mx-auto">
       {/* Left sidebar — Controls */}
-      <div className="w-[220px] flex-shrink-0 bg-[#1e1005] border-r border-[#3d2010] overflow-y-auto">
+      <div className="order-2 lg:order-none w-full lg:w-[220px] lg:flex-shrink-0 bg-[#1e1005] border-b lg:border-b-0 lg:border-r border-[#3d2010] lg:overflow-y-auto">
         <div className="p-3">
           <GameToolbar />
         </div>
       </div>
 
       {/* Center — Board */}
-      <div className="flex-1 flex items-start justify-center p-3 gap-2 min-w-0">
-        <EvaluationBar fen={fen} isThinking={isAiThinking} />
+      <div className="order-1 lg:order-none flex-1 flex flex-col lg:flex-row items-stretch lg:items-start lg:justify-center p-2 sm:p-3 gap-2 min-w-0">
+        <div className="lg:hidden w-full">
+          <EvaluationBar fen={fen} isThinking={isAiThinking} horizontal />
+        </div>
+        <div className="hidden lg:block">
+          <EvaluationBar fen={fen} isThinking={isAiThinking} />
+        </div>
         <div className="flex-1">
           <Board fen={fen} turn={currentTurn} />
         </div>
       </div>
 
       {/* Right sidebar — Analysis */}
-      <div className="w-[220px] flex-shrink-0 bg-[#1e1005] border-l border-[#3d2010] overflow-y-auto">
-        <div className="p-3 space-y-3">
-          <AnalysisPanel fen={fen} />
-          <MoveList />
+      <div className="order-3 lg:order-none w-full lg:w-[220px] lg:flex-shrink-0 bg-[#1e1005] border-t lg:border-t-0 lg:border-l border-[#3d2010] lg:overflow-y-auto">
+        <div className="p-3 flex flex-col space-y-3">
+          <div className="order-2 lg:order-none">
+            <AnalysisPanel fen={fen} />
+          </div>
+          <div className="order-1 lg:order-none">
+            <MoveList />
+          </div>
         </div>
       </div>
 
       <StatusBar />
 
       {/* Author footer */}
-      <div className="fixed bottom-0 left-0 right-0 text-center pointer-events-none pb-3" style={{ zIndex: 5 }}>
+      <div className="hidden lg:block fixed bottom-0 left-0 right-0 text-center pointer-events-none pb-3" style={{ zIndex: 5 }}>
         <span className="text-cream-dim/40 text-[13px] font-serif">
           &copy; {new Date().getFullYear()}{' '}
           <a
