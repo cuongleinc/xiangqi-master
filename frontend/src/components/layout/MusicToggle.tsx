@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSettingsStore } from '../../stores/settings.store';
+import { retryPlayer } from './BackgroundMusic';
 
 /**
  * Speaker icon — matches the gold/cream aesthetic of the UI.
@@ -48,9 +49,18 @@ export const MusicToggle: React.FC = () => {
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const toggleSound = useSettingsStore((s) => s.toggleSound);
 
+  // Toggle, then — when enabling — kick off playback synchronously inside
+  // this very click (a user gesture), since effect-driven play() is blocked
+  // by browser autoplay policies (iOS Safari especially).
+  const handleClick = () => {
+    const next = !soundEnabled;
+    toggleSound();
+    if (next) retryPlayer();
+  };
+
   return (
     <button
-      onClick={toggleSound}
+      onClick={handleClick}
       title={soundEnabled ? 'Mute music' : 'Enable music'}
       className={`px-2.5 py-1.5 rounded-md transition-all duration-200 ${
         soundEnabled
