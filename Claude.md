@@ -99,9 +99,8 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 
 ```
 root/
-├── apps/
-│   ├── web/              @repo/web — React + Vite frontend
-│   └── api/              @repo/api — NestJS backend
+├── frontend/             @repo/web — React + Vite frontend
+├── backend/              @repo/api — NestJS backend
 ├── packages/
 │   ├── shared/           @repo/shared — Types, constants, DTOs
 │   ├── xiangqi-core/     @repo/xiangqi-core — Game logic engine

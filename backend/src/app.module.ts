@@ -10,9 +10,9 @@ import { AnalysisModule } from './modules/analysis/analysis.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // Dev runs with CWD = apps/api, so also load the monorepo-root .env
+      // Dev runs with CWD = backend, so also load the monorepo-root .env
       // (created by `pnpm setup` / `cp .env.example .env`).
-      envFilePath: ['.env', '.env.local', '../../.env'],
+      envFilePath: ['.env', '.env.local', '../.env'],
     }),
     DatabaseModule,
     CacheModule,

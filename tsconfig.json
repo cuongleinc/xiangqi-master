@@ -3,8 +3,8 @@
     { "path": "packages/shared" },
     { "path": "packages/xiangqi-core" },
     { "path": "packages/engine-client" },
-    { "path": "apps/web" },
-    { "path": "apps/api" }
+    { "path": "frontend" },
+    { "path": "backend" }
   ],
   "files": []
 }

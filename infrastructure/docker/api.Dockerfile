@@ -11,14 +11,14 @@ COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/xiangqi-core/package.json ./packages/xiangqi-core/
 COPY packages/engine-client/package.json ./packages/engine-client/
-COPY apps/api/package.json ./apps/api/
+COPY backend/package.json ./backend/
 
 # Copy tsconfig files for all packages
 COPY packages/typescript-config/*.json ./packages/typescript-config/
 COPY packages/shared/tsconfig.json ./packages/shared/
 COPY packages/xiangqi-core/tsconfig.json ./packages/xiangqi-core/
 COPY packages/engine-client/tsconfig.json ./packages/engine-client/
-COPY apps/api/tsconfig.json ./apps/api/
+COPY backend/tsconfig.json ./backend/
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -27,9 +27,9 @@ RUN pnpm install --frozen-lockfile
 COPY packages/shared/src ./packages/shared/src
 COPY packages/xiangqi-core/src ./packages/xiangqi-core/src
 COPY packages/engine-client/src ./packages/engine-client/src
-COPY apps/api/src ./apps/api/src
-COPY apps/api/nest-cli.json ./apps/api/
-COPY apps/api/tsconfig.build.json ./apps/api/ 2>/dev/null || true
+COPY backend/src ./backend/src
+COPY backend/nest-cli.json ./backend/
+COPY backend/tsconfig.build.json ./backend/
 
 # Build all packages in dependency order
 RUN pnpm run build --filter=@repo/api
@@ -46,8 +46,8 @@ WORKDIR /app
 # Copy built artifacts from builder
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/package.json ./backend/package.json
 
 # Copy workspace node_modules for internal packages
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
@@ -64,5 +64,5 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-WORKDIR /app/apps/api
+WORKDIR /app/backend
 CMD ["node", "dist/main.js"]

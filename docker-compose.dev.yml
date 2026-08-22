@@ -1,5 +1,8 @@
 version: '3.8'
 
+# Pinned so the project name (and thus volume names) survives folder renames
+name: pythonchinesechess
+
 services:
   postgres:
     image: postgres:16-alpine

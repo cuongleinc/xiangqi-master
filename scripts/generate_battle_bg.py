@@ -2,7 +2,7 @@
 """Generate the Chu-Han War epic battle background (1920x1080)."""
 
 from PIL import Image, ImageDraw, ImageFilter
-import math, random
+import math, os, random
 
 W, H = 1920, 1080
 img = Image.new('RGBA', (W, H), (0, 0, 0, 255))
@@ -301,7 +301,7 @@ crop = img_rgb.crop((river_x-60, 300, river_x+60, H-100))
 img_rgb.paste(crop, (river_x-60, 300))
 
 # Save
-output_path = '/Users/cuong.le/Documents/PythonChineseChess/apps/web/public/battle_bg.jpg'
+output_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'apps/web/public/battle_bg.jpg')
 img_rgb.save(output_path, 'JPEG', quality=92)
 print(f'Saved to {output_path}')
 print(f'Size: {W}x{H}')

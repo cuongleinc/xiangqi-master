@@ -1,10 +1,10 @@
 # Cloudflare Workers — Static Assets (assets-only Worker)
-# Deploy with: npx wrangler deploy   (serves apps/web/dist)
+# Deploy with: npx wrangler deploy   (serves frontend/dist)
 # The NestJS API cannot run on Workers (Pikafish + Postgres + Redis) and stays on VPS/local.
 
 name = "xiangqi-master"
 compatibility_date = "2025-01-01"
 
 [assets]
-directory = "apps/web/dist"
+directory = "frontend/dist"
 not_found_handling = "single-page-application"
