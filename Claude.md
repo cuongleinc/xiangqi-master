@@ -47,6 +47,7 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 | Move List | PGN-style two-column layout (Red \| Black), human-readable Xiangqi notation, classification dots + annotation symbols (!, ?!, ?, ??), auto-scroll | `2d6efbe` |
 | Undo Button | Full-stack: DB-driven undo endpoint, PvC undoes 2 moves (AI+human), hot-reload safe, "悔棋 · Undo" button in toolbar | `2d6efbe` |
 | i18n Multi-Language | 3 locales (en/zh/vi) via react-i18next, 75+ strings migrated, language switcher (🇬🇧🇨🇳🇻🇳) in Header + Welcome screen, localStorage persistence | `0dbfe5a` |
+| Mobile-Responsive Layout | Stacks 3 columns vertically below 1024px (board → 2-col controls → move list → analysis), board cells scale 36–91px (was hard 660px minimum), horizontal eval bar variant, responsive welcome screen (clamp() title, 1-col cards, scrollable), `100dvh`, `touch-action: manipulation` | `b12f9fb` |
 
 ### ⚠️ Known Issues
 
@@ -67,7 +68,7 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 - [x] ~~Move classification display~~ ✅ Done
 - [x] ~~Move list with readable notation~~ ✅ Done — PGN-style two-column layout with classification dots
 - [ ] **Drag-and-drop polish** (currently click-to-select; add full DnD with React DnD)
-- [ ] **Mobile-responsive layout** (stack columns vertically on narrow screens)
+- [x] ~~Mobile-responsive layout~~ ✅ Done — stacks below 1024px, scalable board, responsive welcome screen
 - [ ] **Perpetual chase detection** (xiangqi-core enhancement)
 - [ ] **Fix web production build** (esbuild-only build, bypass Rollup)
 - [ ] **Add comprehensive tests** (xiangqi-core 40+ tests, API 20+, Web 15+)
