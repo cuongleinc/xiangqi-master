@@ -1,4 +1,5 @@
 import React from 'react';
+import { colToX, rowToY } from './coords';
 
 interface HintHighlightProps {
   fromRow: number;
@@ -23,10 +24,10 @@ export const HintHighlight: React.FC<HintHighlightProps> = ({
   padding,
 }) => {
   const half = cellSize * 0.45;
-  const fromCx = padding + fromCol * cellSize;
-  const fromCy = padding + fromRow * cellSize;
-  const toCx = padding + toCol * cellSize;
-  const toCy = padding + toRow * cellSize;
+  const fromCx = colToX(fromCol, cellSize, padding);
+  const fromCy = rowToY(fromRow, cellSize, padding);
+  const toCx = colToX(toCol, cellSize, padding);
+  const toCy = rowToY(toRow, cellSize, padding);
 
   // Compute arrowhead triangle points at the destination
   const angle = Math.atan2(toCy - fromCy, toCx - fromCx);
@@ -52,8 +53,8 @@ export const HintHighlight: React.FC<HintHighlightProps> = ({
     <g>
       {/* Source square glow */}
       <rect
-        x={padding + fromCol * cellSize - half}
-        y={padding + fromRow * cellSize - half}
+        x={fromCx - half}
+        y={fromCy - half}
         width={cellSize * 0.9}
         height={cellSize * 0.9}
         rx={cellSize * 0.06}
@@ -66,8 +67,8 @@ export const HintHighlight: React.FC<HintHighlightProps> = ({
 
       {/* Destination square glow — warmer tone */}
       <rect
-        x={padding + toCol * cellSize - half}
-        y={padding + toRow * cellSize - half}
+        x={toCx - half}
+        y={toCy - half}
         width={cellSize * 0.9}
         height={cellSize * 0.9}
         rx={cellSize * 0.06}

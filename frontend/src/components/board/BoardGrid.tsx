@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { rowToY } from './coords';
 
 interface BoardGridProps {
   cellSize: number;
@@ -14,11 +15,12 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
   const palaceColor = '#8B4513';
   const riverColor = '#5c3d1a';
 
-  // Horizontal lines (10 lines)
-  for (let row = 0; row < 10; row++) {
-    const y = padding + row * cellSize;
+  // Horizontal lines (10 lines) — evenly spaced, so this is pure screen space
+  // and needs no board-row mirroring.
+  for (let i = 0; i < 10; i++) {
+    const y = padding + i * cellSize;
     lines.push(
-      <line key={`h${row}`} x1={padding} y1={y} x2={padding + 8 * cellSize} y2={y} stroke={lineColor} strokeWidth={1} />,
+      <line key={`h${i}`} x1={padding} y1={y} x2={padding + 8 * cellSize} y2={y} stroke={lineColor} strokeWidth={1} />,
     );
   }
 
@@ -39,7 +41,10 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
     }
   }
 
-  // Palace diagonals — X-shaped, #8B4513
+  // Palace diagonals — X-shaped, #8B4513.
+  // Both palaces are mirror images about the river, so these screen-space
+  // coordinates need no flip: the top X is Black's palace (rows 7-9), the
+  // bottom X is Red's (rows 0-2).
   const pLeft = padding + 3 * cellSize;
   const pRight = padding + 5 * cellSize;
   const pTopY = padding + 0 * cellSize;
@@ -84,12 +89,13 @@ export const BoardGrid: React.FC<BoardGridProps> = ({ cellSize, padding, showCoo
       lines.push(<text key={`cb${col}`} x={x} y={colBotY} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" fontFamily="system-ui, sans-serif">{files[col]}</text>);
     }
 
-    // Row labels: left and right — same distance from SVG edge
+    // Row labels: left and right — same distance from SVG edge.
+    // Routed through rowToY so rank 0 (Red's back rank) labels the BOTTOM line.
     const rowLeftX = o;
     const gridRight = padding + 8 * cellSize;
     const rowRightX = gridRight + padding * 0.80; // = svgWidth - o
     for (let row = 0; row < 10; row++) {
-      const y = padding + row * cellSize;
+      const y = rowToY(row, cellSize, padding);
       lines.push(<text key={`rl${row}`} x={rowLeftX} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
       lines.push(<text key={`rr${row}`} x={rowRightX} y={y} fontSize={labelSize} fill={labelColor} opacity={labelOpacity} textAnchor="middle" dominantBaseline="middle" fontFamily="system-ui, sans-serif">{row}</text>);
     }

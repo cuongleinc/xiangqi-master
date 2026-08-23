@@ -1,5 +1,6 @@
 import React from 'react';
 import { parseFen, findKing, isInCheck } from '@repo/xiangqi-core';
+import { colToX, rowToY } from './coords';
 
 interface CheckHighlightProps {
   fen: string | null;
@@ -20,8 +21,8 @@ export const CheckHighlight: React.FC<CheckHighlightProps> = ({ fen, cellSize, p
 
   const row = Math.floor(kingPos / 9);
   const col = kingPos % 9;
-  const cx = padding + col * cellSize;
-  const cy = padding + row * cellSize;
+  const cx = colToX(col, cellSize, padding);
+  const cy = rowToY(row, cellSize, padding);
   const r = cellSize * 0.52;
 
   return (

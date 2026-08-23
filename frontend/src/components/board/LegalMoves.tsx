@@ -1,5 +1,6 @@
 import React from 'react';
 import { getPiece } from '@repo/xiangqi-core';
+import { colToX, rowToY } from './coords';
 
 interface LegalMovesProps {
   legalMoves: [number, number][];
@@ -13,8 +14,8 @@ export const LegalMoves: React.FC<LegalMovesProps> = ({ legalMoves, board, cellS
   const r = cellSize * 0.18; // dot radius — ~12.6px at 70px cell, up from 0.14
 
   for (const [row, col] of legalMoves) {
-    const cx = padding + col * cellSize;
-    const cy = padding + row * cellSize;
+    const cx = colToX(col, cellSize, padding);
+    const cy = rowToY(row, cellSize, padding);
     const idx = row * 9 + col;
     const piece = getPiece(board, idx);
 

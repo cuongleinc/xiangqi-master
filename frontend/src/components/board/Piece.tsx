@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { getPieceInfo } from '@repo/xiangqi-core';
 import { Color, PIECE_CHARS } from '@repo/shared';
+import { colToX, rowToY } from './coords';
 
 interface PieceProps {
   pieceCode: number;
@@ -25,8 +26,8 @@ export const Piece: React.FC<PieceProps> = ({ pieceCode, pieceId, row, col, cell
   const char = PIECE_CHARS[info.color]?.[info.type] || '?';
 
   const radius = cellSize * 0.41;
-  const cx = padding + col * cellSize;
-  const cy = padding + row * cellSize;
+  const cx = colToX(col, cellSize, padding);
+  const cy = rowToY(row, cellSize, padding);
   const pieceDiameter = cellSize * 0.82;
   const fontSize = pieceDiameter * 0.45 * 1.3; // +30%
   const strokeWidth = cellSize * 0.04;

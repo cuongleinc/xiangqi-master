@@ -1,4 +1,5 @@
 import React from 'react';
+import { colToX, rowToY } from './coords';
 
 interface LastMoveHighlightProps {
   fromRow: number;
@@ -29,10 +30,10 @@ export const LastMoveHighlight: React.FC<LastMoveHighlightProps> = ({
   cellSize,
   padding,
 }) => {
-  const cxFrom = padding + fromCol * cellSize;
-  const cyFrom = padding + fromRow * cellSize;
-  const cxTo = padding + toCol * cellSize;
-  const cyTo = padding + toRow * cellSize;
+  const cxFrom = colToX(fromCol, cellSize, padding);
+  const cyFrom = rowToY(fromRow, cellSize, padding);
+  const cxTo = colToX(toCol, cellSize, padding);
+  const cyTo = rowToY(toRow, cellSize, padding);
 
   // Piece radius is cellSize*0.41. Use slightly larger radii
   // so the highlight extends just beyond the piece edge.
