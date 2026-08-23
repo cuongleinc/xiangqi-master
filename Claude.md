@@ -48,6 +48,7 @@ All 13 implementation steps completed. Human vs AI fully functional. UI fully re
 | Undo Button | Full-stack: DB-driven undo endpoint, PvC undoes 2 moves (AI+human), hot-reload safe, "悔棋 · Undo" button in toolbar | `2d6efbe` |
 | i18n Multi-Language | 3 locales (en/zh/vi) via react-i18next, 75+ strings migrated, language switcher (🇬🇧🇨🇳🇻🇳) in Header + Welcome screen, localStorage persistence | `0dbfe5a` |
 | Mobile-Responsive Layout | Stacks 3 columns vertically below 1024px (board → 2-col controls → move list → analysis), board cells scale 36–91px (was hard 660px minimum), horizontal eval bar variant, responsive welcome screen (clamp() title, 1-col cards, scrollable), `100dvh`, `touch-action: manipulation` | `b12f9fb` |
+| Board Orientation | Red now renders at the BOTTOM, Black at the top (standard Xiangqi view). Board rows are mirrored to screen via `board/coords.ts` (`rowToY`/`colToX`) — engine coordinates unchanged, Red still moves first | pending |
 
 ### ⚠️ Known Issues
 
@@ -146,6 +147,13 @@ Pikafish uses chess-like piece notation (`N`=Horse, `B`=Elephant) while the WXF 
 - Red forward = row +1 (toward Black)
 - Black forward = row -1 (toward Red)
 - Stalemate = LOSS (not draw as in chess)
+- Red moves first
+
+**Rendering:** SVG y grows downward, so board rows are mirrored on the way to
+the screen (`screenRow = 9 - row`) to seat Red at the bottom — the standard
+Xiangqi view. This lives in one place, `frontend/src/components/board/coords.ts`;
+every board overlay must compute positions via `rowToY()` / `colToX()` rather
+than `padding + row * cellSize`. Columns are not mirrored (file `a` stays left).
 
 ### Module Format
 

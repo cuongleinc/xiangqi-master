@@ -3,6 +3,7 @@ import { parseFen, indexFromRowCol, getPiece } from '@repo/xiangqi-core';
 import { Color, FILE_MAP } from '@repo/shared';
 import { playPiecePlace } from '../../lib/sound';
 import { BoardGrid } from './BoardGrid';
+import { colToX, rowToY } from './coords';
 import { Piece } from './Piece';
 import { LegalMoves } from './LegalMoves';
 import { CheckHighlight } from './CheckHighlight';
@@ -242,8 +243,8 @@ export const Board: React.FC<BoardProps> = ({ fen, turn }) => {
           Array.from({ length: 9 }, (_, c) => (
             <rect
               key={`click-${r}-${c}`}
-              x={padding + c * cellSize - cellSize * 0.45}
-              y={padding + r * cellSize - cellSize * 0.45}
+              x={colToX(c, cellSize, padding) - cellSize * 0.45}
+              y={rowToY(r, cellSize, padding) - cellSize * 0.45}
               width={cellSize * 0.9}
               height={cellSize * 0.9}
               fill="transparent"
